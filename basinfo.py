@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 """Extract info from DALTON/SIRIUS restart file stored under label BASINFO"""
 import numpy
-from util.unformatted import fortranbinary
+from util.unformatted import FortranBinary
 
 class BasInfo():
     """Simple class for BASINFO data"""
     label = "BASINFO"
     def __init__(self, name="SIRIUS.RST"):
         self.name = name
-        sirrst = fortranbinary(name)
+        sirrst = FortranBinary(name)
         sirrst.find(BasInfo.label)
-        sirrst.readrec()
+        sirrst.next()
         self.nsym, = sirrst.readbuf(1,'i')
         self.nbas = numpy.array(sirrst.readbuf(8,'i'))
         self.norb = numpy.array(sirrst.readbuf(8,'i'))
