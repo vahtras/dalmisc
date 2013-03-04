@@ -20,21 +20,30 @@ class BasInfo():
 
     def __repr__(self):
         """Print method for BasInfo objects"""
-        pr = lambda v:  len(v)*"%3d" % tuple(v)
+        printv = lambda v:  len(v)*"%3d" % tuple(v)
         retstr = ""
         retstr += "NSYM   : %3d\n" % self.nsym
-        retstr += "NBAS   : %s\n" % pr(self.nbas)
-        retstr += "NORB   : %s\n" % pr(self.norb)
-        retstr += "NRHF   : %s\n" % pr(self.nrhf)
+        retstr += "NBAS   : %s\n" % printv(self.nbas)
+        retstr += "NORB   : %s\n" % printv(self.norb)
+        retstr += "NRHF   : %s\n" % printv(self.nrhf)
         retstr += "IOPRHF : %3d\n" % self.ioprhf
         return retstr
+
+    @property
+    def nbast(self):
+        """Return total number of AO"""
+        return self.nbas[:self.nsym].sum()
+
+    @property
+    def norbt(self):
+        """Return total number of MO"""
+        return self.norb[:self.nsym].sum()
 
 if __name__ == "__main__":
     import sys
     try:
-        basinfo = BasInfo(sys.argv[1])
+        print BasInfo(sys.argv[1])
     except IndexError:
         print "Usage: %s [path]/SIRIFC" % sys.argv[0]
         sys.exit(1)
 
-    print basinfo
