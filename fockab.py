@@ -77,7 +77,7 @@ def fockab(Dab, file_="AOTWOINT", hfc=1, hfx=1, f2py=True):
 
 if __name__ == "__main__":
     from util.full import unit
-    D = matrix((6,6))
+    D = matrix((6, 6))
     D[0, 0] = 1.0
     Fa, Fb = fockab((D, D), "test/test_fockab.d/AOTWOINT", f2py=False)
     print Fa
