@@ -2,7 +2,7 @@ import numpy as np
 from util.unformatted import FortranBinary as FB
 from util.full import matrix
 
-def fockab(Dab, file_="AOTWOINT", hfc=1, hfx=1, f2py=True):
+def fockab(Dab, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
     """Routine for building alpha and beta fock matrix by reading AOTWOINT"""
 
     Da, Db = Dab
@@ -16,7 +16,7 @@ def fockab(Dab, file_="AOTWOINT", hfc=1, hfx=1, f2py=True):
             print "Warning: non-existent sirfck.so wanted - reverting to python"
 
 
-    aofile = FB(file_) 
+    aofile = FB(filename) 
     aofile.find("BASTWOEL")
     J = matrix(D.shape)
     Ka = matrix(D.shape)

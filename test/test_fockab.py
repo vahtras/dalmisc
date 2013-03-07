@@ -21,7 +21,7 @@ def test_fab_p():
     da[0, 0] = 1 
     da[1, 1] = 1 
     db[0, 0] = 1 
-    fa, fb = fockab((da, db), file_ = os.path.join(suppdir, "AOTWOINT"), f2py=False)
+    fa, fb = fockab((da, db), filename = os.path.join(suppdir, "AOTWOINT"), f2py=False)
 
     faref = init([
        [2.02818057, 0.26542036,  0.00000000,  0.06037429, 0.00000000, 0.00000000],
@@ -51,7 +51,7 @@ def test_fab_f():
     da[0, 0] = 1 
     da[1, 1] = 1 
     db[0, 0] = 1 
-    fa, fb = fockab((da, db), file_ = os.path.join(suppdir, "AOTWOINT"), f2py=True)
+    fa, fb = fockab((da, db), filename = os.path.join(suppdir, "AOTWOINT"), f2py=True)
 
     faref = init([
        [2.02818057, 0.26542036,  0.00000000,  0.06037429, 0.00000000, 0.00000000],
