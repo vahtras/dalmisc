@@ -21,7 +21,7 @@ def info(filename="AOTWOINT"):
     return retinfo
 
 
-def buffers(filename="AOTWOINT"):
+def list_buffers(filename="AOTWOINT"):
     """ Return integral buffers in AOTWOINT"""
     _aotwoint = FB(filename)
     _aotwoint.find("BASTWOEL")
@@ -39,7 +39,7 @@ def buffers(filename="AOTWOINT"):
 def list_integrals(filename="AOTWOINT"):
     """ List two-electron spin-orbit integrals in file """
 
-    for buf, ibuf, length in buffers(filename):
+    for buf, ibuf, length in list_buffers(filename):
         for g, ig in zip(buf[:length], ibuf[:length]):
             yield ig, g
 
@@ -80,64 +80,49 @@ def fockab(Dab, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
             print "Warning: non-existent sirfck.so wanted - reverting to python"
 
 
-    aofile = FB(filename) 
-    aofile.find("BASTWOEL")
     J = matrix(D.shape)
     Ka = matrix(D.shape)
     Kb = matrix(D.shape)
 
-    for rec in aofile:
-        #
-        #len = 8*lbuf + 4*lbuf + 4
-        #lbuf is paramter interger : 600
-        lbuf = (aofile.reclen-4)/12
-
-        buf = np.array(aofile.readbuf(lbuf,'d'))
-        ibuf = np.array(aofile.readbuf(4*lbuf,'b')).reshape((lbuf, 4))
-        length = aofile.readbuf(1,'i')[0]
-        #
-        # Negative length marks end of file
-        #
-        if length < 0: break
-
-        if f2py:
+    if f2py:
+        for buf, ibuf, length in list_buffers(filename):
             J, Ka, Kb = sirfck.fckab(
                 J, Ka, Kb, Da, Db, buf[:length], ibuf.T[:, :length]
                 )
-        else:
-            for g, ig in zip(buf[:length], ibuf[:length]):
-                p, q, r, s = ig
-                s, r, q, p = (p-1, q-1, r-1, s-1)
-                if ( p == q ): g *= .5
-                if ( r == s ): g *= .5
-                if ( p == r and q == s ): g *= .5
+    else:
+        for ig, g in list_integrals(filename):
+            p, q, r, s = ig
+            s, r, q, p = (p-1, q-1, r-1, s-1)
+            if ( p == q ): g *= .5
+            if ( r == s ): g *= .5
+            if ( p == r and q == s ): g *= .5
 
-                Jadd = g * (D[r, s] + D[s, r])
-                J[p, q] += Jadd
-                J[q, p] += Jadd
-                Jadd = g * (D[p, q] + D[q, p])
-                J[r, s] += Jadd
-                J[s, r] += Jadd
-                Ka[p, s] += g*Da[r, q]
-                Ka[p, r] += g*Da[s, q]
-                Ka[q, s] += g*Da[r, p]
-                Ka[q, r] += g*Da[s, p]
-                Ka[r, q] += g*Da[p, s]
-                Ka[s, q] += g*Da[p, r]
-                Ka[r, p] += g*Da[q, s]
-                Ka[s, p] += g*Da[q, r]
-                Kb[p, s] += g*Db[r, q]
-                Kb[p, r] += g*Db[s, q]
-                Kb[q, s] += g*Db[r, p]
-                Kb[q, r] += g*Db[s, p]
-                Kb[r, q] += g*Db[p, s]
-                Kb[s, q] += g*Db[p, r]
-                Kb[r, p] += g*Db[q, s]
-                Kb[s, p] += g*Db[q, r]
+            Jadd = g * (D[r, s] + D[s, r])
+            J[p, q] += Jadd
+            J[q, p] += Jadd
+            Jadd = g * (D[p, q] + D[q, p])
+            J[r, s] += Jadd
+            J[s, r] += Jadd
+            Ka[p, s] += g*Da[r, q]
+            Ka[p, r] += g*Da[s, q]
+            Ka[q, s] += g*Da[r, p]
+            Ka[q, r] += g*Da[s, p]
+            Ka[r, q] += g*Da[p, s]
+            Ka[s, q] += g*Da[p, r]
+            Ka[r, p] += g*Da[q, s]
+            Ka[s, p] += g*Da[q, r]
+            Kb[p, s] += g*Db[r, q]
+            Kb[p, r] += g*Db[s, q]
+            Kb[q, s] += g*Db[r, p]
+            Kb[q, r] += g*Db[s, p]
+            Kb[r, q] += g*Db[p, s]
+            Kb[s, q] += g*Db[p, r]
+            Kb[r, p] += g*Db[q, s]
+            Kb[s, p] += g*Db[q, r]
 
-        Fa = hfc*J-hfx*Ka
-        Fb = hfc*J-hfx*Kb
-        return (Fa, Fb)
+    Fa = hfc*J-hfx*Ka
+    Fb = hfc*J-hfx*Kb
+    return (Fa, Fb)
 
 def fock(D, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
     """Routine for building alpha and beta fock matrix by reading AOTWOINT"""
@@ -149,54 +134,38 @@ def fock(D, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
             f2py = False
             print "Warning: non-existent sirfck.so wanted - reverting to python"
 
-
-    aofile = FB(filename) 
-    aofile.find("BASTWOEL")
     J = matrix(D.shape)
     K = matrix(D.shape)
 
-    for rec in aofile:
-        #
-        #len = 8*lbuf + 4*lbuf + 4
-        #lbuf is paramter interger : 600
-        lbuf = (aofile.reclen-4)/12
-
-        buf = np.array(aofile.readbuf(lbuf,'d'))
-        ibuf = np.array(aofile.readbuf(4*lbuf,'b')).reshape((lbuf, 4))
-        length = aofile.readbuf(1,'i')[0]
-        #
-        # Negative length marks end of file
-        #
-        if length < 0: break
-
-        if f2py:
+    if f2py:
+        for buf, ibuf, length in list_buffers(filename):
             J, K = sirfck.fck(
                 J, K,  D, D, buf[:length], ibuf.T[:, :length]
                 )
-        else:
-            for g, ig in zip(buf[:length], ibuf[:length]):
-                p, q, r, s = ig
-                s, r, q, p = (p-1, q-1, r-1, s-1)
-                if ( p == q ): g *= .5
-                if ( r == s ): g *= .5
-                if ( p == r and q == s ): g *= .5
+    else:
+        for ig, g in list_integrals(filename):
+            p, q, r, s = ig
+            s, r, q, p = (p-1, q-1, r-1, s-1)
+            if ( p == q ): g *= .5
+            if ( r == s ): g *= .5
+            if ( p == r and q == s ): g *= .5
 
-                Jadd = g * (D[r, s] + D[s, r])
-                J[p, q] += Jadd
-                J[q, p] += Jadd
-                Jadd = g * (D[p, q] + D[q, p])
-                J[r, s] += Jadd
-                J[s, r] += Jadd
-                K[p, s] += g*D[r, q]
-                K[p, r] += g*D[s, q]
-                K[q, s] += g*D[r, p]
-                K[q, r] += g*D[s, p]
-                K[r, q] += g*D[p, s]
-                K[s, q] += g*D[p, r]
-                K[r, p] += g*D[q, s]
-                K[s, p] += g*D[q, r]
+            Jadd = g * (D[r, s] + D[s, r])
+            J[p, q] += Jadd
+            J[q, p] += Jadd
+            Jadd = g * (D[p, q] + D[q, p])
+            J[r, s] += Jadd
+            J[s, r] += Jadd
+            K[p, s] += g*D[r, q]
+            K[p, r] += g*D[s, q]
+            K[q, s] += g*D[r, p]
+            K[q, r] += g*D[s, p]
+            K[r, q] += g*D[p, s]
+            K[s, q] += g*D[p, r]
+            K[r, p] += g*D[q, s]
+            K[s, p] += g*D[q, r]
 
-        return hfc*J - 0.5*hfx*K
+    return hfc*J - 0.5*hfx*K
 
 if __name__ == "__main__":
     D = matrix((6, 6))
