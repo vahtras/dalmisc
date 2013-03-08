@@ -203,7 +203,7 @@ def fockab(component, D, filename, hfc=1, hfx=1):
 
     return (Fa, Fb)
 
-def list_integrals(filename):
+def list_integrals(filename, select="xyz"):
     """ List two-electron spin-orbit integrals in file """
     aofile = fb(filename) 
     aofile.find('AO2SOINT')
@@ -229,7 +229,8 @@ def list_integrals(filename):
             if ig[0] == 0:
                 comp = "*xyz"[ig[1]]
             else:
-                yield comp, ig, g
+                if comp in select:
+                    yield comp, ig, g
 
     aofile.close()
 
