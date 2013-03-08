@@ -148,7 +148,7 @@ class Converged(Exception):
 from math import sqrt
 from util import full
 from daltools import one, dens
-from dalmisc.fockab import fockab
+from dalmisc.two import fockab
 
 def energy(Da, Db, h1, Fa, Fb):    
     e1 = h1&(Da+Db)
