@@ -34,13 +34,13 @@ def list_buffers(filename="AOTWOINT"):
         length = _aotwoint.readbuf(1,'i')[0]
 
         if length < 0: raise StopIteration
-        yield buf, ibuf, length
+        yield buf[:length], ibuf[:length]
 
 def list_integrals(filename="AOTWOINT"):
     """ List two-electron spin-orbit integrals in file """
 
-    for buf, ibuf, length in list_buffers(filename):
-        for g, ig in zip(buf[:length], ibuf[:length]):
+    for buf, ibuf in list_buffers(filename):
+        for g, ig in zip(buf, ibuf):
             yield ig, g
 
 
@@ -85,9 +85,9 @@ def fockab(Dab, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
     Kb = matrix(D.shape)
 
     if f2py:
-        for buf, ibuf, length in list_buffers(filename):
+        for buf, ibuf in list_buffers(filename):
             J, Ka, Kb = sirfck.fckab(
-                J, Ka, Kb, Da, Db, buf[:length], ibuf.T[:, :length]
+                J, Ka, Kb, Da, Db, buf, ibuf.T
                 )
     else:
         for ig, g in list_integrals(filename):
@@ -138,9 +138,9 @@ def fock(D, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
     K = matrix(D.shape)
 
     if f2py:
-        for buf, ibuf, length in list_buffers(filename):
+        for buf, ibuf in list_buffers(filename):
             J, K = sirfck.fck(
-                J, K,  D, D, buf[:length], ibuf.T[:, :length]
+                J, K,  D, D, buf, ibuf.T
                 )
     else:
         for ig, g in list_integrals(filename):
