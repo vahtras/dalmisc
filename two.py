@@ -21,49 +21,26 @@ def info(filename="AOTWOINT"):
     return retinfo
 
 
-def list_buffers(filename="AOTWOINT"):
+def list_buffers(filename="AOTWOINT", label="BASTWOEL"):
     """ Return integral buffers in AOTWOINT"""
-    _aotwoint = FB(filename)
-    _aotwoint.find("BASTWOEL")
+    _aofile = FB(filename, label=label)
 
-    for rec in _aotwoint:
-        lbuf = (_aotwoint.reclen-4)/12
+    for rec in _aofile:
+        lbuf = (_aofile.reclen-4)/12
 
-        buf = np.array(_aotwoint.readbuf(lbuf,'d'))
-        ibuf = np.array(_aotwoint.readbuf(4*lbuf,'b')).reshape(lbuf, 4)
-        length = _aotwoint.readbuf(1,'i')[0]
+        buf = np.array(rec.read(lbuf,'d'))
+        ibuf = np.array(rec.read(4*lbuf,'b')).reshape(lbuf, 4)
+        length = rec.read(1,'i')[0]
 
         if length < 0: raise StopIteration
         yield buf[:length], ibuf[:length]
 
-def list_integrals(filename="AOTWOINT"):
+def list_integrals(*args, **kwargs):
     """ List two-electron spin-orbit integrals in file """
 
-    for buf, ibuf in list_buffers(filename):
+    for buf, ibuf in list_buffers(*args, **kwargs):
         for g, ig in zip(buf, ibuf):
             yield ig, g
-
-
-def yolist_integrals(filename="AOTWOINT"):
-    """ List two-electron spin-orbit integrals in file """
-    _aotwoint = FB(filename)
-    _aotwoint.find("BASTWOEL")
-
-    for rec in _aotwoint:
-        lbuf = (_aotwoint.reclen-4)/12
-
-        buf = np.array(_aotwoint.readbuf(lbuf,'d'))
-        ibuf = np.array(_aotwoint.readbuf(4*lbuf,'b')).reshape(lbuf, 4)
-        length = _aotwoint.readbuf(1,'i')[0]
-        #
-        # Negative length marks end of file
-        #
-        if length < 0: break
-            #
-        for g, ig in zip(buf[:length], ibuf[:length]):
-            yield ig, g
-
-    _aotwoint.close()
 
 
 def fockab(Dab, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
