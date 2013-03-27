@@ -65,7 +65,7 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     #print "gm",gm
 
     # sign convention <[q,[k,F]]> = -E[2]*N
-    gv = - rspvec.tovec(gm, LUINDF)
+    gv = - rspvec.tovec(gm, ifc)
 
     return gv
 
@@ -101,7 +101,7 @@ def s2n(N, tmpdir='/tmp', Sg=1, Sv=1):
     dak = (kn.T*S*da - da*S*kn.T)
     dbk = (kn.T*S*db - db*S*kn.T)
 
-    gv = -rspvec.tovec(cmo.T*S*(dak+(Sg*Sv)*dbk)*S*cmo, LUINDF)
+    gv = -rspvec.tovec(cmo.T*S*(dak+(Sg*Sv)*dbk)*S*cmo, ifc)
 
     return gv
 
