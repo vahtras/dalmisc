@@ -38,9 +38,7 @@ def setup():
 
     global a, b, c
     AOPROPER = os.path.join(suppdir, 'AOPROPER')
-    a = cmo.T*prop.read(A, AOPROPER).unpack()*cmo
-    b = cmo.T*prop.read(B, AOPROPER).unpack()*cmo
-    c = cmo.T*prop.read(C, AOPROPER).unpack()*cmo
+    a, b, c = [cmo.T*x*cmo for x in prop.read(A, B, C, filename=AOPROPER, unpack=True)]
     
 
 def test_e3():

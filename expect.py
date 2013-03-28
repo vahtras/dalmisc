@@ -8,7 +8,7 @@ def value(label, tmpdir='/tmp'):
     """Calculate expectation of operator with label"""   
     aoproper = os.path.join(tmpdir, 'AOPROPER')
     sirifc = os.path.join(tmpdir, 'SIRIFC')
-    A = prop.read(label, propfile=aoproper).unpack()
+    A, = prop.read(label, filename=aoproper, unpack=True)
     dc, do = dens.ifc(filename=sirifc)
     return A&(dc + do)
 
