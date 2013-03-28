@@ -4,13 +4,14 @@ import os
 import sys
 from daltools import dens, prop
 
-def value(label, tmpdir='/tmp'):
+def value(*args, **kwargs):
     """Calculate expectation of operator with label"""   
+    tmpdir = kwargs.get('tmpdir', '/tmp')
     aoproper = os.path.join(tmpdir, 'AOPROPER')
     sirifc = os.path.join(tmpdir, 'SIRIFC')
-    A, = prop.read(label, filename=aoproper, unpack=True)
+    A = prop.read(*args, filename=aoproper, unpack=True)
     dc, do = dens.ifc(filename=sirifc)
-    return A&(dc + do)
+    return tuple([a&(dc + do) for a in A])
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ def setup():
     suppdir = os.path.join(thisdir, 'test_expect.d')
 
 def test_z(): 
-    zdiplen = value('ZDIPLEN', suppdir)
+    zdiplen, = value('ZDIPLEN', tmpdir=suppdir)
     assert np.allclose(zdiplen, -1.91204774)
     
 
