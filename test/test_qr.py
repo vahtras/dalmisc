@@ -6,8 +6,8 @@ from daltools import rspvec, sirifc, dens, one, prop
 
 def setup():
     global suppdir
-    thisdir  = os.path.dirname(__file__)
-    suppdir = os.path.join(thisdir, 'test_qr.d')
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
 
     global A, B, C
     A = "XDIPLEN"
@@ -17,7 +17,7 @@ def setup():
     AOONEINT = os.path.join(suppdir, 'AOONEINT')
     S = one.read(label="OVERLAP", filename=AOONEINT).unblock().unpack()
 
-    global D
+    global D, ifc
     SIRIFC = os.path.join(suppdir, 'SIRIFC')
     ifc = sirifc.sirifc(SIRIFC)
     cmo = ifc.cmo.unblock()
@@ -43,7 +43,9 @@ def setup():
 
 def test_e3():
     ref = -1.53248530         
-    this = -NA&qr.E3(B, C, tmpdir=suppdir)
+    pB = {"kappa": kB}
+    pC = {"kappa": kC}
+    this = -NA&qr.E3(pB, pC, ifc, tmpdir=suppdir)
     assert_(this, ref)
 
 def test_b2c():

@@ -8,11 +8,10 @@ def assert_(this, ref):
     print this, ref
     assert np.allclose(this, ref)
 
-
 def setup():
-    thisdir  = os.path.dirname(__file__)
     global suppdir
-    suppdir = os.path.join(thisdir, 'test_fockab.d')
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
 
 faref = init([
    [2.02818057, 0.26542036,  0.00000000,  0.06037429, 0.00000000, 0.00000000],

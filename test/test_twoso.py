@@ -7,9 +7,11 @@ from dalmisc import twoso
 
 
 def setup():
+    global suppdir
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
+
     global ao2soint
-    thisdir  = os.path.dirname(__file__)
-    suppdir = os.path.join(thisdir, 'test_twoso.d')
     ao2soint = os.path.join(suppdir, "AO2SOINT")
 
 def assert_(this, ref):

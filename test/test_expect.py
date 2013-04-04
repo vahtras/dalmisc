@@ -3,11 +3,10 @@ import numpy as np
 from daltools import prop
 from dalmisc.expect import value
 
-
 def setup():
-    thisdir  = os.path.dirname(__file__)
     global suppdir
-    suppdir = os.path.join(thisdir, 'test_expect.d')
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
 
 def test_z(): 
     zdiplen, = value('ZDIPLEN', tmpdir=suppdir)

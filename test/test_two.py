@@ -5,9 +5,11 @@ from dalmisc import two
 
 
 def setup():
+    global suppdir
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
+
     global h1, S, EN, aooneint, aotwoint, na, nb
-    thisdir  = os.path.dirname(__file__)
-    suppdir = os.path.join(thisdir, 'test_rohf.d')
     aotwoint = os.path.join(suppdir, "AOTWOINT")
 
 def assert_(this, ref):

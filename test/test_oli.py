@@ -5,8 +5,8 @@ from dalmisc.test.test_common import assert_
 
 def setup():
     global suppdir
-    thisdir  = os.path.dirname(__file__)
-    suppdir = os.path.join(thisdir, 'test_oli.d')
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
 
 def test_e2n_S():
     refe2 = init([

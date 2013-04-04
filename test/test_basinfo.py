@@ -2,9 +2,11 @@ import os
 from dalmisc.basinfo import BasInfo
 
 def setup():
+    global suppdir
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
+
     global bas_info
-    thisdir  = os.path.dirname(__file__)
-    suppdir = os.path.join(thisdir, 'test_basinfo.d')
     bas_info = BasInfo(os.path.join(suppdir, 'SIRIUS.RST'))
 
 def test_nsym(): 

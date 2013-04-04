@@ -6,9 +6,11 @@ from dalmisc import rohf, two
 
 
 def setup():
+    global suppdir
+    n, e = os.path.splitext(__file__)
+    suppdir = n + ".d"
+
     global h1, S, EN, aooneint, aotwoint, na, nb
-    thisdir  = os.path.dirname(__file__)
-    suppdir = os.path.join(thisdir, 'test_rohf.d')
     aooneint = os.path.join(suppdir, "AOONEINT")
     aotwoint = os.path.join(suppdir, "AOTWOINT")
     h1 = one.read("ONEHAMIL", aooneint).unpack().unblock()
