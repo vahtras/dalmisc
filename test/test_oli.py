@@ -1,5 +1,5 @@
 import os
-from util.full import unit, init
+from util.full import unit, init, matrix
 from dalmisc import oli
 from dalmisc.test.test_common import assert_
 
@@ -17,10 +17,7 @@ def test_e2n_S():
     assert_(e2, refe2)
 
 def test_s2n_S():
-    refs2 = init([
-        [2.0,  0.0],
-        [0.0,  -2.0]
-        ])
+    refs2 = matrix.diag([2., -2.])
     s2 = [oli.s2n(n, tmpdir=suppdir) for n in unit(2)]
     assert_(s2, refs2)
 

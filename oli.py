@@ -50,19 +50,16 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
 
     fa, fb = two.fockab((da, db),  filename=AOTWOINT, hfx=hfx)
     fa += h; fb += h
-    #print "electronic energy", .5*(((h+fa)&da) + ((h+fb)&db))
-    fka, fkb = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
+    fak, fbk = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
 
     kfa = S*kn*fa - fa*kn*S
     kfb = S*kn*fb - fb*kn*S
 
-    fat = fka + kfa
-    fbt = fkb + kfb
+    fa = fak + kfa
+    fb = fbk + kfb
 
-    gao = S*(da*fat.T + (Sg*Sv)*db*fbt.T) - (fat.T*da + (Sg*Sv)*fbt.T*db)*S
-    #print "gao",gao
+    gao = S*(da*fa.T + (Sg*Sv)*db*fb.T) - (fa.T*da + (Sg*Sv)*fb.T*db)*S
     gm = cmo.T*gao*cmo
-    #print "gm",gm
 
     # sign convention <[q,[k,F]]> = -E[2]*N
     gv = - rspvec.tovec(gm, ifc)
