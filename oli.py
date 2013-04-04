@@ -44,7 +44,7 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     kn = cmo*kN*cmo.T
 
     dak = (kn.T*S*da - da*S*kn.T)
-    dbk = (kn.T*S*db - db*S*kn.T)
+    dbk = Sv*(kn.T*S*db - db*S*kn.T)
     #print "dak",dak,"dbk",dbk
 
 
@@ -53,12 +53,12 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     fak, fbk = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
 
     kfa = S*kn*fa - fa*kn*S
-    kfb = S*kn*fb - fb*kn*S
+    kfb = Sv*(S*kn*fb - fb*kn*S)
 
     fa = fak + kfa
     fb = fbk + kfb
 
-    gao = S*(da*fa.T + (Sg*Sv)*db*fb.T) - (fa.T*da + (Sg*Sv)*fb.T*db)*S
+    gao = S*(da*fa.T + Sg*db*fb.T) - (fa.T*da + Sg*fb.T*db)*S
     gm = cmo.T*gao*cmo
 
     # sign convention <[q,[k,F]]> = -E[2]*N
