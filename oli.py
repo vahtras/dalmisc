@@ -35,25 +35,21 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     h = one.read('ONEHAMIL', filename=AOONEINT).unblock().unpack()
     S = one.read('OVERLAP',  filename=AOONEINT).unblock().unpack()
 
-
-    dct, dot = dens.ifc(SIRIFC)
-    da = dot + dct/2
-    db = dct/2
+    da, db = dens.Dab(SIRIFC)
 
     kN = rspvec.tomat(N, ifc, tmpdir=tmpdir).T #transpose  = (q, q+) to (q+/q)
     kn = cmo*kN*cmo.T
 
     dak = (kn.T*S*da - da*S*kn.T)
-    dbk = Sv*(kn.T*S*db - db*S*kn.T)
-    #print "dak",dak,"dbk",dbk
+    dbk = (kn.T*S*db - db*S*kn.T)*Sv
 
 
     fa, fb = two.fockab((da, db),  filename=AOTWOINT, hfx=hfx)
     fa += h; fb += h
     fak, fbk = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
 
-    kfa = S*kn*fa - fa*kn*S
-    kfb = Sv*(S*kn*fb - fb*kn*S)
+    kfa = (S*kn*fa - fa*kn*S)
+    kfb = (S*kn*fb - fb*kn*S)*Sv
 
     fa = fak + kfa
     fb = fbk + kfb
@@ -87,18 +83,15 @@ def s2n(N, tmpdir='/tmp', Sg=1, Sv=1):
 
     S = one.read('OVERLAP',  filename=AOONEINT).unblock().unpack()
 
-
-    dct, dot = dens.ifc(SIRIFC)
-    da = dot + dct/2
-    db = dct/2
+    da, db = dens.Dab(SIRIFC)
 
     kN = rspvec.tomat(N, ifc, tmpdir=tmpdir).T
     kn = cmo*kN*cmo.T
 
     dak = (kn.T*S*da - da*S*kn.T)
-    dbk = (kn.T*S*db - db*S*kn.T)
+    dbk = (kn.T*S*db - db*S*kn.T)*Sv
 
-    gv = -rspvec.tovec(cmo.T*S*(dak+(Sg*Sv)*dbk)*S*cmo, ifc)
+    gv = -rspvec.tovec(cmo.T*S*(dak+Sg*dbk)*S*cmo, ifc)
 
     return gv
 
