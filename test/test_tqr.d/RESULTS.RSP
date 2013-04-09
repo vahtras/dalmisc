@@ -1,9 +1,9 @@
-@ B-freq = 0.000000  C-freq = 0.000000     beta(X;X,Y) =    -40.50324657
+@ B-freq = 0.000000  C-freq = 0.000000     beta(Y;X,X) =    -55.13950005
 
 
 @ Quadratic response function value in a.u. for
-@ A operator, symmetry, spin: XDIPLEN     1    0
+@ A operator, symmetry, spin: YDIPLEN     1    0
 @ B operator, symmetry, spin: XDIPLEN     1    1
-@ C operator, symmetry, spin: YDIPLEN     1    1
+@ C operator, symmetry, spin: XDIPLEN     1    1
 
-@omega B, omega C, QR value :     0.00000000     0.00000000    40.50324657
+@omega B, omega C, QR value :     0.00000000     0.00000000    55.13950005
