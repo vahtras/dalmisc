@@ -9,7 +9,7 @@ from util.full import matrix
 import two
 
 
-def E3(pB, pC, ifc, tmpdir='/tmp'):
+def E3(pB, pC, ifc, **kwargs):
     """ Emulate the so called E3 contribution to a quadratic response function
         <<A; B, C>> = NA  E3 (NB NC +  NC NB) + A2 (NB NC + NC NB) + NA (B2 NC + C2 NB)
 
@@ -36,67 +36,59 @@ def E3(pB, pC, ifc, tmpdir='/tmp'):
     """
 
 
+    tmpdir = kwargs.get('tmpdir', '/tmp')
     AOONEINT = os.path.join(tmpdir, "AOONEINT")
     h = one.read(label='ONEHAMIL', filename=AOONEINT).unpack().unblock()
     S = one.read(label='OVERLAP', filename=AOONEINT).unblock().unpack()
 
     AOTWOINT = os.path.join(tmpdir, "AOTWOINT")
+    kwargs['filename'] = AOTWOINT
 
 
-    kB = pB["kappa"]
-    kC = pC["kappa"]
+    cmo = ifc.cmo.unblock()
+    kB = cmo*pB["kappa"]*cmo.T
+    kC = cmo*pC["kappa"]*cmo.T
+    kB_ = kB*S
+    _kB = S*kB
+    kC_ = kC*S
+    _kC = S*kC
 
     sB = pB.get("spin", 1)
     sC = pC.get("spin", 1)
    
-    cmo = ifc.cmo.unblock()
-  
-    kb = cmo*kB*cmo.T
-    kc = cmo*kC*cmo.T
- 
-
-    _kb = S*kb
-    kb_ = kb*S
-    _kc = S*kc
-    kc_ = kc*S
     #
     # Fock matrices
     #
     da, db = dens.Dab(ifc_=ifc)
-
-    daB = da*S*kb - kb*S*da 
-    daC = da*S*kc - kc*S*da 
-    daBC = (daB*S*kc - kc*S*daB + daC*S*kb - kb*S*daC)/2
-
-    dbB = (db*S*kb - kb*S*db)*sB
-    dbC = (db*S*kc - kc*S*db)*sC
-    dbBC = ((dbB*S*kc - kc*S*dbB)*sC + (dbC*S*kb - kb*S*dbC)*sB)/2
-
-    fa, fb = two.fockab((da, db), filename=AOTWOINT)
+    fa, fb = two.fockab((da, db), **kwargs)
     fa += h
     fb += h
+    Bfa, Bfb = [_kB*f - f*kB_ for f in (fa, sB*fb)]
+    Cfa, Cfb = [_kC*f - f*kC_ for f in (fa, sC*fb)]
 
-    faB, fbB = two.fockab((daB, dbB), filename = AOTWOINT)
-    faC, fbC = two.fockab((daC, dbC), filename = AOTWOINT)
-    faBC, fbBC = two.fockab((daBC, dbBC), filename = AOTWOINT)
+    daB, dbB = [_kB.T*d - d*kB_.T  for d in (da, sB*db)]
+    faB, fbB = two.fockab((daB, dbB), **kwargs)
 
-    Bfa = S*kb*fa-fa*kb*S
-    Cfa = S*kc*fa-fa*kc*S
-    BCfa = (S*kb*Cfa-Cfa*kb*S + S*kc*Bfa-Bfa*kc*S)/2
-    BfaC =  S*kb*faC-faC*kb*S + S*kc*faB-faB*kc*S
-   
-    Bfb = (S*kb*fb-fb*kb*S)*sB
-    Cfb = (S*kc*fb-fb*kc*S)*sC
-    BCfb = (S*kb*Cfb-Cfb*kb*S*sB + S*kc*Bfb-Bfb*kc*S*sC)/2
-    BfbC = S*kb*fbC-fbC*kb*S*sB + S*kc*fbB-fbB*kc*S*sC
+    daC, dbC = [_kC.T*d - d*kC_.T  for d in (da, sC*db)]
+    faC, fbC = two.fockab((daC, dbC), **kwargs)
+    
+    daBC = (_kC.T*daB - daB*kC_.T + _kB.T*daC - daC*kB_.T)/2
+    dbBC = ((_kC.T*dbB - dbB*kC_.T)*sC + (_kB.T*dbC - dbC*kB_.T)*sB)/2
+    faBC, fbBC = two.fockab((daBC, dbBC), **kwargs)
+
+    BCfa = (_kB*Cfa - Cfa*kB_ + _kC*Bfa - Bfa*kC_)/2
+    BCfb = (_kB*Cfb - Cfb*kB_*sB + _kC*Bfb - Bfb*kC_*sC)/2
+          
+    BfaC =  _kB*faC - faC*kB_ + _kC*faB - faB*kC_
+    BfbC = _kB*fbC-fbC*kB_*sB + _kC*fbB-fbB*kC_*sC
  #
  # Add all focks
  #
  
-    fa = faBC+BfaC+BCfa
-    fb = fbBC+BfbC+BCfb
+    fa = faBC + BfaC + BCfa
+    fb = fbBC + BfbC + BCfb
 
-    G = (cmo.T*((fa*da+fb*db)*S - S*(da*fa+db*fb))*cmo).T
+    G = cmo.T*(S*(da*fa.T + db*fb.T) - (fa.T*da + fb.T*db)*S)*cmo
 
     Gv = rspvec.tovec(G, ifc)
 
