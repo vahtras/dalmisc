@@ -95,6 +95,51 @@ def E3(pB, pC, ifc, **kwargs):
 
     return Gv
 
+def B2C(*args, **kwargs):
+   
+    pB, pC, ifc = args
+    tmpdir = kwargs.get("tmpdir", ".")
+
+    AOONEINT = os.path.join(tmpdir, "AOONEINT")
+    S = one.read(label = "OVERLAP", filename = AOONEINT).unblock().unpack()
+
+    cmo = ifc.cmo.unblock()
+    mB = pB["matrix"]
+    mC = pC["matrix"]
+    kB = cmo*pB["kappa"]*cmo.T
+    kC = cmo*pC["kappa"]*cmo.T
+
+
+    kBmC = S*kB*mC - mC*kB*S
+    kCmB = S*kC*mB - mB*kC*S
+    BC = kBmC + kCmB
+
+    da, db = dens.Dab(ifc_=ifc)
+    G = cmo.T*(S*(da*BC.T + db*BC.T) - (BC.T*da + BC.T*db)*S)*cmo
+    Gv = rspvec.tovec(G, ifc)
+    return Gv
+
+def A2B(*args, **kwargs):
+   
+    pA, pB, ifc = args
+    tmpdir = kwargs.get("tmpdir", ".")
+
+    AOONEINT = os.path.join(tmpdir, "AOONEINT")
+    S = one.read(label = "OVERLAP", filename = AOONEINT).unblock().unpack()
+
+    cmo = ifc.cmo.unblock()
+    mA = pA["matrix"]
+    kB = cmo*pB["kappa"]*cmo.T
+
+    BA = S*kB*mA - mA*kB*S
+
+    da, db = dens.Dab(ifc_=ifc)
+    G = cmo.T*(S*(da*BA.T + db*BA.T) - (BA.T*da + BA.T*db)*S)*cmo
+    Gv = rspvec.tovec(G, ifc)
+    return Gv
+
+    
+    
 
 def main(*args, **kwargs):
 

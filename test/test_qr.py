@@ -21,9 +21,8 @@ def setup():
     SIRIFC = os.path.join(suppdir, 'SIRIFC')
     ifc = sirifc.sirifc(SIRIFC)
     cmo = ifc.cmo.unblock()
-    dc, do = dens.ifc(ifc_=ifc)
-    d = dc + do
-    D = cmo.T*S*d*S*cmo
+    da, db = dens.Dab(ifc_=ifc)
+    D = cmo.T*S*(da+db)*S*cmo
 
 
     RSPVEC = os.path.join(suppdir, 'RSPVEC')
@@ -38,7 +37,10 @@ def setup():
 
     global a, b, c
     AOPROPER = os.path.join(suppdir, 'AOPROPER')
-    a, b, c = [cmo.T*x*cmo for x in prop.read(A, B, C, filename=AOPROPER, unpack=True)]
+    #a, b, c = [cmo.T*x*cmo for x in prop.read(A, B, C, filename=AOPROPER, unpack=True)]
+    global pmat
+    pmat = prop.read(A, B, C, filename=AOPROPER, unpack=True)
+    a, b, c = [cmo.T*x*cmo for x in pmat]
     
 
 def test_e3():
@@ -58,14 +60,33 @@ def test_c2b():
     this = -(kA^(kB^c))&D
     assert_(this, ref)
 
+def test_alt_b2c():
+    pB = {"kappa":kB, "matrix":pmat[1]}
+    pC = {"kappa":kC, "matrix":pmat[2]}
+    ref = 7.13089781 + 6.00528627
+    this = -NA&qr.B2C(pB, pC, ifc, tmpdir=suppdir)
+    assert_(this, ref)
+
 def test_a2b():
     ref = 3.00264314         
     this = .5*(kC^(kB^a))&D
     assert_(this, ref)
 
-def test_b2a():
+def test_a2c():
     ref = 3.00264314         
     this = .5*(kB^(kC^a))&D
+    assert_(this, ref)
+
+def test_alt_a2b():
+    pA = {"kappa":kA, "matrix":pmat[0]}
+    pB = {"kappa":kB, "matrix":pmat[1]}
+    pC = {"kappa":kC, "matrix":pmat[2]}
+    pA, pB, pC = [{"kappa":k, "matrix":p} for k, p in zip((kA, kB, kC), pmat)]
+    ref = 3.00264314 * 2
+    this = (
+        -(NB&qr.A2B(pA, pC, ifc, tmpdir=suppdir)) 
+        -(NC&qr.A2B(pA, pB, ifc, tmpdir=suppdir))
+        )/2
     assert_(this, ref)
 
 if __name__ == "__main__":
