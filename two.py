@@ -43,8 +43,13 @@ def list_integrals(*args, **kwargs):
             yield ig, g
 
 
-def fockab(Dab, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
+def fockab(Dab, **kwargs):
     """Routine for building alpha and beta fock matrix by reading AOTWOINT"""
+
+    filename = kwargs.get('filename', 'AOTWOINT')
+    hfc = kwargs.get('hfc', 1)
+    hfx = kwargs.get('hfx', 1)
+    f2py = kwargs.get('f2py', True)
 
     Da, Db = Dab
     D = Da + Db
