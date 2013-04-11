@@ -65,28 +65,29 @@ def E3(pB, pC, ifc, **kwargs):
     fb += h
     Bfa, Bfb = [_kB*f - f*kB_ for f in (fa, sB*fb)]
     Cfa, Cfb = [_kC*f - f*kC_ for f in (fa, sC*fb)]
+    
+    BCfa, BCfb = [_kB*Cf - Cf*kB_ for Cf in (Cfa, sB*Cfb)]
+    CBfa, CBfb = [_kC*Bf - Bf*kC_ for Bf in (Bfa, sC*Bfb)]
 
     daB, dbB = [_kB.T*d - d*kB_.T  for d in (da, sB*db)]
     faB, fbB = two.fockab((daB, dbB), **kwargs)
+    CfaB, CfbB = [_kC*fB - fB*kC_ for fB in (faB, sC*fbB)]
 
     daC, dbC = [_kC.T*d - d*kC_.T  for d in (da, sC*db)]
     faC, fbC = two.fockab((daC, dbC), **kwargs)
+    BfaC, BfbC = [_kB*fC - fC*kB_ for fC in (faC, sB*fbC)]
     
-    daBC = (_kC.T*daB - daB*kC_.T + _kB.T*daC - daC*kB_.T)/2
-    dbBC = ((_kC.T*dbB - dbB*kC_.T)*sC + (_kB.T*dbC - dbC*kB_.T)*sB)/2
+    daBC, dbBC  = (_kB.T*dC - dC*kB_.T for dC in (daC, sB*dbC))
+    daCB, dbCB  = (_kC.T*dB - dB*kC_.T for dB in (daB, sC*dbB))
+    daBC = 0.5*(daBC + daCB)
+    dbBC = 0.5*(dbBC + dbCB)
     faBC, fbBC = two.fockab((daBC, dbBC), **kwargs)
 
-    BCfa = (_kB*Cfa - Cfa*kB_ + _kC*Bfa - Bfa*kC_)/2
-    BCfb = (_kB*Cfb - Cfb*kB_*sB + _kC*Bfb - Bfb*kC_*sC)/2
-          
-    BfaC =  _kB*faC - faC*kB_ + _kC*faB - faB*kC_
-    BfbC = _kB*fbC-fbC*kB_*sB + _kC*fbB-fbB*kC_*sC
  #
  # Add all focks
  #
- 
-    fa = faBC + BfaC + BCfa
-    fb = fbBC + BfbC + BCfb
+    fa = faBC + BfaC + CfaB + .5*(BCfa + CBfa)
+    fb = fbBC + BfbC + CfbB + .5*(BCfb + CBfb)
 
     G = cmo.T*(S*(da*fa.T + db*fb.T) - (fa.T*da + fb.T*db)*S)*cmo
 
@@ -98,7 +99,7 @@ def E3(pB, pC, ifc, **kwargs):
 def main(*args, **kwargs):
 
     labs = args
-    tmpdir = kwargs.get("tmpdir", "/tmp")
+    tmpdir = kwargs.get("tmpdir", ".")
     ranks = kwargs.get('rank', (0, 0, 0))
     pars = [ (-1)**r for r in ranks]
 
@@ -113,19 +114,19 @@ def main(*args, **kwargs):
 
     vecs = [rspvec.read(lab, RSPVEC) for lab in labs]
     kappa = [rspvec.tomat(vec, ifc) for vec in vecs]
-    ops = [cmo.T*prop.read(lab, AOPROPER) for lab in labs]
+    a, b, c = [cmo.T*x*cmo for x in prop.read(*labs, filename=AOPROPER)]
 
+    NA = vecs[0]
     kA, kB, kC = kappa
-    a, b, c = ops
     pA, pB, pC = [{ "lab":lab, "rank":rank, 'kappa':k} for lab, rank, k in zip(labs, ranks, kappa)]
 
-    dc, do = dens.ifc(ifc_=ifc)
-    d = dc+do
+    da, db = dens.Dab(ifc_=ifc)
+    d = da + db
     
     S = one.read(label = "OVERLAP", filename = AOONEINT).unblock().unpack()
     D = cmo.T*S*d*S*cmo
 
-    E3BC = E3(pB, pC, ifc, tmpdir)
+    E3BC = E3(pB, pC, ifc, tmpdir=tmpdir)
     AE3BC = -NA&E3BC
     B2C = (-(kA^(kC^b))&D)
     C2B = (-(kA^(kB^c))&D)
@@ -145,8 +146,6 @@ def main(*args, **kwargs):
     return (val, AE3BC, B2C, C2B, A2B, A2C)
 
 def a2bc(A, B, C):
-
-
 
     AOONEINT = os.path.join(tmp, "AOONEINT")
     AOPROPER = os.path.join(tmp, "AOPROPER")
@@ -180,4 +179,4 @@ if __name__ == "__main__":
     except(IndexError):
         print "Usage: %s A B C" % sys.argv[0]
         sys.exit(1)
-    print "QR %14.8f" % main(*sys.argv[1:])[0]
+    print "QR %14.8f" % main(*sys.argv[1:], tmpdir='.')[0]
