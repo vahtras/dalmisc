@@ -24,6 +24,7 @@ class FinDif:
         exe = self.obj.exe
         ret1 = exe(0.5*d)
         ret2 = exe(-0.5*d)
+        #print ret1, ret2
         return  (1/d) * (ret1 - ret2)
 
     def second(self):
@@ -41,6 +42,7 @@ class ExpVal:
         self.A, = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
+        self.mol = kwargs.get('mol', mol)
 
     def exe(self, delta=None):
         if self.field and delta:
@@ -66,10 +68,10 @@ class ExpVal:
         dalfile.close()
     
         molfile = open('MOLECULE.INP', 'w')
-        molfile.write(mol)
+        molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; dalton.x > log 2> err')
+        os.system('rm -f RSPVEC RESULTS.RSP; mpirun -np 4 `which dalton.x` > log 2> err')
 
         result = None
         for line in open('DALTON.OUT'):
@@ -77,6 +79,7 @@ class ExpVal:
                 data = line.split(':')[1].replace('D', 'E')
                 result = float(data)
                 break
+        assert result is not None
         return result
 
 class LinResp:
@@ -86,6 +89,9 @@ class LinResp:
         self.A, self.B = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
+        self.mol = kwargs.get('mol', mol)
+        self.trpflg = kwargs.get('trpflg', '#')
+        self.aux = kwargs.get('aux', '#')
 
     def exe(self, delta=None):
         if self.field and delta:
@@ -101,6 +107,7 @@ class LinResp:
 1e-12
 %s
 **RESPONSE
+%s
 *LINEAR
 .THCLR
 1e-9
@@ -108,18 +115,19 @@ class LinResp:
 %s
 .PROPRT
 %s
+%s
 **END OF DALTON
-"""%(self.wf, self.ff, self.A, self.B)
+"""%(self.wf, self.ff, self.trpflg, self.A, self.B, self.aux)
 
         dalfile = open('DALTON.INP', 'w')
         dalfile.write(dal)
         dalfile.close()
     
         molfile = open('MOLECULE.INP', 'w')
-        molfile.write(mol)
+        molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; dalton.x > log 2> err')
+        os.system('rm -f RSPVEC RESULTS.RSP; mpirun -np 4 `which dalton.x` > log 2> err')
 
         result = None
         for line in open('DALTON.OUT'):
@@ -136,6 +144,9 @@ class QuadResp:
         self.A, self.B, self.C = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
+        self.mol = kwargs.get('mol', mol)
+        self.trpflg = kwargs.get('trpflg', '#')
+        self.aux = kwargs.get('aux', '#')
 
     def exe(self, delta=None):
         if self.field and delta:
@@ -151,6 +162,7 @@ class QuadResp:
 1e-12
 %s
 **RESPONSE
+%s
 *QUADRATIC
 .THCLR
 1e-9
@@ -160,18 +172,19 @@ class QuadResp:
 %s
 .CPROP
 %s
+%s
 **END OF DALTON
-"""%(self.wf, self.ff, self.A, self.B, self.C)
+"""%(self.wf, self.ff, self.trpflg, self.A, self.B, self.C, self.aux)
 
         dalfile = open('DALTON.INP', 'w')
         dalfile.write(dal)
         dalfile.close()
     
         molfile = open('MOLECULE.INP', 'w')
-        molfile.write(mol)
+        molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; dalton.x > log 2> err')
+        os.system('rm -f RSPVEC RESULTS.RSP; mpirun -np 4 `which dalton.x` > log 2> err')
 
         result = None
         for line in open('DALTON.OUT'):
