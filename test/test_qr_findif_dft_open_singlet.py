@@ -26,7 +26,7 @@ def teardown():
 
 
 def test_LRx_QR_HF():
-    wf='HF'
+    wf='DFT\nGGAKey HF=1'
     lr = FinDif(
         LinResp('ZANGMOM', 'ZANGMOM', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001)
         ).first()

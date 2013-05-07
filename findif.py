@@ -135,6 +135,7 @@ class LinResp:
                 data = line.split('=')[1].replace('D', 'E')
                 result = -float(data)
                 break
+        assert result is not None
         return result
 
 class QuadResp:
@@ -184,7 +185,7 @@ class QuadResp:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; mpirun -np 4 `which dalton.x` > log 2> err')
+        os.system('rm -f RSPVEC RESULTS.RSP; `which dalton.x` > log 2> err')
 
         result = None
         for line in open('DALTON.OUT'):
@@ -192,6 +193,7 @@ class QuadResp:
                 data = line.split()[-1]
                 result = float(data)
                 break
+        assert result is not None
         return result
         
 
