@@ -40,7 +40,7 @@ def test_lr_HFx():
     assert_(res, 0.00057501)
 
 def test_QR_HF(): 
-    qr = QuadResp('XANGMOM', 'X1SPNORB', 'XDIPLEN', mol=inp["ch2+"])
+    qr = QuadResp('XANGMOM', 'X1SPNORB', 'XDIPLEN', wf="DFT\nGGAKEY HF=1", mol=inp["ch2+"])
     res = qr.exe()
     assert_(res, 0.00057501)
 

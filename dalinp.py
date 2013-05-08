@@ -5,10 +5,19 @@ def dalinp(*args, **kwargs):
 
 def wfinp(*args, **kwargs):
     wf = kwargs.get('wf', 'HF')
-    return """**DALTON
-*WAVE FUNCTION
+    wfout  = """**DALTON
+.RUN RESPONSE
+**WAVE FUNCTION
 .%s
 """ % wf
+    scfinp = kwargs.get('scfinp')
+    if scfinp:
+        wfout += "*SCF INPUT\n" 
+        for k in scfinp:
+            wfout += ".%s\n"%k
+            if scfinp[k]:
+                wfout += "%s\n" % scfinp[k]
+    return wfout
 
 def rspinp(*args, **kwargs):
     rsp, = args

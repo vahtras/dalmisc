@@ -1,15 +1,6 @@
 import os
+import dalinp
 
-mol = """ATOMBASIS
-STO-3G
-------
-    2   1 Z
-        6.    1 Basis=STO-3G
-C1      0.0006122714    0.0000000000    0.0000000000   
-        1.    2 Basis=STO-3G
-H1      1.5162556382   -1.3708721537    0.0000000000
-H2     -0.7584339548    0.6854360769    1.7695110698
-"""
 
 class FinDif: 
     """Take objects with an exe method taking a 
@@ -42,7 +33,7 @@ class ExpVal:
         self.A, = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
-        self.mol = kwargs.get('mol', mol)
+        self.mol = kwargs.get('mol', None)
 
     def exe(self, delta=None):
         if self.field and delta:
@@ -63,18 +54,19 @@ class ExpVal:
 **END OF DALTON
 """%(self.wf, self.ff, self.A)
 
-        dalfile = open('DALTON.INP', 'w')
+        wf = self.wf.split('\n')[-1].replace(' ','_')
+        dalfile = open(wf + ".dal", 'w')
         dalfile.write(dal)
         dalfile.close()
     
-        molfile = open('MOLECULE.INP', 'w')
+        molfile = open(wf + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; mpirun -np 4 `which dalton.x` > log 2> err')
+        os.system("dalton -d -t /tmp/ExpVal_%s -N 4 %s > log 2>&1 " % (wf, wf))
 
         result = None
-        for line in open('DALTON.OUT'):
+        for line in open(wf + ".out"):
             if "total" in line and self.A in line:
                 data = line.split(':')[1].replace('D', 'E')
                 result = float(data)
@@ -89,7 +81,7 @@ class LinResp:
         self.A, self.B = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
-        self.mol = kwargs.get('mol', mol)
+        self.mol = kwargs.get('mol')
         self.trpflg = kwargs.get('trpflg', '#')
         self.aux = kwargs.get('aux', '#')
 
@@ -119,18 +111,19 @@ class LinResp:
 **END OF DALTON
 """%(self.wf, self.ff, self.trpflg, self.A, self.B, self.aux)
 
-        dalfile = open('DALTON.INP', 'w')
+        wf = self.wf.split('\n')[-1].replace(' ','_')
+        dalfile = open(wf + ".dal", 'w')
         dalfile.write(dal)
         dalfile.close()
     
-        molfile = open('MOLECULE.INP', 'w')
+        molfile = open(wf + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; mpirun -np 4 `which dalton.x` > log 2> err')
+        os.system("dalton -d -t /tmp/LinResp_%s -N 4 %s > log 2>&1 " % (wf, wf))
 
         result = None
-        for line in open('DALTON.OUT'):
+        for line in open(wf + ".out"):
             if "@" in line and self.A in line and self.B in line:
                 data = line.split('=')[1].replace('D', 'E')
                 result = -float(data)
@@ -145,7 +138,7 @@ class QuadResp:
         self.A, self.B, self.C = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
-        self.mol = kwargs.get('mol', mol)
+        self.mol = kwargs.get('mol')
         self.trpflg = kwargs.get('trpflg', '#')
         self.aux = kwargs.get('aux', '#')
 
@@ -177,18 +170,19 @@ class QuadResp:
 **END OF DALTON
 """%(self.wf, self.ff, self.trpflg, self.A, self.B, self.C, self.aux)
 
-        dalfile = open('DALTON.INP', 'w')
+        wf = self.wf.split('\n')[-1].replace(' ','_')
+        dalfile = open(wf + ".dal", 'w')
         dalfile.write(dal)
         dalfile.close()
     
-        molfile = open('MOLECULE.INP', 'w')
+        molfile = open(wf + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
-        os.system('rm -f RSPVEC RESULTS.RSP; `which dalton.x` > log 2> err')
+        os.system("dalton -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (wf, wf))
 
         result = None
-        for line in open('DALTON.OUT'):
+        for line in open(wf + ".out"):
             if "@omega" in line:
                 data = line.split()[-1]
                 result = float(data)

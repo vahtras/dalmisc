@@ -29,7 +29,7 @@ def teardown():
 def test_EVx_LR_HF():
     wf='HF'
     ev = FinDif(
-        ExpVal('XDIPLEN', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001)
+        ExpVal('XDIPLEN', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001, callee="yo")
         ).first()
     lr = LinResp('XDIPLEN', 'XDIPLEN', wf=wf, mol=mol).exe()
     assert_(ev, lr)
