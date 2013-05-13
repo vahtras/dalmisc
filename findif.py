@@ -145,7 +145,7 @@ class LinResp:
         return result
 
 class QuadResp:
-    """Execute dalton LR"""
+    """Execute dalton QR"""
     def __init__(self, *args, **kwargs):
         self.wf = kwargs.get('wf', 'HF')
         self.A, self.B, self.C = args
@@ -197,6 +197,67 @@ class QuadResp:
         result = None
         for line in open(wf + ".out"):
             if "@omega" in line:
+                data = line.split()[-1]
+                result = float(data)
+                break
+        assert result is not None
+        return result
+
+class CubResp:
+    """Execute dalton CR"""
+    def __init__(self, *args, **kwargs):
+        self.wf = kwargs.get('wf', 'HF')
+        self.A, self.B, self.C, self.D = args
+        self.field = kwargs.get('field', None)
+        self.delta = kwargs.get('delta', 0)
+        self.mol = kwargs.get('mol')
+        self.trpflg = kwargs.get('trpflg', '#')
+        self.aux = kwargs.get('aux', '#')
+
+    def exe(self, delta=None):
+        if self.field and delta:
+            self.ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
+        else:
+            self.ff = "###"
+        dal = """**DALTON INPUT
+.RUN RESPONSE
+**WAVE FUNCTIONS
+.%s
+*SCF INPUT
+.THRESHOLD
+1e-12
+%s
+**RESPONSE
+%s
+*CUBIC
+.THCLR
+1e-9
+.APROP 
+%s
+.BPROP
+%s
+.CPROP
+%s
+.DPROP
+%s
+%s
+**END OF DALTON
+"""%(self.wf, self.ff, self.trpflg, self.A, self.B, self.C, self.D, self.aux)
+
+        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
+        dalfile = open(wf + ".dal", 'w')
+        dalfile.write(dal)
+        dalfile.close()
+    
+        molfile = open(wf + ".mol", 'w')
+        molfile.write(self.mol)
+        molfile.close()
+
+        os.system("dalton -N 8 -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (wf, wf))
+
+        result = None
+        for line in open(wf + ".out"):
+            if "@ << A; B, C, D >>" in line:
                 data = line.split()[-1]
                 result = float(data)
                 break

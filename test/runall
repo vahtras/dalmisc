@@ -1,0 +1,7 @@
+#!/bin/bash
+#LR
+nosetests -v test_lr_findif_dft_closed_singlet.py 2>&1 | tee test_lr_findif_dft_closed_singlet.log
+nosetests -v test_lr_findif_dft_open_singlet.py 2>&1 | tee test_lr_findif_dft_open_singlet.log
+nosetests -v test_lr_findif_dft_open_triplet.py 2>&1 | tee test_lr_findif_dft_open_triplet.log
+
+#QR
