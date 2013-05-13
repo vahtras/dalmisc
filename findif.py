@@ -93,14 +93,20 @@ class LinResp:
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
         self.mol = kwargs.get('mol')
-        self.trpflg = kwargs.get('trpflg', '#')
+        self.triplet = kwargs.get('triplet', False)
         self.aux = kwargs.get('aux', '#')
 
     def exe(self, delta=None):
         if self.field and delta:
-            self.ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
+            ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
         else:
-            self.ff = "###"
+            ff = "###"
+
+        if self.triplet:
+            trpflg = ".TRPFLG"
+        else:
+            trpflg = "#"
+
         dal = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
@@ -120,7 +126,7 @@ class LinResp:
 %s
 %s
 **END OF DALTON
-"""%(self.wf, self.ff, self.trpflg, self.A, self.B, self.aux)
+"""%(self.wf, ff, trpflg, self.A, self.B, self.aux)
 
         wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
         dalfile = open(wf + ".dal", 'w')
@@ -152,14 +158,20 @@ class QuadResp:
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
         self.mol = kwargs.get('mol')
-        self.trpflg = kwargs.get('trpflg', '#')
+        self.triplet = kwargs.get('triplet', False)
         self.aux = kwargs.get('aux', '#')
 
     def exe(self, delta=None):
         if self.field and delta:
-            self.ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
+            ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
         else:
-            self.ff = "###"
+            ff = "###"
+
+        if self.triplet:
+            trpflg = ".TRPFLG"
+        else:
+            trpflg = "#"
+
         dal = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
@@ -181,7 +193,7 @@ class QuadResp:
 %s
 %s
 **END OF DALTON
-"""%(self.wf, self.ff, self.trpflg, self.A, self.B, self.C, self.aux)
+"""%(self.wf, ff, trpflg, self.A, self.B, self.C, self.aux)
 
         wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
         dalfile = open(wf + ".dal", 'w')
