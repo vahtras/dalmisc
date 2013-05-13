@@ -1,4 +1,8 @@
-from .. import rspinp
+from .. import dalinp
+X = 'XDIPLEN'
+Y = 'YDIPLEN'
+Z = 'ZDIPLEN'
+
 def setup():
     pass
 
@@ -6,20 +10,17 @@ def teardown():
     pass
 
 def test_ave():
-    ave = "<XDIPLEN>"
-    inp = rspinp.dalinp(ave)
+    inp = dalinp.dalinp(X)
     assert "PROPAV\nXDIPLEN" in inp
 
 def test_lr():
-    ave = "<<XDIPLEN; YDIPLEN>>"
-    inp = rspinp.dalinp(ave)
+    inp = dalinp.dalinp(X, Y)
     assert "PROPRT\nXDIPLEN\n.PROPRT\nYDIPLEN" in inp
 
 def test_qr():
-    ave = "<<XDIPLEN; YDIPLEN, ZDIPLEN>>"
-    inp = rspinp.dalinp(ave)
+    inp = dalinp.dalinp(X, Y, Z)
     assert "APROP\nXDIPLEN\n.BPROP\nYDIPLEN\n.CPROP\nZDIPLEN" in inp
 
 def test_wf():
-    wf = rspinp.wfinp()
+    wf = dalinp.wfinp()
     assert "WAVE FUNCTION\n.HF" in wf

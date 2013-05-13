@@ -817,15 +817,6 @@ def test_EVx_LR_1_4():
     assert_(ev, lr)
 
 
-def test_EVx_LR_GGAKey():
-    wf='DFT\nGGAKey'
-    ev = FinDif(
-        ExpVal('XDIPLEN', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001)
-        ).first()
-    lr = LinResp('XDIPLEN', 'XDIPLEN', wf=wf, mol=mol).exe()
-    assert_(ev, lr)
-
-
 def test_EVx_LR_G96VWN():
     wf='DFT\nG96VWN'
     ev = FinDif(

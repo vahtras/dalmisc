@@ -3,6 +3,7 @@ import shutil
 import numpy as np
 from mol import inp
 from dalmisc.findif import *
+import dalinp
 
 def assert_(this,ref):
     print this

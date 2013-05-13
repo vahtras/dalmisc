@@ -817,15 +817,6 @@ def test_LRx_QR_1_4():
     assert_(lr, qr)
 
 
-def test_LRx_QR_GGAKey():
-    wf='DFT\nGGAKey'
-    lr = FinDif(
-        LinResp('ZANGMOM', 'ZANGMOM', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001)
-        ).first()
-    qr = QuadResp('ZANGMOM', 'ZANGMOM', 'XDIPLEN', wf=wf, mol=mol).exe()
-    assert_(lr, qr)
-
-
 def test_LRx_QR_G96VWN():
     wf='DFT\nG96VWN'
     lr = FinDif(
