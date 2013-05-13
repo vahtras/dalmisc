@@ -1215,10 +1215,6 @@ def test_EVx_LR_X3LYP():
 if __name__ == "__main__":
     import sys
     setup()
-    wf="DFT\n%s"%sys.argv[1]
-    ev = FinDif(
-        ExpVal('XDIPLEN', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001)
-        ).first()
-    lr = LinResp('XDIPLEN', 'XDIPLEN', wf=wf, mol=mol).exe()
-    assert_(ev, lr)
+    eval("test_EVx_LR_%s()"%sys.argv[1])
+    teardown()
 

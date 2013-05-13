@@ -1217,10 +1217,5 @@ def test_LRx_QR_X3LYP():
 if __name__ == "__main__":
     import sys
     setup()
-    wf="DFT\n%s"%sys.argv[1]
-    ev = FinDif(
-        ExpVal('XDIPLEN', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001)
-        ).first()
-    lr = LinResp('XDIPLEN', 'XDIPLEN', wf=wf, mol=mol).exe()
-    assert_(ev, lr)
-
+    eval("test_LRx_QR_%s()"%sys.argv[1])
+    teardown()

@@ -55,7 +55,7 @@ class ExpVal:
 **END OF DALTON
 """%(self.wf, self.ff, self.A)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_')
+        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
         dalfile = open(wf + ".dal", 'w')
         dalfile.write(dal)
         dalfile.close()
@@ -112,7 +112,7 @@ class LinResp:
 **END OF DALTON
 """%(self.wf, self.ff, self.trpflg, self.A, self.B, self.aux)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_')
+        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
         dalfile = open(wf + ".dal", 'w')
         dalfile.write(dal)
         dalfile.close()
@@ -173,7 +173,7 @@ class QuadResp:
 **END OF DALTON
 """%(self.wf, self.ff, self.trpflg, self.A, self.B, self.C, self.aux)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_')
+        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
         dalfile = open(wf + ".dal", 'w')
         dalfile.write(dal)
         dalfile.close()
