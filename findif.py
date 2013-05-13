@@ -34,6 +34,7 @@ class ExpVal:
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
         self.mol = kwargs.get('mol', None)
+        self.triplet = kwargs.get('triplet', False) or self.A.split()[-1]=="1"
 
     def exe(self, delta=None):
         if self.field and delta:
@@ -123,8 +124,10 @@ class LinResp:
         os.system("dalton -d -t /tmp/LinResp_%s -N 4 %s > log 2>&1 " % (wf, wf))
 
         result = None
+        A = self.A.split()[0]
+        B = self.B.split()[0]
         for line in open(wf + ".out"):
-            if "@" in line and self.A in line and self.B in line:
+            if "@" in line and A in line and B in line:
                 data = line.split('=')[1].replace('D', 'E')
                 result = -float(data)
                 break
@@ -179,7 +182,7 @@ class QuadResp:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (wf, wf))
+        os.system("dalton -N 8 -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (wf, wf))
 
         result = None
         for line in open(wf + ".out"):
