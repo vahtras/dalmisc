@@ -34,13 +34,20 @@ class ExpVal:
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
         self.mol = kwargs.get('mol', None)
-        self.triplet = kwargs.get('triplet', False) or self.A.split()[-1]=="1"
+        self.triplet = kwargs.get('triplet', False)
 
     def exe(self, delta=None):
+
         if self.field and delta:
-            self.ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
+            ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
         else:
-            self.ff = "###"
+            ff = "###"
+
+        if self.triplet:
+            trpflg = ".TRPFLG"
+        else:
+            trpflg = "#"
+
         dal = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
@@ -50,10 +57,11 @@ class ExpVal:
 1e-12
 %s
 **RESPONSE
+%s
 .PROPAV
 %s
 **END OF DALTON
-"""%(self.wf, self.ff, self.A)
+"""%(self.wf, ff, trpflg, self.A)
 
         wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
         dalfile = open(wf + ".dal", 'w')
@@ -64,11 +72,13 @@ class ExpVal:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -d -t /tmp/ExpVal_%s -N 4 %s > log 2>&1 " % (wf, wf))
+        os.system("dalton -N 8 -d -t /tmp/ExpVal_%s %s > log 2>&1 " % (wf, wf))
 
         result = None
+        print "###",self.A.split()
+        A  = self.A.split()[0]
         for line in open(wf + ".out"):
-            if "total" in line and self.A in line:
+            if "total" in line and A in line:
                 data = line.split(':')[1].replace('D', 'E')
                 result = float(data)
                 break
@@ -121,7 +131,7 @@ class LinResp:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -d -t /tmp/LinResp_%s -N 4 %s > log 2>&1 " % (wf, wf))
+        os.system("dalton -N 8 -d -t /tmp/LinResp_%s  %s > log 2>&1 " % (wf, wf))
 
         result = None
         A = self.A.split()[0]
