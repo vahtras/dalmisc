@@ -2,9 +2,9 @@ import os
 import shutil
 import numpy as np
 from dalmisc.findif import *
-from molinp import *
+from mol import inp
 
-mol=h2o
+mol=inp["h2o"]
 
 def assert_(this,ref):
     print this, ref

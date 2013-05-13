@@ -2,9 +2,10 @@ import os
 import shutil
 import numpy as np
 from dalmisc.findif import *
-from molinp import *
+from mol import inp
 
 mol=h2o
+mol=inp["h2o"]
 
 def assert_(this,ref):
     print this, ref
@@ -23,16 +24,6 @@ def setup():
 def teardown():
     #shutil.rmtree(suppdir)
     pass
-
-
-
-def test_LRx_QR_HF():
-    wf='HF'
-    lr = FinDif(
-        LinResp('ZANGMOM 1', 'ZANGMOM 1', wf=wf, mol=mol, field='XDIPLEN', delta=0.0001, triplet=True)
-        ).first()
-    qr = QuadResp('ZANGMOM 1', 'ZANGMOM 1', 'XDIPLEN', wf=wf, mol=mol, triplet=True, aux=".ISPABC\n1 1 0").exe()
-    assert_(lr, qr)
 
 
 def test_LRx_QR_HF():
