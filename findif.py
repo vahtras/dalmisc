@@ -1,6 +1,8 @@
 import os
+import multiprocessing
 import dalinp
 
+ncpu = multiprocessing.cpu_count()
 
 class FinDif: 
     """Take objects with an exe method taking a 
@@ -72,7 +74,7 @@ class ExpVal:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N 8 -d -t /tmp/ExpVal_%s %s > log 2>&1 " % (wf, wf))
+        os.system("dalton -N %d -d -t /tmp/ExpVal_%s %s > log 2>&1 " % (ncpu, wf, wf))
 
         result = None
         print "###",self.A.split()
@@ -137,7 +139,7 @@ class LinResp:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N 8 -d -t /tmp/LinResp_%s  %s > log 2>&1 " % (wf, wf))
+        os.system("dalton -N %d -d -t /tmp/LinResp_%s  %s > log 2>&1 " % (ncpu, wf, wf))
 
         result = None
         A = self.A.split()[0]
@@ -159,9 +161,12 @@ class QuadResp:
         self.delta = kwargs.get('delta', 0)
         self.mol = kwargs.get('mol')
         self.triplet = kwargs.get('triplet', False)
+        self.parallel = kwargs.get('parallel', True)
         self.aux = kwargs.get('aux', '#')
 
+
     def exe(self, delta=None):
+        global ncpu
         if self.field and delta:
             ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
         else:
@@ -204,7 +209,9 @@ class QuadResp:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N 8 -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (wf, wf))
+        if not self.parallel:
+            ncpu = 1
+        os.system("dalton -N %d -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (ncpu, wf, wf))
 
         result = None
         for line in open(wf + ".out"):
@@ -265,7 +272,7 @@ class CubResp:
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N 8 -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (wf, wf))
+        os.system("dalton -N %d -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (ncpu, wf, wf))
 
         result = None
         for line in open(wf + ".out"):
