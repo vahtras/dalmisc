@@ -2,6 +2,7 @@
 # Finite field strength
 #
 delta = 0.001
+rtol=1e-3
 #
 # Top part of script: setup
 #
@@ -14,8 +15,8 @@ from dalmisc.findif import *
 from mol import inp
 
 def assert_(this,ref):
-    print this, ref
-    assert np.allclose(this, ref, rtol=1e-4)
+    print this, ref, abs(this-ref), %f*abs(ref)
+    assert np.allclose(this, ref, rtol=%f)
         
 
 def setup():
@@ -30,5 +31,5 @@ def setup():
 def teardown():
     #shutil.rmtree(suppdir)
     pass
-"""
+""" % (rtol, rtol)
 

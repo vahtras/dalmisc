@@ -10,7 +10,7 @@ Checks d<<A; B;>/dx(C) = <<A; B, C>>
 """
 
 import sys
-from common_findif import setup
+from common_findif import setup, delta
 
 A, B, C, file_of_functionals = sys.argv[1:5]
 
@@ -36,34 +36,34 @@ template = {}
 template["closed_singlet"] = """
 def test_LRx_QR_%s():
     wf='%s'
-    lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=0.001)).first() 
+    lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"]).exe()
     assert_(lr, qr)
-""" % ("%s", "%s", A, B, C, A, B, C)
+""" % ("%s", "%s", A, B, C, delta, A, B, C)
 
 template["closed_triplet"] = """
 def test_LRx_QR_%s():
     wf='%s'
-    lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o"], triplet=True, field='%s', delta=0.001)).first() 
+    lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o"], triplet=True, field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"], triplet=True, aux=".ISPABC\\n 1 1 0").exe()
     assert_(lr, qr)
-""" % ("%s", "%s", A, B, C, A, B, C)
+""" % ("%s", "%s", A, B, C, delta, A, B, C)
 
 template["open_singlet"] = """
 def test_LRx_QR_%s():
     wf='%s'
-    lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o+"], field='%s', delta=0.001)).first() 
+    lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o+"], field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o+"], parallel=False).exe()
     assert_(lr, qr)
-""" % ("%s", "%s", A, B, C, A, B, C)
+""" % ("%s", "%s", A, B, C, delta, A, B, C)
 
 template["open_triplet"] = """
 def test_LRx_QR_%s():
     wf='%s'
-    lr = FinDif(LinResp('%s', '%s 1', wf=wf, mol=inp["h2o+"], field='%s', delta=0.001)).first() 
+    lr = FinDif(LinResp('%s', '%s 1', wf=wf, mol=inp["h2o+"], field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s 1', '%s', wf=wf, mol=inp["h2o+"], parallel=False).exe()
     assert_(lr, qr)
-""" % ("%s", "%s", A, B, C, A, B, C)
+""" % ("%s", "%s", A, B, C, delta, A, B, C)
 
 functionals = [ line.strip() for line in open(file_of_functionals) ] 
 
