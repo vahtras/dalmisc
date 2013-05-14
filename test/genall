@@ -1,0 +1,5 @@
+#!/bin/bash
+funcfile=${1-availfun}
+./gen_findif_lr.py XXQUADRU YDIPLEN $funcfile
+./gen_findif_qr.py XXQUADRU YYQUADRU YDIPLEN $funcfile
+./gen_findif_cr.py XXQUADRU YYQUADRU ZZQUADRU YDIPLEN $funcfile
