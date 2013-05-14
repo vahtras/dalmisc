@@ -10,6 +10,8 @@ Checks d<A>/dx(B) = <<A; B>>
 """
 
 import sys
+from common_findif import setup
+
 A, B, file_of_functionals = sys.argv[1:4]
 
 #

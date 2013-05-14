@@ -10,37 +10,10 @@ Checks d<<A; B, C>>/dx(D) = <<A; B, C, D>>
 """
 
 import sys
+from common_findif import setup, delta
+
 A, B, C, D, file_of_functionals = sys.argv[1:6]
 
-#
-# Top part of script: setup
-#
-
-setup = """
-import os
-import shutil
-import numpy as np
-from dalmisc.findif import *
-from mol import inp
-
-def assert_(this,ref):
-    print this, ref
-    assert np.allclose(this, ref, rtol=1e-4)
-        
-
-def setup():
-    global suppdir
-    n, e = os.path.splitext(__file__)
-    suppdir = n + ".d"
-    if os.path.isdir(suppdir):
-        shutil.rmtree(suppdir)
-    os.mkdir(suppdir)
-    os.chdir(suppdir)
-
-def teardown():
-    #shutil.rmtree(suppdir)
-    pass
-"""
 
 #
 # Bottom part of script: main (to invoke inividual tests)
@@ -63,10 +36,10 @@ template = {}
 template["closed_singlet"] = """
 def test_LRx_QR_%s():
     wf='%s'
-    qr = FinDif(QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=0.001)).first() 
+    qr = FinDif(QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
     cr = CubResp('%s', '%s', '%s', '%s', wf=wf, mol=inp["h2o"]).exe()
     assert_(qr, cr)
-""" % ("%s", "%s", A, B, C, D, A, B, C, D)
+""" % ("%s", "%s", A, B, C, D, delta, A, B, C, D)
 
 
 functionals = [ line.strip() for line in open(file_of_functionals) ] 
