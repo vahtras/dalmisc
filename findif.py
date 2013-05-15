@@ -77,7 +77,6 @@ class ExpVal:
         os.system("dalton -N %d -d -t /tmp/ExpVal_%s %s > log 2>&1 " % (ncpu, wf, wf))
 
         result = None
-        print "###",self.A.split()
         A  = self.A.split()[0]
         for line in open(wf + ".out"):
             if "total" in line and A in line:
