@@ -1,18 +1,24 @@
 #!/bin/bash
+if [ -n "$1" ]; then 
+   sel1=":test_EVx_LR_$1"
+   sel2=":test_LRx_QR_$1"
+   sel3=":test_QRx_CR_$1"
+fi
+
 #LR
 for runtype in closed_singlet open_singlet open_triplet 
 do
-    nosetests -v test_findif_lr_$runtype.py  2>&1 | tee test_findif_lr_$runtype.log
+    $ECHO nosetests -v test_findif_lr_$runtype.py$sel1  2>&1 | tee -a test_findif_lr_$runtype.log
 done
 
 #QR
 for runtype in closed_singlet closed_triplet open_singlet open_triplet 
 do
-    nosetests -v test_findif_qr_$runtype.py  2>&1 | tee test_findif_qr_$runtype.log
+    $ECHO nosetests -v test_findif_qr_$runtype.py$sel2  2>&1 | tee -a test_findif_qr_$runtype.log
 done
 
 #CR
 for runtype in closed_singlet
 do
-    nosetests -v test_findif_cr_$runtype.py  2>&1 | tee test_findif_cr_$runtype.log
+    $ECHO nosetests -v test_findif_cr_$runtype.py$sel3  2>&1 | tee -a test_findif_cr_$runtype.log
 done
