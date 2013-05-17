@@ -10,22 +10,10 @@ Checks d<<A; B;>/dx(C) = <<A; B, C>>
 """
 
 import sys
-from common_findif import setup, delta
+from common_findif import setup, delta, main
 
 A, B, C, file_of_functionals = sys.argv[1:5]
 
-
-#
-# Bottom part of script: main (to invoke inividual tests)
-#
-
-main = """
-if __name__ == "__main__":
-    import sys
-    setup()
-    eval("test_LRx_QR_%s()"%sys.argv[1])
-    teardown()
-"""
 
 #
 # Template for functional test calling findif module 
@@ -34,7 +22,7 @@ if __name__ == "__main__":
 template = {}
 
 template["closed_singlet"] = """
-def test_LRx_QR_%s():
+def test_findif_%s():
     wf='%s'
     lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"]).exe()
@@ -42,7 +30,7 @@ def test_LRx_QR_%s():
 """ % ("%s", "%s", A, B, C, delta, A, B, C)
 
 template["closed_triplet"] = """
-def test_LRx_QR_%s():
+def test_findif_%s():
     wf='%s'
     lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o"], triplet=True, field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"], triplet=True, aux=".ISPABC\\n 1 1 0").exe()
@@ -50,7 +38,7 @@ def test_LRx_QR_%s():
 """ % ("%s", "%s", A, B, C, delta, A, B, C)
 
 template["open_singlet"] = """
-def test_LRx_QR_%s():
+def test_findif_%s():
     wf='%s'
     lr = FinDif(LinResp('%s', '%s', wf=wf, mol=inp["h2o+"], field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o+"], parallel=False).exe()
@@ -58,7 +46,7 @@ def test_LRx_QR_%s():
 """ % ("%s", "%s", A, B, C, delta, A, B, C)
 
 template["open_triplet"] = """
-def test_LRx_QR_%s():
+def test_findif_%s():
     wf='%s'
     lr = FinDif(LinResp('%s', '%s 1', wf=wf, mol=inp["h2o+"], field='%s', delta=%f)).first() 
     qr = QuadResp('%s', '%s 1', '%s', wf=wf, mol=inp["h2o+"], parallel=False).exe()

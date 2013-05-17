@@ -11,7 +11,7 @@ setup = """
 import os
 import shutil
 import numpy as np
-from dalmisc.findif import *
+from ..findif import *
 from mol import inp
 
 def assert_(this,ref):
@@ -33,3 +33,14 @@ def teardown():
     pass
 """ % (rtol, rtol)
 
+#
+# Bottom part of script: main (to invoke inividual tests)
+#
+
+main = """
+if __name__ == "__main__":
+    import sys
+    setup()
+    eval("test_findif_%s()"%sys.argv[1])
+    teardown()
+"""

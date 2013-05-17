@@ -10,22 +10,10 @@ Checks d<<A; B, C>>/dx(D) = <<A; B, C, D>>
 """
 
 import sys
-from common_findif import setup, delta
+from common_findif import setup, delta, main
 
 A, B, C, D, file_of_functionals = sys.argv[1:6]
 
-
-#
-# Bottom part of script: main (to invoke inividual tests)
-#
-
-main = """
-if __name__ == "__main__":
-    import sys
-    setup()
-    eval("test_QRx_CR_%s()"%sys.argv[1])
-    teardown()
-"""
 
 #
 # Template for functional test calling findif module 
@@ -34,7 +22,7 @@ if __name__ == "__main__":
 template = {}
 
 template["closed_singlet"] = """
-def test_QRx_CR_%s():
+def test_findif_%s():
     wf='%s'
     qr = FinDif(QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
     cr = CubResp('%s', '%s', '%s', '%s', wf=wf, mol=inp["h2o"]).exe()

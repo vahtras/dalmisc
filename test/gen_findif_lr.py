@@ -10,21 +10,10 @@ Checks d<A>/dx(B) = <<A; B>>
 """
 
 import sys
-from common_findif import setup, delta
+from common_findif import setup, delta, main
 
 A, B, file_of_functionals = sys.argv[1:4]
 
-#
-# Bottom part of script: main (to invoke inividual tests)
-#
-
-main = """
-if __name__ == "__main__":
-    import sys
-    setup()
-    eval("test_EVx_LR_%s()"%sys.argv[1])
-    teardown()
-"""
 
 #
 # Template for functional test calling findif module 
@@ -33,7 +22,7 @@ if __name__ == "__main__":
 template = {}
 
 template["closed_singlet"] = """
-def test_EVx_LR_%s():
+def test_findif_%s():
     wf='%s'
     ev = FinDif(ExpVal('%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
     lr = LinResp('%s', '%s', wf=wf, mol=inp["h2o"]).exe()
@@ -41,7 +30,7 @@ def test_EVx_LR_%s():
 """ % ("%s", "%s", A, B, delta, A, B)
 
 template["open_singlet"] = """
-def test_EVx_LR_%s():
+def test_findif_%s():
     wf='%s'
     ev = FinDif(ExpVal('%s', wf=wf, mol=inp["h2o+"], field='%s', delta=%f)).first() 
     lr = LinResp('%s', '%s', wf=wf, mol=inp["h2o+"]).exe()
@@ -49,7 +38,7 @@ def test_EVx_LR_%s():
 """ % ("%s", "%s", A, B, delta, A, B)
 
 template["open_triplet"] = """
-def test_EVx_LR_%s():
+def test_findif_%s():
     wf='%s'
     ev = FinDif(ExpVal('%s', wf=wf, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
     lr = LinResp('%s 1', '%s', wf=wf, mol=inp["h2o+"], triplet=False).exe()
