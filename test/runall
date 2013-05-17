@@ -8,17 +8,17 @@ fi
 #LR
 for runtype in closed_singlet open_singlet open_triplet 
 do
-    $ECHO nosetests -v test_findif_lr_$runtype.py$sel1  2>&1 | tee -a test_findif_lr_$runtype.log
+    $ECHO nosetests -v test_findif_lr_$runtype.py$sel1  2>&1 | tee  test_findif_lr_$runtype.log$1
 done
 
 #QR
 for runtype in closed_singlet closed_triplet open_singlet open_triplet 
 do
-    $ECHO nosetests -v test_findif_qr_$runtype.py$sel2  2>&1 | tee -a test_findif_qr_$runtype.log
+    $ECHO nosetests -v test_findif_qr_$runtype.py$sel2  2>&1 | tee  test_findif_qr_$runtype.log$1
 done
 
 #CR
 for runtype in closed_singlet
 do
-    $ECHO nosetests -v test_findif_cr_$runtype.py$sel3  2>&1 | tee -a test_findif_cr_$runtype.log
+    $ECHO nosetests -v test_findif_cr_$runtype.py$sel3  2>&1 | tee  test_findif_cr_$runtype.log$1
 done
