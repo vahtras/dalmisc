@@ -83,7 +83,7 @@ class ExpVal:
                 data = line.split(':')[1].replace('D', 'E')
                 result = float(data)
                 break
-        assert result is not None
+        if result is None: raise ValueError
         return result
 
 class LinResp:
@@ -148,7 +148,7 @@ class LinResp:
                 data = line.split('=')[1].replace('D', 'E')
                 result = -float(data)
                 break
-        assert result is not None
+        if result is None: raise ValueError
         return result
 
 class QuadResp:
@@ -218,7 +218,7 @@ class QuadResp:
                 data = line.split()[-1]
                 result = float(data)
                 break
-        assert result is not None
+        if result is None: raise ValueError
         return result
 
 class CubResp:
@@ -279,7 +279,7 @@ class CubResp:
                 data = line.split()[-1]
                 result = float(data)
                 break
-        assert result is not None
+        if result is None: raise ValueError
         return result
         
 
