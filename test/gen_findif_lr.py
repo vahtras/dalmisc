@@ -56,8 +56,11 @@ for runtype in template:
         runfile.write(setup)
         runfile.write( template[runtype]%('HF', 'HF'))
         for f in functionals:
-            validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_')
-            wf = 'DFT\\n%s'%f
+            validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
+            if '*' in f: 
+                wf = 'DFT\\nGGAKey hf=.1 %s=.9' % f.replace('*', '')
+            else:
+                wf = 'DFT\\n%s'%f
             runfile.write(template[runtype]%(validfname, wf))
         runfile.write(main)
 
