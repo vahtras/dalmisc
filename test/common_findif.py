@@ -11,12 +11,16 @@ setup = """
 import os
 import shutil
 import numpy as np
-from ..findif import *
+from dalmisc.findif import *
 from mol import inp
 
-def assert_(this,ref):
-    print this, ref, abs(this-ref), %f*abs(ref)
-    assert np.allclose(this, ref, rtol=%f)
+def assert_(num,ana):
+    atol = 1e-8
+    print "Numerical ", num
+    print "Analytical", ana
+    print "Difference", abs(num-ana)
+    print "Target difference", atol + %f*abs(ana)
+    assert np.allclose(num, ana, rtol=%f)
         
 
 def setup():

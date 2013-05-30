@@ -2,8 +2,8 @@ import os
 import shutil
 import numpy as np
 from mol import inp
-from ..findif import *
-import dalinp
+from dalmisc.findif import *
+#import dalinp
 
 def assert_(this,ref):
     print this
@@ -41,7 +41,7 @@ def test_lr_HFx():
     assert_(res, 0.00057501)
 
 def test_QR_HF(): 
-    qr = QuadResp('XANGMOM', 'X1SPNORB', 'XDIPLEN', wf="DFT\nGGAKEY HF=1", mol=inp["ch2+"])
+    qr = QuadResp('XANGMOM', 'X1SPNORB', 'XDIPLEN', wf="DFT\nGGAKEY HF=1", mol=inp["ch2+"], parallel=False)
     res = qr.exe()
     assert_(res, 0.00057501)
 
@@ -50,9 +50,11 @@ def test_LRx_QR():
         lr = FinDif(
             LinResp('XANGMOM', 'X1SPNORB', wf=wf, mol=inp["ch2+"], field='XDIPLEN', delta=0.0001)
             ).first()
-        qr = QuadResp('XANGMOM', 'X1SPNORB', 'XDIPLEN', mol=inp["ch2+"], wf=wf).exe()
+        qr = QuadResp('XANGMOM', 'X1SPNORB', 'XDIPLEN', mol=inp["ch2+"], wf=wf, parallel=False).exe()
         assert_(lr, qr)
     
 
 if __name__ == "__main__":
-    pas
+    setup()
+    test_EV_HF()
+    teardown()
