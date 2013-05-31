@@ -29,10 +29,20 @@ def test_EV_HF():
     res = ev.exe()
     assert_(res, 3.1348738989E-03)
 
+def test_EV_DFT():
+    ev = ExpVal('XDIPLEN', wf='DFT\nB3LYP', dal='b3lyp', mol=inp["ch2+"])
+    res = ev.exe()
+    assert_(res, 3.18476890e-03)
+
 def test_LR_HF(): 
     lr = LinResp('XANGMOM', 'X1SPNORB', mol=inp["ch2+"])
     res = lr.exe()
     assert_(res, -0.000131051802829)
+
+def test_LR_DFT(): 
+    lr = LinResp('XANGMOM', 'X1SPNORB', wf='DFT\nLDA', dal='lda', mol=inp["ch2+"])
+    res = lr.exe()
+    assert_(res, -1.770146614464e-04)
 
 def test_lr_HFx():
     lr = LinResp('XANGMOM', 'X1SPNORB', mol=inp["ch2+"], field='XDIPLEN', delta=0.0001)
@@ -56,5 +66,5 @@ def test_LRx_QR():
 
 if __name__ == "__main__":
     setup()
-    test_EV_HF()
+    test_LR_HF()
     teardown()

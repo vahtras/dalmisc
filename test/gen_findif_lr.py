@@ -24,26 +24,29 @@ template = {}
 template["closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
-    ev = FinDif(ExpVal('%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
-    lr = LinResp('%s', '%s', wf=wf, mol=inp["h2o"]).exe()
+    dal='%s'
+    ev = FinDif(ExpVal('%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    lr = LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
     assert_(ev, lr)
-""" % ("%s", "%s", A, B, delta, A, B)
+""" % ("%s", "%s", "%s", A, B, delta, A, B)
 
 template["open_singlet"] = """
 def test_findif_%s():
     wf='%s'
-    ev = FinDif(ExpVal('%s', wf=wf, mol=inp["h2o+"], field='%s', delta=%f)).first() 
-    lr = LinResp('%s', '%s', wf=wf, mol=inp["h2o+"]).exe()
+    dal='%s'
+    ev = FinDif(ExpVal('%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
+    lr = LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"]).exe()
     assert_(ev, lr)
-""" % ("%s", "%s", A, B, delta, A, B)
+""" % ("%s", "%s", "%s", A, B, delta, A, B)
 
 template["open_triplet"] = """
 def test_findif_%s():
     wf='%s'
-    ev = FinDif(ExpVal('%s', wf=wf, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
-    lr = LinResp('%s 1', '%s', wf=wf, mol=inp["h2o+"], triplet=False).exe()
+    dal='%s'
+    ev = FinDif(ExpVal('%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
+    lr = LinResp('%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=False).exe()
     assert_(ev, lr)
-""" % ("%s", "%s", A, B, delta, A, B)
+""" % ("%s", "%s", "%s", A, B, delta, A, B)
 
 functionals = [ line.strip() for line in open(file_of_functionals) ] 
 
@@ -54,14 +57,15 @@ functionals = [ line.strip() for line in open(file_of_functionals) ]
 for runtype in template:
     with open("test_findif_lr_" + runtype + ".py", 'w') as runfile:
         runfile.write(setup)
-        runfile.write( template[runtype]%('HF', 'HF'))
+        runfile.write( template[runtype]%('HF', 'HF', 'hf'))
         for f in functionals:
             validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
+            dal=validfname.lower()
             if '*' in f: 
                 wf = 'DFT\\nGGAKey hf=.1 %s=.9' % f.replace('*', '')
             else:
                 wf = 'DFT\\n%s'%f
-            runfile.write(template[runtype]%(validfname, wf))
+            runfile.write(template[runtype]%(validfname, wf, dal))
         runfile.write(main)
 
 

@@ -1,6 +1,6 @@
 import os
 import multiprocessing
-import dalinp
+#import dalinp
 
 ncpu = multiprocessing.cpu_count()
 
@@ -32,6 +32,7 @@ class ExpVal:
     """Execute dalton LR"""
     def __init__(self, *args, **kwargs):
         self.wf = kwargs.get('wf', 'HF')
+        self.dal = kwargs.get('dal', self.wf)
         self.A, = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
@@ -50,13 +51,14 @@ class ExpVal:
         else:
             trpflg = "#"
 
-        dal = """**DALTON INPUT
+        dalinp = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
 .%s
 *SCF INPUT
+.NOQCSCF
 .THRESHOLD
-1e-12
+1e-10
 %s
 **RESPONSE
 %s
@@ -65,20 +67,21 @@ class ExpVal:
 **END OF DALTON
 """%(self.wf, ff, trpflg, self.A)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
-        dalfile = open(wf + ".dal", 'w')
-        dalfile.write(dal)
+        dal = self.dal.split('\n')[-1].replace(' ','_').replace('/','_')
+        dalfile = open(dal + ".dal", 'w')
+        dalfile.write(dalinp)
         dalfile.close()
     
-        molfile = open(wf + ".mol", 'w')
+        molfile = open(dal + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N %d -d -t /tmp/ExpVal_%s %s > log 2>&1 " % (ncpu, wf, wf))
+        cmd = "dalton -N %d -d -t /tmp/ExpVal_%s %s > log 2>&1 " % (ncpu, dal, dal)
+        os.system(cmd)
 
         result = None
         A  = self.A.split()[0]
-        for line in open(wf + ".out"):
+        for line in open(dal + ".out"):
             if "total" in line and A in line:
                 data = line.split(':')[1].replace('D', 'E')
                 result = float(data)
@@ -90,6 +93,7 @@ class LinResp:
     """Execute dalton LR"""
     def __init__(self, *args, **kwargs):
         self.wf = kwargs.get('wf', 'HF')
+        self.dal = kwargs.get('dal', self.wf)
         self.A, self.B = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
@@ -108,7 +112,7 @@ class LinResp:
         else:
             trpflg = "#"
 
-        dal = """**DALTON INPUT
+        dalinp = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
 .%s
@@ -129,21 +133,22 @@ class LinResp:
 **END OF DALTON
 """%(self.wf, ff, trpflg, self.A, self.B, self.aux)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
-        dalfile = open(wf + ".dal", 'w')
-        dalfile.write(dal)
+        dal = self.dal.split('\n')[-1].replace(' ','_').replace('/','_')
+        dalfile = open(dal + ".dal", 'w')
+        dalfile.write(dalinp)
         dalfile.close()
     
-        molfile = open(wf + ".mol", 'w')
+        molfile = open(dal + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N %d -d -t /tmp/LinResp_%s  %s > log 2>&1 " % (ncpu, wf, wf))
+        cmd = "dalton -N %d -d -t /tmp/LinResp %s %s > log 2>&1 " % (ncpu, dal, dal)
+        os.system(cmd)
 
         result = None
         A = self.A.split()[0]
         B = self.B.split()[0]
-        for line in open(wf + ".out"):
+        for line in open(dal + ".out"):
             if "@" in line and A in line and B in line:
                 data = line.split('=')[1].replace('D', 'E')
                 result = -float(data)
@@ -155,6 +160,7 @@ class QuadResp:
     """Execute dalton QR"""
     def __init__(self, *args, **kwargs):
         self.wf = kwargs.get('wf', 'HF')
+        self.dal = kwargs.get('dal', self.wf)
         self.A, self.B, self.C = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
@@ -176,7 +182,7 @@ class QuadResp:
         else:
             trpflg = "#"
 
-        dal = """**DALTON INPUT
+        dalinp = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
 .%s
@@ -199,21 +205,22 @@ class QuadResp:
 **END OF DALTON
 """%(self.wf, ff, trpflg, self.A, self.B, self.C, self.aux)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
-        dalfile = open(wf + ".dal", 'w')
-        dalfile.write(dal)
+        dal = self.dal.split('\n')[-1].replace(' ','_').replace('/','_')
+        dalfile = open(dal + ".dal", 'w')
+        dalfile.write(dalinp)
         dalfile.close()
     
-        molfile = open(wf + ".mol", 'w')
+        molfile = open(dal + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
         if not self.parallel:
             ncpu = 1
-        os.system("dalton -N %d -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (ncpu, wf, wf))
+        cmd = "dalton -N %d -d -t /tmp/QuadResp %s %s > log 2>&1 " % (ncpu, dal, dal)
+        os.system(cmd)
 
         result = None
-        for line in open(wf + ".out"):
+        for line in open(dal + ".out"):
             if "@omega" in line:
                 data = line.split()[-1]
                 result = float(data)
@@ -225,6 +232,7 @@ class CubResp:
     """Execute dalton CR"""
     def __init__(self, *args, **kwargs):
         self.wf = kwargs.get('wf', 'HF')
+        self.dal = kwargs.get('dal', self.wf)
         self.A, self.B, self.C, self.D = args
         self.field = kwargs.get('field', None)
         self.delta = kwargs.get('delta', 0)
@@ -237,7 +245,7 @@ class CubResp:
             self.ff = "*HAMILTON\n.FIELD\n%f\n%s"%(delta, self.field)
         else:
             self.ff = "###"
-        dal = """**DALTON INPUT
+        dalinp = """**DALTON INPUT
 .RUN RESPONSE
 **WAVE FUNCTIONS
 .%s
@@ -262,19 +270,20 @@ class CubResp:
 **END OF DALTON
 """%(self.wf, self.ff, self.trpflg, self.A, self.B, self.C, self.D, self.aux)
 
-        wf = self.wf.split('\n')[-1].replace(' ','_').replace('/','_')
-        dalfile = open(wf + ".dal", 'w')
-        dalfile.write(dal)
+        dal = self.dal.split('\n')[-1].replace(' ','_').replace('/','_')
+        dalfile = open(dal + ".dal", 'w')
+        dalfile.write(dalinp)
         dalfile.close()
     
-        molfile = open(wf + ".mol", 'w')
+        molfile = open(dal + ".mol", 'w')
         molfile.write(self.mol)
         molfile.close()
 
-        os.system("dalton -N %d -d -t /tmp/QuadResp_%s  %s > log 2>&1 " % (ncpu, wf, wf))
+        cmd = "dalton -N %d -d -t /tmp/CubResp %s %s > log 2>&1 " % (ncpu, dal, dal)
+        os.system(cmd)
 
         result = None
-        for line in open(wf + ".out"):
+        for line in open(dal + ".out"):
             if "@ << A; B, C, D >>" in line:
                 data = line.split()[-1]
                 result = float(data)
