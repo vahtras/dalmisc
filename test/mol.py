@@ -1,7 +1,7 @@
 inp = {}
 
 inp["ch2+"] = """ATOMBASIS
-STO-3G
+6-31G
 ------
     2   1 Z
         6.    1 Basis=STO-3G
@@ -12,24 +12,26 @@ H2     -0.7584339548    0.6854360769    1.7695110698
 """
 
 
-inp["h2o"] = """ATOMBASIS
+inp["h2o"] = """BASIS
+6-31G
 Energy calculation without symmetry
-Basis set specified with ATOMBASIS
+===================================
     2    0
-        8.    1      Basis=cc-pVDZ
+        8.    1
 O     0.0 -0.2249058930 0.0
-        1.    2      Bas=cc-pVDZ
+        1.    2
 H1    1.45235 0.899623 0.0
 H2   -1.45235 0.899623 0.0
 """
 
-inp["h2o+"] = """ATOMBASIS
+inp["h2o+"] = """BASIS
+6-31G
 Energy calculation without symmetry
-Basis set specified with ATOMBASIS
+===================================
     2  1 0
-        8.    1      Basis=cc-pVDZ
+        8.    1
 O     0.0 -0.2249058930 0.0
-        1.    2      Bas=cc-pVDZ
+        1.    2
 H1    1.45235 0.899623 0.0
 H2   -1.45235 0.899623 0.0
 """

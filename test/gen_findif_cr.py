@@ -24,10 +24,11 @@ template = {}
 template["closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
-    qr = FinDif(QuadResp('%s', '%s', '%s', wf=wf, mol=inp["h2o"], field='%s', delta=%f)).first() 
-    cr = CubResp('%s', '%s', '%s', '%s', wf=wf, mol=inp["h2o"]).exe()
+    dal='%s'
+    qr = FinDif(QuadResp('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    cr = CubResp('%s', '%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
     assert_(qr, cr)
-""" % ("%s", "%s", A, B, C, D, delta, A, B, C, D)
+""" % ("%s", "%s", "%s", A, B, C, D, delta, A, B, C, D)
 
 
 functionals = [ line.strip() for line in open(file_of_functionals) ] 
@@ -39,14 +40,15 @@ functionals = [ line.strip() for line in open(file_of_functionals) ]
 for runtype in template:
     with open("test_findif_cr_" + runtype + ".py", 'w') as runfile:
         runfile.write(setup)
-        runfile.write( template[runtype]%('HF', 'HF'))
+        runfile.write( template[runtype]%('HF', 'HF', 'hf'))
         for f in functionals:
             validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
+            dal=validfname.lower()
             if '*' in f: 
-                wf = 'DFT\\nGGAKey hf=.1 %s=.9' % f.replace('*', '')
+                wf = 'DFT\\nGGAKey hf=.5 %s=.5' % f.replace('*', '')
             else:
                 wf = 'DFT\\n%s'%f
-            runfile.write(template[runtype]%(validfname, wf))
+            runfile.write(template[runtype]%(validfname, wf, dal))
         runfile.write(main)
 
 

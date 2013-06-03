@@ -62,7 +62,7 @@ for runtype in template:
             validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
             dal=validfname.lower()
             if '*' in f: 
-                wf = 'DFT\\nGGAKey hf=.1 %s=.9' % f.replace('*', '')
+                wf = 'DFT\\nGGAKey hf=.5 %s=.5' % f.replace('*', '')
             else:
                 wf = 'DFT\\n%s'%f
             runfile.write(template[runtype]%(validfname, wf, dal))

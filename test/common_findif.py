@@ -18,8 +18,8 @@ def assert_(num,ana):
     atol = 1e-8
     print "Numerical ", num
     print "Analytical", ana
-    print "Difference", abs(num-ana)
-    print "Target difference", atol + %f*abs(ana)
+    print "Difference ", abs(num-ana)
+    print "Target diff", atol + %f*abs(ana)
     assert np.allclose(num, ana, rtol=%f)
         
 
