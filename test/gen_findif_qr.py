@@ -10,7 +10,7 @@ Checks d<<A; B;>/dx(C) = <<A; B, C>>
 """
 
 import sys
-from common_findif import setup, delta, main
+from common_findif import setup, delta, main, hfweight
 
 A, B, C, file_of_functionals = sys.argv[1:5]
 
@@ -71,7 +71,7 @@ for runtype in template:
             validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
             dal=validfname.lower()
             if '*' in f: 
-                wf = 'DFT\\nGGAKey hf=.5 %s=.5' % f.replace('*', '')
+                wf = 'DFT\\nGGAKey hf=%f %s=%f' % (hfweight, f.replace('*', ''), 1-hfweight)
             else:
                 wf = 'DFT\\n%s'%f
             runfile.write(template[runtype]%(validfname, wf, dal))

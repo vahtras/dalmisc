@@ -3,6 +3,7 @@
 #
 delta = 0.001
 rtol=1e-3
+hfweight = 0.5
 #
 # Top part of script: setup
 #
