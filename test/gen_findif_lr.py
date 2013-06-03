@@ -25,8 +25,8 @@ template["closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    ev = FinDif(ExpVal('%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
-    lr = LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    lr = RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
     assert_(ev, lr)
 """ % ("%s", "%s", "%s", A, B, delta, A, B)
 
@@ -34,8 +34,8 @@ template["open_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    ev = FinDif(ExpVal('%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
-    lr = LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"]).exe()
+    ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
+    lr = RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"]).exe()
     assert_(ev, lr)
 """ % ("%s", "%s", "%s", A, B, delta, A, B)
 
@@ -43,8 +43,8 @@ template["open_triplet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    ev = FinDif(ExpVal('%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
-    lr = LinResp('%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=False).exe()
+    ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
+    lr = RspCalc('%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=False).exe()
     assert_(ev, lr)
 """ % ("%s", "%s", "%s", A, B, delta, A, B)
 

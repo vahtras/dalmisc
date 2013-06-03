@@ -371,6 +371,23 @@ class RspCalc:
 %s
 %s """ % (trpflg, A, B, C, self.aux)
 
+        elif rsp_order == 4:
+            A, B, C, D = self.ops
+            rspinp = """**RESPONSE
+%s
+*CUBIC
+.THCLR
+1e-9
+.APROP 
+%s
+.BPROP
+%s
+.CPROP
+%s
+.DPROP
+%s
+%s""" % (trpflg, A, B, C, D, self.aux)
+
         else:
             raise RuntimeError("Response order %d not implemented" % rsp_order)
 
@@ -395,6 +412,10 @@ class RspCalc:
 
         result = None
         A  = A.split()[0]
+        if rsp_order > 1:
+            B = B.split()[0]
+        if rsp_order > 2:
+            C = C.split()[0]
         for line in open(dal + ".out"):
             if rsp_order == 1:
                 if "total" in line and A in line:
@@ -411,11 +432,16 @@ class RspCalc:
                     data = line.split()[-1]
                     result = float(data)
                     break
+            elif rsp_order == 4:
+                if "@ << A; B, C, D >>" in line:
+                    data = line.split()[-1]
+                    result = float(data)
+                    break
             else:
                 raise RuntimeError("Response order %d not implemented" % rsp_order)
 
         if result is None or math.isnan(result): 
-            #import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
             raise ValueError
         return result
 

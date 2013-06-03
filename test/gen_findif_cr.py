@@ -25,8 +25,8 @@ template["closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    qr = FinDif(QuadResp('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
-    cr = CubResp('%s', '%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    qr = FinDif(RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    cr = RspCalc('%s', '%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
     assert_(qr, cr)
 """ % ("%s", "%s", "%s", A, B, C, D, delta, A, B, C, D)
 

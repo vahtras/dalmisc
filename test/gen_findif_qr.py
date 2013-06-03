@@ -25,8 +25,8 @@ template["closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    lr = FinDif(LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
-    qr = QuadResp('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    lr = FinDif(RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    qr = RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
     assert_(lr, qr)
 """ % ("%s", "%s", "%s", A, B, C, delta, A, B, C)
 
@@ -34,8 +34,8 @@ template["closed_triplet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    lr = FinDif(LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], triplet=True, field='%s', delta=%f)).first() 
-    qr = QuadResp('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], triplet=True, aux=".ISPABC\\n 1 1 0").exe()
+    lr = FinDif(RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], triplet=True, field='%s', delta=%f)).first() 
+    qr = RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], triplet=True, aux=".ISPABC\\n 1 1 0").exe()
     assert_(lr, qr)
 """ % ("%s", "%s", "%s", A, B, C, delta, A, B, C)
 
@@ -43,8 +43,8 @@ template["open_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    lr = FinDif(LinResp('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
-    qr = QuadResp('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"], parallel=False).exe()
+    lr = FinDif(RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
+    qr = RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"], parallel=False).exe()
     assert_(lr, qr)
 """ % ("%s", "%s", "%s", A, B, C, delta, A, B, C)
 
@@ -52,8 +52,8 @@ template["open_triplet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    lr = FinDif(LinResp('%s', '%s 1', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
-    qr = QuadResp('%s', '%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], parallel=False).exe()
+    lr = FinDif(RspCalc('%s', '%s 1', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
+    qr = RspCalc('%s', '%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], parallel=False).exe()
     assert_(lr, qr)
 """ % ("%s", "%s", "%s", A, B, C, delta, A, B, C)
 
