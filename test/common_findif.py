@@ -49,3 +49,22 @@ if __name__ == "__main__":
     eval("test_findif_%s()"%sys.argv[1])
     teardown()
 """
+
+#
+# Process all runtypes and functionals defined in input file
+#
+
+def process(template, functionals):
+    for runtype in template:
+        with open("test_findif_" + runtype + ".py", 'w') as runfile:
+            runfile.write(setup)
+            runfile.write( template[runtype]%('HF', 'HF', 'hf'))
+            for f in functionals:
+                validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
+                dal=validfname.lower()
+                if '*' in f: 
+                    wf = 'DFT\\nGGAKey hf=%f %s=%f' % (hfweight, f.replace('*', ''), 1-hfweight)
+                else:
+                    wf = 'DFT\\n%s'%f
+                runfile.write(template[runtype]%(validfname, wf, dal))
+            runfile.write(main)

@@ -4,15 +4,16 @@
 Tests finite field tests of expectation values
 
 Usage:
-./gen_findif_lr.py A B file_of_functionals
+./gen_findif_lr.py A X file_of_functionals
 
-Checks d<A>/dx(B) = <<A; B>>
+Checks d<A>/dx(X) = <<A; X>>
 """
 
 import sys
 from common_findif import setup, delta, main, hfweight
 
-A, B, file_of_functionals = sys.argv[1:4]
+file_of_functionals = sys.argv.pop()
+A, X = sys.argv[1:]
 
 
 #
@@ -21,32 +22,32 @@ A, B, file_of_functionals = sys.argv[1:4]
 
 template = {}
 
-template["closed_singlet"] = """
+template["lr_closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
     ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
     lr = RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
     assert_(ev, lr)
-""" % ("%s", "%s", "%s", A, B, delta, A, B)
+""" % ("%s", "%s", "%s", A, X, delta, A, X)
 
-template["open_singlet"] = """
+template["lr_open_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
     ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
     lr = RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"]).exe()
     assert_(ev, lr)
-""" % ("%s", "%s", "%s", A, B, delta, A, B)
+""" % ("%s", "%s", "%s", A, X, delta, A, X)
 
-template["open_triplet"] = """
+template["lr_open_triplet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
     ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
     lr = RspCalc('%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=False).exe()
     assert_(ev, lr)
-""" % ("%s", "%s", "%s", A, B, delta, A, B)
+""" % ("%s", "%s", "%s", A, X, delta, A, X)
 
 functionals = [ line.strip() for line in open(file_of_functionals) ] 
 
@@ -54,21 +55,5 @@ functionals = [ line.strip() for line in open(file_of_functionals) ]
 # Process all runtypes and functionals defined in input file
 #
 
-for runtype in template:
-    with open("test_findif_lr_" + runtype + ".py", 'w') as runfile:
-        runfile.write(setup)
-        runfile.write( template[runtype]%('HF', 'HF', 'hf'))
-        for f in functionals:
-            validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
-            dal=validfname.lower()
-            if '*' in f: 
-                wf = 'DFT\\nGGAKey hf=%f %s=%f' % (hfweight, f.replace('*', ''), 1-hfweight)
-            else:
-                wf = 'DFT\\n%s'%f
-            runfile.write(template[runtype]%(validfname, wf, dal))
-        runfile.write(main)
-
-
-
-
-
+from common_findif import process
+process(template, functionals)

@@ -4,16 +4,17 @@
 Tests finite field tests of expectation values
 
 Usage:
-./gen_findif_qr.py A B X file_of_functionals
+./gen_findif_cr.py A B C X file_of_functionals
 
-Checks d<<A; B;>/dx(X) = <<A; B, X>>
+Checks d<<A; B, C>>/dx(X) = <<A; B, C, D>>
 """
 
 import sys
 from common_findif import setup, delta, main, hfweight
 
 file_of_functionals = sys.argv.pop()
-A, B, X, = sys.argv[1:]
+A, B, C, X = sys.argv[1:]
+targs = ("%s", "%s", "%s", A, B, C, X, delta, A, B, C, X)
 
 
 #
@@ -21,6 +22,43 @@ A, B, X, = sys.argv[1:]
 #
 
 template = {}
+
+template["cr_closed_singlet"] = """
+def test_findif_%s():
+    wf='%s'
+    dal='%s'
+    qr = FinDif(RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    cr = RspCalc('%s', '%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    assert_(qr, cr)
+""" % ("%s", "%s", "%s", A, B, C, X, delta, A, B, C, X)
+
+
+template["lr_closed_singlet"] = """
+def test_findif_%s():
+    wf='%s'
+    dal='%s'
+    ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    lr = RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    assert_(ev, lr)
+""" % ("%s", "%s", "%s", A, X, delta, A, X)
+
+template["lr_open_singlet"] = """
+def test_findif_%s():
+    wf='%s'
+    dal='%s'
+    ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
+    lr = RspCalc('%s', '%s', wf=wf, dal=dal, mol=inp["h2o+"]).exe()
+    assert_(ev, lr)
+""" % ("%s", "%s", "%s", A, X, delta, A, X)
+
+template["lr_open_triplet"] = """
+def test_findif_%s():
+    wf='%s'
+    dal='%s'
+    ev = FinDif(RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=True, field='%s', delta=%f)).first() 
+    lr = RspCalc('%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], triplet=False).exe()
+    assert_(ev, lr)
+""" % ("%s", "%s", "%s", A, X, delta, A, X)
 
 template["qr_closed_singlet"] = """
 def test_findif_%s():
