@@ -24,6 +24,11 @@ def teardown():
     #shutil.rmtree(suppdir)
     pass
 
+def test_E_HF():
+    ecal = RspCalc(mol=inp["ch2+"])
+    res = ecal.exe()
+    assert_(res, -39.072083833208)
+
 def test_EV_HF():
     ev = RspCalc('XDIPLEN', mol=inp["ch2+"])
     res = ev.exe()

@@ -60,7 +60,7 @@ def process(template, functionals):
             runfile.write(setup)
             runfile.write( template[runtype]%('HF', 'HF', 'hf'))
             for f in functionals:
-                validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '')
+                validfname = f.replace('-', '_').replace('/', '_').replace(' ', '_').replace('*', '').replace('=','_')
                 dal=validfname.lower()
                 if '*' in f: 
                     wf = 'DFT\\nGGAKey hf=%f %s=%f' % (hfweight, f.replace('*', ''), 1-hfweight)

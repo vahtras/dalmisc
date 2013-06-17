@@ -23,15 +23,24 @@ targs = ("%s", "%s", "%s", A, B, C, X, delta, A, B, C, X)
 
 template = {}
 
-template["cr_closed_singlet"] = """
+
+template["ev_closed_singlet"] = """
 def test_findif_%s():
     wf='%s'
     dal='%s'
-    qr = FinDif(RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
-    cr = RspCalc('%s', '%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
-    assert_(qr, cr)
-""" % ("%s", "%s", "%s", A, B, C, X, delta, A, B, C, X)
+    escf = FinDif(RspCalc(wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    ev = RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    assert_(escf, ev)
+""" % ("%s", "%s", "%s", X, delta, X)
 
+template["ev_open_singlet"] = """
+def test_findif_%s():
+    wf='%s'
+    dal='%s'
+    escf = FinDif(RspCalc(wf=wf, dal=dal, mol=inp["h2o+"], field='%s', delta=%f)).first() 
+    ev = RspCalc('%s', wf=wf, dal=dal, mol=inp["h2o+"]).exe()
+    assert_(escf, ev)
+""" % ("%s", "%s", "%s", X, delta, X)
 
 template["lr_closed_singlet"] = """
 def test_findif_%s():
@@ -95,6 +104,15 @@ def test_findif_%s():
     qr = RspCalc('%s', '%s 1', '%s', wf=wf, dal=dal, mol=inp["h2o+"], parallel=False).exe()
     assert_(lr, qr)
 """ % ("%s", "%s", "%s", A, B, X, delta, A, B, X)
+
+template["cr_closed_singlet"] = """
+def test_findif_%s():
+    wf='%s'
+    dal='%s'
+    qr = FinDif(RspCalc('%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"], field='%s', delta=%f)).first() 
+    cr = RspCalc('%s', '%s', '%s', '%s', wf=wf, dal=dal, mol=inp["h2o"]).exe()
+    assert_(qr, cr)
+""" % ("%s", "%s", "%s", A, B, C, X, delta, A, B, C, X)
 
 functionals = [ line.strip() for line in open(file_of_functionals) ] 
 

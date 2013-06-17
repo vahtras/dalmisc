@@ -60,7 +60,7 @@ class RspCalc:
 *SCF INPUT
 .NOQCSCF
 .THRESHOLD
-1e-10
+1e-11
 %s""" % (self.wf, ff)
 
         #Response
@@ -71,7 +71,9 @@ class RspCalc:
 
         rsp_order = len(self.ops)
 
-        if (rsp_order == 1):
+        if (rsp_order == 0):
+            rspinp = "###"
+        elif (rsp_order == 1):
             A, = self.ops
             rspinp = """**RESPONSE
 %s
@@ -84,7 +86,7 @@ class RspCalc:
 %s
 *LINEAR
 .THCLR
-1e-9
+1e-10
 .PROPRT
 %s
 .PROPRT
@@ -98,7 +100,7 @@ class RspCalc:
 %s
 *QUADRATIC
 .THCLR
-1e-9
+1e-10
 .APROP 
 %s
 .BPROP
@@ -113,7 +115,7 @@ class RspCalc:
 %s
 *CUBIC
 .THCLR
-1e-9
+1e-10
 .APROP 
 %s
 .BPROP
@@ -147,13 +149,19 @@ class RspCalc:
         os.system(cmd)
 
         result = None
-        A  = A.split()[0]
+        if rsp_order > 0:
+            A  = A.split()[0]
         if rsp_order > 1:
             B = B.split()[0]
         if rsp_order > 2:
             C = C.split()[0]
         for line in open(dal + ".out"):
-            if rsp_order == 1:
+            if rsp_order == 0:
+                if "Final" in line and "energy" in line:
+                    data = line.split(':')[1].replace('D', 'E')
+                    result = float(data)
+                    break
+            elif rsp_order == 1:
                 if "total" in line and A in line:
                     data = line.split(':')[1].replace('D', 'E')
                     result = float(data)
@@ -177,7 +185,7 @@ class RspCalc:
                 raise RuntimeError("Response order %d not implemented" % rsp_order)
 
         if result is None or math.isnan(result): 
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             raise ValueError
         return result
 
