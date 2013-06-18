@@ -1,0 +1,2 @@
+def readfirst(quadfile):
+    pass
