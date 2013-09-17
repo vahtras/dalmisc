@@ -131,6 +131,7 @@ class RspCalc:
 
         dalinp = """**DALTON INPUT
 .RUN RESPONSE
+.DIRECT
 %s
 %s
 **END OF DALTON
@@ -172,7 +173,7 @@ class RspCalc:
                     result = -float(data)
                     break
             elif rsp_order == 3:
-                if "@omega" in line:
+                if "@ omega" in line:
                     data = line.split()[-1]
                     result = float(data)
                     break

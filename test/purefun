@@ -10,8 +10,6 @@ B97-K
 Becke
 Camb3lyp
 DK87x
-Example
-Example2
 G96x
 HCTH120
 HCTH147
@@ -49,6 +47,5 @@ VWN3*
 VWN3I*
 VWN5*
 VWNI*
-Wigner
+Wigner*
 WL90c*
-XAlpha 1
