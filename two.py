@@ -150,14 +150,6 @@ def fock(D, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
     return hfc*J - 0.5*hfx*K
 
 if __name__ == "__main__":
-    D = matrix((6, 6))
-    D[0, 0] = 1.0
-    Fa, Fb = fockab((D, D), "test/test_fockab.d/AOTWOINT", f2py=False)
-    print Fa
-    Fa, Fb = fockab((D, D), "test/test_fockab.d/AOTWOINT", f2py=True)
-    print Fa
-
-if __name__ == "__main__":
     import sys, os, optparse 
     parser = optparse.OptionParser()
     parser.add_option(
