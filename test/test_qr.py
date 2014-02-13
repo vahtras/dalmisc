@@ -1,8 +1,8 @@
 import os
 from util.full import unit, init
-from dalmisc import qr
-from dalmisc.test.test_common import assert_
 from daltools import rspvec, sirifc, dens, one, prop
+from .. import qr
+from .common_tests import assert_
 
 def setup():
     global suppdir
@@ -27,9 +27,8 @@ def setup():
 
     RSPVEC = os.path.join(suppdir, 'RSPVEC')
     global NA, NB, NC
-    NA = rspvec.read(A, RSPVEC)
-    NB = rspvec.read(B, RSPVEC)
-    NC = rspvec.read(C, RSPVEC)
+    NA, NB, NC = rspvec.read(A, B, C, propfile=RSPVEC)[0]
+
     global kA, kB, kC
     kA = rspvec.tomat(NA, ifc, tmpdir = suppdir)
     kB = rspvec.tomat(NB, ifc, tmpdir = suppdir).T

@@ -111,7 +111,7 @@ def notest_generate_d():
 
 def test_set_cfunc():
     cfunc = grid.set_cfunc('DALTON.BAS')
-    assert_(len(cfunc),  9)
+    assert_(len(cfunc),  16)
 
 def test_eval_cfunc():
     cfunc = grid.set_cfunc('DALTON.BAS')

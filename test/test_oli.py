@@ -1,7 +1,7 @@
 import os
 from util.full import unit, init, matrix
 from dalmisc import oli
-from dalmisc.test.test_common import assert_
+from .common_tests import assert_
 
 def setup():
     global suppdir

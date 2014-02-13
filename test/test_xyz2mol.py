@@ -1,3 +1,5 @@
+from ..xyz2mol import xyz2mol
+
 xyz = """9
 Ethanol
 C1    9.136479   11.724970   51.500927
@@ -30,7 +32,6 @@ Charge=8 Atoms=1
 O     9.976946    9.554726   52.018512
 """
 
-from dalmisc.mol import xyz2mol
 
 def test_xyz2mol():
     mol = xyz2mol(xyz)
