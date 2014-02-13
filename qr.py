@@ -157,8 +157,9 @@ def main(*args, **kwargs):
     AOPROPER = os.path.join(tmpdir, "AOPROPER")
     RSPVEC   = os.path.join(tmpdir, "RSPVEC")
 
-    vecs = [rspvec.read(lab, RSPVEC) for lab in labs]
-    kappa = [rspvec.tomat(vec, ifc) for vec in vecs]
+    vecs = rspvec.read(*labs, propfile=RSPVEC)[0]
+    kappa = [rspvec.tomat(vec, ifc).T for vec in vecs]
+    kappa[0] = kappa[0].T
     a, b, c = [cmo.T*x*cmo for x in prop.read(*labs, filename=AOPROPER)]
 
     NA = vecs[0]
