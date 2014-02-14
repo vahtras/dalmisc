@@ -148,8 +148,6 @@ def main(*args, **kwargs):
     ranks = kwargs.get('rank', (0, 0, 0))
     pars = [ (-1)**r for r in ranks]
 
-    global tmp
-
     ifc = sirifc.sirifc(os.path.join(tmpdir, "SIRIFC"))
     cmo = ifc.cmo.unblock()
 
@@ -217,12 +215,16 @@ def a2bc(A, B, C):
     return A2B + A2C
 
 if __name__ == "__main__":
+    import argparse
     global tmpdir
-    try:
-        A = sys.argv[1]
-        B = sys.argv[2]
-        C = sys.argv[3]
-    except(IndexError):
-        print "Usage: %s A B C" % sys.argv[0]
-        sys.exit(1)
-    print "QR %14.8f" % main(*sys.argv[1:], tmpdir='.')[0]
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('A', help="Property A")
+    parser.add_argument('B', help="Perturbation B")
+    parser.add_argument('C', help="Perturbation C")
+    parser.add_argument('--tmpdir', default='.', help="Dalton tmp directory")
+
+    args = parser.parse_args()
+    tmpdir = args.tmpdir
+
+    print "QR %14.8f" % main(args.A, args.B, args.C, tmpdir=args.tmpdir)
