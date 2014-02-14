@@ -187,7 +187,8 @@ def main(*args, **kwargs):
     print "A2B %14.8f %14.8f" % (A2B, val)
     val += A2C
     print "A2C %14.8f %14.8f" % (A2C, val)
-    return (val, AE3BC, B2C, C2B, A2B, A2C)
+    
+    return val
 
 def a2bc(A, B, C):
 
