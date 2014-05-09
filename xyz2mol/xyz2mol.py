@@ -16,8 +16,6 @@ ELEMENTS = [
         "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu",
             "Hf", "Ta", "W" "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn"
     ]
-numeric=re.compile('\d')
-
 
 def xyz2mol(xyzstring):
     lines = xyzstring.split('\n')
@@ -54,16 +52,20 @@ def extract_element(atom_line):
     element = re.split(match_digit, atom_line)[0].strip()
     return element
 
+def main(xyz_filename):
+    xyz_string = open(xyz_filename).read()
+    mol_string = xyz2mol(xyz_string)
+    n, _ = os.path.splitext(xyzfile)
+    mol_file = open(n + '.mol', 'w')
+    mol_file.write(mol_string)
+    mol_file.close()
+
 if __name__ == "__main__":
     import sys
     import os
     try:
-        xyzfile = sys.argv[1]
-        xyzstring = open(xyzfile).read()
+        main(sys.argv[1])
     except IndexError, e:
         print "Usage: %s xyzfile"%sys.argv[0]
+        sys.exit(1)
 
-    n, e = os.path.splitext(xyzfile)
-    molfile = open(n+'.mol', 'w')
-    molfile.write(xyz2mol(xyzstring))
-    molfile.close()
