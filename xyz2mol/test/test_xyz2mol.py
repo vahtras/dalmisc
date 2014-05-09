@@ -1,4 +1,5 @@
-from ..xyz2mol import xyz2mol
+import unittest
+from ..xyz2mol import xyz2mol, extract_element
 
 xyz = """9
 Ethanol
@@ -32,11 +33,23 @@ Charge=8 Atoms=1
 O     9.976946    9.554726   52.018512
 """
 
+class Test2Mol(unittest.TestCase):
 
-def test_xyz2mol():
-    mol = xyz2mol(xyz)
-    print mol, molref
-    assert mol == molref
+    def test_extract_numbered_element(self):
+        atom_line = "He1 0 0 0"
+        element = extract_element(atom_line)
+        self.assertEqual(element, "He")
+
+    def test_extract_unnumbered_element(self):
+        atom_line = "O 0 0 0"
+        element = extract_element(atom_line)
+        self.assertEqual(element, "O")
+
+
+    def test_xyz2mol(self):
+        mol = xyz2mol(xyz)
+        print mol, molref
+        assert mol == molref
 
 
 if __name__ == "__main__":

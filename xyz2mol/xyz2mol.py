@@ -27,9 +27,7 @@ def xyz2mol(xyzstring):
     atomtypes = {}
     elements = []
     for atom in lines[2:2+nat]:
-        label = atom.split()[0]
-        # Separage chemical symbol from possible numeric label part
-        element = re.split(numeric, label)[0]
+        element = extract_element(atom)
         charge = ELEMENTS.index(element)
         if element not in atomtypes:
             elements.append(element)
@@ -50,6 +48,11 @@ Atomtypes=%d
         for atom in atoms:
             molstring += "%s\n"%atom
     return molstring
+
+def extract_element(atom_line):
+    match_digit = re.compile('\d')
+    element = re.split(match_digit, atom_line)[0].strip()
+    return element
 
 if __name__ == "__main__":
     import sys
