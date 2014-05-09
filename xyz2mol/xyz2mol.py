@@ -26,10 +26,9 @@ def xyz2mol(xyzstring):
     elements = []
     for atom in lines[2:2+nat]:
         element = extract_element(atom)
-        charge = ELEMENTS.index(element)
         if element not in atomtypes:
             elements.append(element)
-            atomtypes[element] = {"charge":charge, "atoms":[]}
+            atomtypes[element] = {"charge":ELEMENTS.index(element), "atoms":[]}
         atomtypes[element]["atoms"].append(atom)
 
     molstring = """BASIS
@@ -50,6 +49,8 @@ Atomtypes=%d
 def extract_element(atom_line):
     match_digit = re.compile('\d')
     element = re.split(match_digit, atom_line)[0].strip()
+    if element not in ELEMENTS:
+        raise Exception("No such element:" + element)
     return element
 
 def main(xyz_filename):

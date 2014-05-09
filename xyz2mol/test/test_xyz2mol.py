@@ -45,6 +45,8 @@ class Test2Mol(unittest.TestCase):
         element = extract_element(atom_line)
         self.assertEqual(element, "O")
 
+    def test_raise_unknown_element(self):
+        self.assertRaises(Exception, extract_element, "Yo 1 2 3")
 
     def test_xyz2mol(self):
         mol = xyz2mol(xyz)
