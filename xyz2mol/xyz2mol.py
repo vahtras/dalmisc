@@ -19,19 +19,28 @@ ELEMENTS = [
             "Hf", "Ta", "W" "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn"
     ]
 
+def main(filename):
+    xyz_string = read_xyzfile(filename)
+    mol_string = xyz2mol(xyz_string)
+    with open(rename(filename), "w") as mol_file:
+        mol_file.write(mol_string)
+
+def read_xyzfile(filename):
+    return open(filename).read()
+
 def xyz2mol(xyzstring):
-    lines = xyzstring.split('\n')
-    nat = int(lines[0])
-    comment = lines[1]
+    xyz_lines = xyzstring.split('\n')
+    nat = int(xyz_lines[0])
+    comment = xyz_lines[1]
 
     atomtypes = {}
     elements = []
-    for atom in lines[2:2+nat]:
-        element = extract_element(atom)
+    for atom_line in xyz_lines[2:2+nat]:
+        element = extract_element(atom_line)
         if element not in atomtypes:
             elements.append(element)
             atomtypes[element] = {"charge":ELEMENTS.index(element), "atoms":[]}
-        atomtypes[element]["atoms"].append(atom)
+        atomtypes[element]["atoms"].append(atom_line)
 
     molstring = """BASIS
 cc-pVDZ
@@ -44,8 +53,8 @@ Atomtypes=%d
         charge = atomtypes[element]["charge"]
         atoms = atomtypes[element]["atoms"]
         molstring += "Charge=%d Atoms=%d\n"%(charge, len(atoms))
-        for atom in atoms:
-            molstring += "%s\n"%atom
+        for atom_line in atoms:
+            molstring += "%s\n"%atom_line
     return molstring
 
 def extract_element(atom_line):
@@ -55,14 +64,6 @@ def extract_element(atom_line):
         raise Exception("No such element:" + element)
     return element
 
-def main(filename):
-    xyz_string = read_xyzfile(filename)
-    mol_string = xyz2mol(xyz_string)
-    with open(rename(filename), "w") as mol_file:
-        mol_file.write(mol_string)
-
-def read_xyzfile(filename):
-    return open(filename).read()
 
 def rename(xyz_filename):
     head, ext = os.path.splitext(xyz_filename)
