@@ -1,5 +1,6 @@
 import unittest
-from ..xyz2mol import xyz2mol, extract_element
+import os
+from ..xyz2mol import xyz2mol, extract_element, read_xyzfile, rename
 
 xyz = """9
 Ethanol
@@ -53,6 +54,14 @@ class Test2Mol(unittest.TestCase):
         print mol, molref
         assert mol == molref
 
+    def test_wrong_infile_extension_raises(self):
+        self.assertRaises(Exception, rename, "infile.yo")
+
+    def test_rename(self):
+        xyz_filename = "yo.xyz"
+        mol_filename = "yo.mol"
+        self.assertEqual(rename(xyz_filename), mol_filename)
+        
 
 if __name__ == "__main__":
     test_xyz2mol()

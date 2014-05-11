@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 import re
+import os
 
 ELEMENTS = [
     "X", "H", "He",
@@ -53,13 +55,21 @@ def extract_element(atom_line):
         raise Exception("No such element:" + element)
     return element
 
-def main(xyz_filename):
-    xyz_string = open(xyz_filename).read()
+def main(filename):
+    xyz_string = read_xyzfile(filename)
     mol_string = xyz2mol(xyz_string)
-    n, _ = os.path.splitext(xyzfile)
-    mol_file = open(n + '.mol', 'w')
-    mol_file.write(mol_string)
-    mol_file.close()
+    with open(rename(filename), "w") as mol_file:
+        mol_file.write(mol_string)
+
+def read_xyzfile(filename):
+    return open(filename).read()
+
+def rename(xyz_filename):
+    head, ext = os.path.splitext(xyz_filename)
+    if ext != ".xyz": raise Exception("Input file is not xyz type:%s" % ext)
+    return head + ".mol"
+
+
 
 if __name__ == "__main__":
     import sys
