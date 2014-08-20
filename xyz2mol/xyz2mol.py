@@ -19,9 +19,9 @@ ELEMENTS = [
             "Hf", "Ta", "W" "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn"
     ]
 
-def main(filename):
+def main(filename, units=None):
     xyz_string = read_xyzfile(filename)
-    mol_string = xyz2mol(xyz_string)
+    mol_string = xyz2mol(xyz_string, units=units)
     with open(rename(filename), "w") as mol_file:
         mol_file.write(mol_string)
 
@@ -75,11 +75,14 @@ def rename(xyz_filename):
 
 
 if __name__ == "__main__":
-    import sys
-    import os
-    try:
-        main(sys.argv[1])
-    except IndexError, e:
-        print "Usage: %s xyzfile"%sys.argv[0]
-        sys.exit(1)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('xyz')
+    parser.add_argument('--units')
+    args = parser.parse_args()
+
+    main(args.xyz, units=args.units)
+
+
+    
 
