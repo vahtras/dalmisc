@@ -61,7 +61,24 @@ class Test2Mol(unittest.TestCase):
         xyz_filename = "yo.xyz"
         mol_filename = "yo.mol"
         self.assertEqual(rename(xyz_filename), mol_filename)
-        
+
+    def test_angstrom(self):
+        xyz = """2
+In Angstrom
+H1 0 0 0
+H2 0 0 3.4
+"""
+        molref = """\
+BASIS
+cc-pVDZ
+In Angstrom
+===========
+Atomtypes=1 Units=Angstrom
+Charge=1 Atoms=2
+H1    0.000000    0.000000    0.000000
+H2    0.000000    0.000000    3.400000
+"""
+        mol = xyz2mol(xyz, units="Angstrom")
 
 if __name__ == "__main__":
     test_xyz2mol()

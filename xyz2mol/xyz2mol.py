@@ -28,7 +28,7 @@ def main(filename):
 def read_xyzfile(filename):
     return open(filename).read()
 
-def xyz2mol(xyzstring):
+def xyz2mol(xyzstring, units=None):
     xyz_lines = xyzstring.split('\n')
     nat = int(xyz_lines[0])
     comment = xyz_lines[1]
@@ -46,8 +46,10 @@ def xyz2mol(xyzstring):
 cc-pVDZ
 %s
 %s
-Atomtypes=%d
-"""%(comment, len(comment)*"=", len(atomtypes))
+Atomtypes=%d"""%(comment, len(comment)*"=", len(atomtypes))
+    if units:
+        molstring += " Units=%s" % units
+    molstring += '\n'
 
     for element in elements:
         charge = atomtypes[element]["charge"]
