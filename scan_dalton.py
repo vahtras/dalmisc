@@ -19,7 +19,6 @@ def get_nuclear_dipole_moment(*args):
 def get_coordinates(*args):
     coordinates = []
     for output in args:
-        print "output", output
         this = []
         lines = open(output)
         for line in lines:
@@ -29,9 +28,7 @@ def get_coordinates(*args):
                     words = lines.next().split()
                     this.append(map(float, [words[4], words[7], words[10]]))
                 break
-        print "this",  this
         coordinates.append(this)
-        print tuple(coordinates)
     return tuple(coordinates)
 
 def get_nuclear_charges(*args):
@@ -130,15 +127,17 @@ def generate_pot_output(*args, **kwargs):
     dipoles = get_total_dipole_moment(*args)
     alphas = get_polarizability(*args)
     betas = get_hyperpolarizability(*args)
+    retstr = ""
     for n, (r, q, p, a, b) in enumerate(
         zip(coordinates, charges, dipoles, alphas, betas)
         ):
-        retstr = "%d" % (n+1,)
+        retstr += "%d" % (n+1,)
         retstr += (3*fmt) % tuple(r)
         retstr += fmt % q
         retstr += (3*fmt) % tuple(p)
         retstr += (6*fmt) % tuple(upper_triangular(a))
         retstr += (10*fmt) % tuple(upper_triangular(b))
+        retstr += "\n"
     return retstr
 
 def upper_triangular(mat):
@@ -161,6 +160,13 @@ def xyz_to_tuple(string):
     ints = tuple(['xyz'.index(i) for i  in string])
     return ints
 
+def outline(floats, fmt="%10.5f"):
+    retstr = ""
+    for f in floats:
+        retstr += fmt*len(f) % tuple(f) + "\n"
+    return retstr
+        
+
 if __name__ == "__main__":
     import sys
     import argparse
@@ -178,37 +184,33 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.generate_potential:
         print "AU\n%d 1 22 1" % len(args.files)
-    for n, filename in enumerate(args.files):
-        #print filename,
-        #print len(filename)*"="
-        if args.dipole:
-            #print "Nuclear   ", get_nuclear_dipole_moment(open(filename))
-            #print "Electronic", get_electronic_dipole_moment(open(filename))
-            print "Total     ", get_total_dipole_moment(open(filename))
-        if args.pol:
-            #print 'alpha',
-            alpha = get_polarizability(open(filename))
-            if args.diagonal:
-                print alpha.diagonal()
-            elif args.iso:
-                print alpha.trace()/3
-            elif args.upper_triangular:
-                print upper_triangular(alpha)
-            else:
-                print alpha
-        if args.hyp:
-            #print 'beta',
-            beta = get_hyperpolarizability(open(filename))
-            if args.select:
-                tuples = [xyz_to_tuple(xyz) for xyz in args.select]
-                print [beta[i, j, k] for i, j, k in tuples]
-            if args.upper_triangular:
-                print upper_triangular(beta)
-            else:
-                print beta
 
-        if args.generate_potential:
-            print generate_pot_output(n+1, open(filename))
+    if args.dipole:
+        print get_total_dipole_moment(*args.files)
 
-        if args.cm:
-            print get_center_of_mass(open(filename))
+    if args.pol:
+        alphas = get_polarizability(*args.files)
+        if args.diagonal:
+            print outline([alpha.diagonal() for alpha in alphas])
+        elif args.iso:
+            print outline([(alpha.trace()/3,) for alpha in alphas])
+        elif args.upper_triangular:
+            print outline([upper_triangular(alpha) for alpha in alphas])
+        else:
+            print outline([np.ravel(alpha) for alpha in alphas])
+
+    if args.hyp:
+        betas = get_hyperpolarizability(*args.files)
+        if args.select:
+            tuples = [xyz_to_tuple(xyz) for xyz in args.select]
+            print outline([[beta[i, j, k] for i, j, k in tuples] for beta in betas])
+        elif args.upper_triangular:
+            print outline([upper_triangular(beta) for beta in betas])
+        else:
+            print outline(np.ravel(betas))
+
+    if args.generate_potential:
+        print generate_pot_output(*args.files)
+
+    if args.cm:
+        print outline([cm for cm in get_center_of_mass(*args.files)])
