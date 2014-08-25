@@ -1,6 +1,6 @@
 from unittest import TestCase
 import numpy as np
-from scan_dalton import *
+from ..scan_dalton import *
 
 class TestScan(TestCase):
 
@@ -170,7 +170,7 @@ class TestScan(TestCase):
         self.assertTupleEqual(xyz_to_tuple('xyz'), (0, 1, 2))
 
     def test_pot_output(self):
-        pot = generate_pot_output(self.filename, fmt="%8.3f")
+        pot = generate_pot_output(self.filename, fmt="%8.3f").strip()
         ref = "1   0.000   0.000  -0.099   0.000   0.000  -0.000   0.815   7.211   0.000  -0.000   3.034   0.000   5.227   0.000  -0.000 -18.483   0.000  -0.000  -0.000  -0.000  -2.336  -0.000 -11.173"
         self.assertEqual(pot, ref)
 
