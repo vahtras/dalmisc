@@ -39,6 +39,11 @@ class BasInfo():
         """Return total number of MO"""
         return self.norb[:self.nsym].sum()
 
+    @property
+    def ncmot(self):
+        """Return numboer of MO coefficients"""
+        return sum([i*j for i,j in zip(self.nbas, self.norb)])
+
 if __name__ == "__main__":
     import sys
     try:
