@@ -37,6 +37,12 @@ class TestScan(TestCase):
      XDIPLEN  total        :-2.03844916D-15
      YDIPLEN  total        : 1.53769063D-15
      ZDIPLEN  total        :    -0.81457755
+     XXSECMOM total        :     7.26004973
+     XYSECMOM total        : 2.11454908D-16
+     XYSECMOM total        : 2.11454908D-16
+     YYSECMOM total        :     5.25404533
+     YZSECMOM total        :-1.84889923D-18
+     ZZSECMOM total        :     6.40304140
 ...
  Center-of-mass coordinates (a.u.):    0.000000    0.000000   -0.099054
 ...
@@ -132,11 +138,24 @@ class TestScan(TestCase):
         PN = get_nuclear_dipole_moment(self.filename)
         np.testing.assert_almost_equal(PN, ([0, 0, -1.144e-6],))
 
+    def test_nuclear_quadrupole_moment(self):
+        PN = get_nuclear_quadrupole_moment(self.filename)
+        np.testing.assert_almost_equal(PN, (
+            [4.21864105, 0.00000,  0.00000,  0.00000,  0.00000,  1.66922574],
+            ))
+
     def test_electronic_diplen(self):
         np.testing.assert_almost_equal(
             get_electronic_dipole_moment(self.filename), 
             ([ 2.03844916e-15,   -1.53769063e-15,  8.14577550e-01],)
             )
+
+    def test_electronic_quadrupole(self):
+        np.testing.assert_almost_equal(
+            get_electronic_quadrupole_moment(self.filename), 
+            ([ -7.26004973, 0, 0, -5.25404533, 0, -6.40304140],)
+            )
+
 
     def test_pol(self):
         np.testing.assert_almost_equal(
@@ -178,4 +197,13 @@ class TestScan(TestCase):
         ref = ((.000000,   0.000000,  -0.099054),)
         cm = get_center_of_mass(self.filename)
         np.testing.assert_allclose(cm ,ref)
+
+    def notest_nuclear_quadrupole(self):
+        ref = (4.21864,  0.00000,  0.00000,  0.00000,  0.00000,  2.02330)
+        q = get_nuclear_quadrupole_moment(self.filename)
+        np.testing.assert_allclose(q, ref)
+
+#Electronic quadrupole -7.26005 -0.00000  0.00000 -5.25405  0.00000 -6.40304
+#Nuclear    quadrupole  4.21864  0.00000  0.00000  0.00000  0.00000  2.02330
+#Total      quadrupole -3.04141 -0.00000  0.00000 -5.25405  0.00000 -4.37974
 

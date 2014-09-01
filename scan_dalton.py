@@ -3,12 +3,19 @@
 import numpy as np
 
 DIPLEN = ["XDIPLEN", "YDIPLEN", "ZDIPLEN"]
+SECMOM = ["XXSECMOM", "XYSECMOM", "XZSECMOM", "YYSECMOM", "YZSECMOM", "ZZSECMOM"]
 
 def get_total_dipole_moment(*args):
     RN = get_nuclear_dipole_moment(*args)
     Re = get_electronic_dipole_moment(*args)
     Rtot = [n + e for n, e in zip(RN, Re)]
     return tuple(Rtot)
+
+def get_total_quadrupole_moment(*args):
+    QN = get_nuclear_quadrupole_moment(*args)
+    Qe = get_electronic_quadrupole_moment(*args)
+    Qtot = [n + e for n, e in zip(QN, Qe)]
+    return tuple(Qtot)
 
 def get_nuclear_dipole_moment(*args):
     R = get_coordinates(*args)
@@ -70,6 +77,33 @@ def read_dipole_component(line):
     first = line.split()[0]
     last_double = line.split(':')[-1].replace('D', 'E')
     return DIPLEN.index(first), float(last_double)
+
+def read_quadrupole_component(line):
+    first = line.split()[0]
+    last_double = line.split(':')[-1].replace('D', 'E')
+    return SECMOM.index(first), float(last_double)
+
+def get_nuclear_quadrupole_moment(*args):
+    quadrupoles = []
+    for molecular_coordinates in get_coordinates(*args):
+        rr = np.array([np.outer(r, r) for r in np.array(molecular_coordinates)])
+        quadrupoles.append(
+            upper_triangular(np.sum(rr, axis=0))
+            )
+    return tuple(quadrupoles)
+
+def get_electronic_quadrupole_moment(*args):
+    quadrupoles = []
+    for output in (args):
+        quadrupole = np.zeros(6)
+        for line in open(output):
+            if "SECMOM total" in line:
+                print line
+                index, value = read_quadrupole_component(line)
+                quadrupole[index] = -value
+        quadrupoles.append(quadrupole)
+    return tuple(quadrupoles)
+
 
 def get_polarizability(*args):
     alphas = []
@@ -171,7 +205,11 @@ if __name__ == "__main__":
     import sys
     import argparse
     parser = argparse.ArgumentParser("Scan Dalton output file")
+    parser.add_argument('--coordinates', action='store_true')
     parser.add_argument('--dipole', action='store_true')
+    parser.add_argument('--nuclear-dipole', action='store_true')
+    parser.add_argument('--quadrupole', action='store_true')
+    parser.add_argument('--nuclear-quadrupole', action='store_true')
     parser.add_argument('--pol', action='store_true')
     parser.add_argument('--diagonal', action='store_true')
     parser.add_argument('--iso', action='store_true')
@@ -185,8 +223,20 @@ if __name__ == "__main__":
     if args.generate_potential:
         print "AU\n%d 1 22 1" % len(args.files)
 
+    if args.coordinates:
+        print get_coordinates(*args.files)
+
     if args.dipole:
         print get_total_dipole_moment(*args.files)
+
+    if args.nuclear_dipole:
+        print get_nuclear_dipole_moment(*args.files)
+
+    if args.quadrupole:
+        print get_total_quadrupole_moment(*args.files)
+
+    if args.nuclear_quadrupole:
+        print get_nuclear_quadrupole_moment(*args.files)
 
     if args.pol:
         alphas = get_polarizability(*args.files)
