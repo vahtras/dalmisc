@@ -34,6 +34,8 @@ class TestScan(TestCase):
   H1      :     4  x   1.4523500000    5  y   0.0000000000    6  z   0.8996230000
   H2      :     7  x  -1.4523500000    8  y   0.0000000000    9  z   0.8996230000
 ...
+@    Final HF energy:             -76.025681483940
+...
      XDIPLEN  total        :-2.03844916D-15
      YDIPLEN  total        : 1.53769063D-15
      ZDIPLEN  total        :    -0.81457755
@@ -202,6 +204,11 @@ class TestScan(TestCase):
         ref = (4.21864,  0.00000,  0.00000,  0.00000,  0.00000,  2.02330)
         q = get_nuclear_quadrupole_moment(self.filename)
         np.testing.assert_allclose(q, ref)
+
+    def test_get_final_hf_energy(self):
+        ref = -76.02568148394
+        e = get_final_energy(self.filename)
+        self.assertAlmostEqual(e, ref)
 
 #Electronic quadrupole -7.26005 -0.00000  0.00000 -5.25405  0.00000 -6.40304
 #Nuclear    quadrupole  4.21864  0.00000  0.00000  0.00000  0.00000  2.02330

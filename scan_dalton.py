@@ -5,6 +5,12 @@ import numpy as np
 DIPLEN = ["XDIPLEN", "YDIPLEN", "ZDIPLEN"]
 SECMOM = ["XXSECMOM", "XYSECMOM", "XZSECMOM", "YYSECMOM", "YZSECMOM", "ZZSECMOM"]
 
+def get_final_energy(*args):
+    for output in args:
+        for line in open(output):
+            if "Final" in line and "energy:" in line:
+                return float(line.split()[-1])
+    
 def get_total_dipole_moment(*args):
     RN = get_nuclear_dipole_moment(*args)
     Re = get_electronic_dipole_moment(*args)
