@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 
+import re
 import numpy as np
+import scipy.constants
 
 DIPLEN = ["XDIPLEN", "YDIPLEN", "ZDIPLEN"]
 SECMOM = ["XXSECMOM", "XYSECMOM", "XZSECMOM", "YYSECMOM", "YZSECMOM", "ZZSECMOM"]
+
+G_E = scipy.constants.physical_constants["electron g factor"][0]
+ALPHA = scipy.constants.alpha
+
+class NotFoundError(Exception):
+    pass
 
 def get_final_energy(*args):
     for output in args:
@@ -104,7 +112,6 @@ def get_electronic_quadrupole_moment(*args):
         quadrupole = np.zeros(6)
         for line in open(output):
             if "SECMOM total" in line:
-                print line
                 index, value = read_quadrupole_component(line)
                 quadrupole[index] = -value
         quadrupoles.append(quadrupole)
@@ -195,6 +202,36 @@ def get_center_of_mass(*args):
                 cms.append(np.array(cm))
                 break
     return tuple(cms)
+
+def get_g_rmc(*args, **kwargs):
+    rmcs = []
+    m_s = kwargs.get("M_S", 0.5)
+    clebsh_gordan_factor = 1/m_s
+    G_FAC = ALPHA**2*G_E/2*clebsh_gordan_factor
+    for output in args:
+        for line in open(output):
+            if "KINENERG active" in line:
+                rmc = last_float(line)
+                break
+        else:
+            raise NotFoundError()
+        rmcs.append(rmc*G_FAC)
+    return tuple(rmcs)
+
+def get_g_oz1(*args, **kwargs):
+    oz1s = []
+    M_S = kwargs.get("M_S", 0.5)
+    G_FAC = 2/(2*M_S)#*1e6 Now G_E=2
+    for output in args:
+        oz1 = np.zeros((3, 3))
+        for line in open(output):
+            ozmatch = re.search("<< (\w)ANGMOM  ; (\w)1SPNORB >>", line)
+            if ozmatch:
+                i, j = ["XYZ".index(k) for k in ozmatch.groups()]
+                oz1[i, j] =  -last_float(line)/2
+        oz1s.append(oz1*G_FAC)
+    return tuple(oz1s)
+
         
 def xyz_to_tuple(string):
     ints = tuple(['xyz'.index(i) for i  in string])
@@ -205,6 +242,7 @@ def outline(floats, fmt="%10.5f"):
     for f in floats:
         retstr += fmt*len(f) % tuple(f) + "\n"
     return retstr
+
         
 
 if __name__ == "__main__":
@@ -224,6 +262,8 @@ if __name__ == "__main__":
     parser.add_argument('--select', nargs='+')
     parser.add_argument('--generate-potential', action='store_true')
     parser.add_argument('--cm', action='store_true')
+    parser.add_argument('--g-rmc', action='store_true')
+    parser.add_argument('--g-oz1', action='store_true')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -270,3 +310,11 @@ if __name__ == "__main__":
 
     if args.cm:
         print outline([cm for cm in get_center_of_mass(*args.files)])
+
+    if args.g_rmc:
+        rmcs = get_g_rmc(*args.files)
+        print outline([np.ravel(rmc) for rmc in rmcs], fmt="%10.6f")
+
+    if args.g_oz1:
+        oz1s = get_g_oz1(*args.files)
+        print outline([np.ravel(oz1) for oz1 in oz1s], fmt="%10.6f")
