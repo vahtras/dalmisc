@@ -1,7 +1,7 @@
 """Orbital linear transformation module E2*N, S2*N"""
 import os
 from daltools import sirifc, one, dens, rspvec
-from dalmisc import two
+import two
 
 def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     """
