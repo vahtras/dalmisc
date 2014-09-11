@@ -221,19 +221,85 @@ def get_g_rmc(*args, **kwargs):
         rmcs.append(rmc*G_FAC)
     return tuple(rmcs)
 
+def get_g_gc1(*args, **kwargs):
+    gc1s = []
+    M_S = kwargs.get("M_S", 0.5)
+    SO_FAC = ALPHA**2/2
+    B_x_R_FAC = 0.5
+    TRIPLET_FAC = 0.5
+    CG_FAC = 1.0/M_S
+    MU_B = 0.5
+    INTEGRAL_FAC = 2 # Dalton give 1/2 <a|(r.r_c_ - r_cr)/r^3|b>
+    #G_FAC = ALPHA**2/(2*M_S)
+    G_FAC = INTEGRAL_FAC*SO_FAC*B_x_R_FAC*CG_FAC*TRIPLET_FAC/MU_B
+    for output in args:
+        gc1 = np.zeros((3, 3))
+        for line in open(output):
+            gcmatch = re.search("D1-SO (\w)(\w) active", line)
+            if gcmatch:
+                i, j = ["XYZ".index(k) for k in gcmatch.groups()]
+                gc1[i, j] =  last_float(line)
+        gc1s.append(gc1*G_FAC)
+    return tuple(gc1s)
+
+def get_g_gc2(*args, **kwargs):
+    gc2s = []
+    M_S = kwargs.get("M_S", 0.5)
+    SO_FAC = 1
+    B_x_R_FAC = 1
+    TRIPLET_FAC = 1
+    CG_FAC = 1#1.0/M_S
+    MU_B = 1 #0.5
+    INTEGRAL_FAC = 1 # Dalton give 1/2 <a|(r.r_c_ - r_cr)/r^3|b>
+    #G_FAC = ALPHA**2/(2*M_S)
+    G_FAC = INTEGRAL_FAC*SO_FAC*B_x_R_FAC*CG_FAC*TRIPLET_FAC/MU_B
+    for output in args:
+        gc2 = np.zeros((3, 3))
+        for line in open(output):
+            gcmatch = re.search("^@G GC2", line)
+            if gcmatch:
+                values = map(float, line.split()[-7:])
+                gc2[0, 0] =  values[0]
+                gc2[1, 1] =  values[1]
+                gc2[2, 2] =  values[2]
+                gc2[0, 1] =  values[3]
+                gc2[1, 0] =  values[4]
+                gc2[0, 2] =  values[5]
+                gc2[2, 0] =  values[6]
+        gc2s.append(gc2*G_FAC)
+    return tuple(gc2s)
+
 def get_g_oz1(*args, **kwargs):
     oz1s = []
     M_S = kwargs.get("M_S", 0.5)
-    G_FAC = 2/(2*M_S)#*1e6 Now G_E=2
+    SO_FAC = 1
+    CG_FAC = 1.0/M_S
+    G_FAC = SO_FAC*CG_FAC
     for output in args:
         oz1 = np.zeros((3, 3))
         for line in open(output):
             ozmatch = re.search("<< (\w)ANGMOM  ; (\w)1SPNORB >>", line)
             if ozmatch:
                 i, j = ["XYZ".index(k) for k in ozmatch.groups()]
-                oz1[i, j] =  -last_float(line)/2
+                oz1[i, j] =  last_float(line)
         oz1s.append(oz1*G_FAC)
     return tuple(oz1s)
+
+def get_g_oz2(*args, **kwargs):
+    oz2s = []
+    M_S = kwargs.get("M_S", 0.5)
+    SO_FAC = 1
+    CG_FAC = 1.0/M_S
+    G_FAC = SO_FAC*CG_FAC
+    for output in args:
+        oz2 = np.zeros((3, 3))
+        for line in open(output):
+            ozmatch = re.search("<< (\w)ANGMOM  ; (\w)2SPNORB >>", line)
+            if ozmatch:
+                i, j = ["XYZ".index(k) for k in ozmatch.groups()]
+                oz2[i, j] =  last_float(line)
+        oz2s.append(oz2*G_FAC)
+    return tuple(oz2s)
 
         
 def xyz_to_tuple(string):
@@ -266,7 +332,10 @@ if __name__ == "__main__":
     parser.add_argument('--generate-potential', action='store_true')
     parser.add_argument('--cm', action='store_true')
     parser.add_argument('--g-rmc', action='store_true')
+    parser.add_argument('--g-gc1', action='store_true')
+    parser.add_argument('--g-gc2', action='store_true')
     parser.add_argument('--g-oz1', action='store_true')
+    parser.add_argument('--g-oz2', action='store_true')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -330,6 +399,18 @@ if __name__ == "__main__":
         rmcs = get_g_rmc(*args.files)
         print outline([np.ravel(rmc) for rmc in rmcs], fmt="%10.6f")
 
+    if args.g_gc1:
+        gc1s = get_g_gc1(*args.files)
+        print outline([np.ravel(gc1) for gc1 in gc1s], fmt="%10.6f")
+
+    if args.g_gc2:
+        gc2s = get_g_gc2(*args.files)
+        print outline([np.ravel(gc2) for gc2 in gc2s], fmt="%10.6f")
+
     if args.g_oz1:
         oz1s = get_g_oz1(*args.files)
         print outline([np.ravel(oz1) for oz1 in oz1s], fmt="%10.6f")
+
+    if args.g_oz2:
+        oz2s = get_g_oz2(*args.files)
+        print outline([np.ravel(oz2) for oz2 in oz2s], fmt="%10.6f")
