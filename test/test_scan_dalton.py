@@ -1,8 +1,8 @@
-from unittest import TestCase
+import unittest
 import numpy as np
 from ..scan_dalton import *
 
-class TestScan(TestCase):
+class TestScan(unittest.TestCase):
 
     def setUp(self):
         self.filename = '/tmp/testscan.out'
@@ -46,6 +46,10 @@ class TestScan(TestCase):
      YZSECMOM total        :-1.84889923D-18
      ZZSECMOM total        :     6.40304140
 ...
+     KINENERG inactive part:     0.00000000
+     KINENERG active part  :    10.19430190
+     KINENERG total        :    10.19430190
+...
  Center-of-mass coordinates (a.u.):    0.000000    0.000000   -0.099054
 ...
 @ QRLRVE:  << XDIPLEN  ; XDIPLEN  >> (   0.00000):     7.21103625278    
@@ -57,6 +61,12 @@ class TestScan(TestCase):
 @ QRLRVE:  << XDIPLEN  ; ZDIPLEN  >> (   0.00000):   -6.118700306251E-15
 @ QRLRVE:  << YDIPLEN  ; ZDIPLEN  >> (   0.00000):    4.387168195962E-15
 @ QRLRVE:  << ZDIPLEN  ; ZDIPLEN  >> (   0.00000):     5.22710462524    
+...
+@ FREQUENCY INDEPENDENT SECOND ORDER PROPERTIES
+
+@ -<< XANGMOM  ; XANGMOM  >> =  8.189284222330D+02
+@ -<< XANGMOM  ; X1SPNORB >> = -4.201293559040D-04
+@ -<< X1SPNORB ; X1SPNORB >> =  1.236592254974D-08
 ... 
 @ B-freq = 0.000000  C-freq = 0.000000     beta(X;X,X) =      0.00000000
 @ B-freq = 0.000000  C-freq = 0.000000     beta(Y;X,X) =     -0.00000000
@@ -210,7 +220,25 @@ class TestScan(TestCase):
         e, = get_final_energy(self.filename)
         self.assertAlmostEqual(e, ref)
 
+    def test_not_found(self):
+        def func():
+            e = get_g_rmc('/dev/null')
+        self.assertRaises(NotFoundError, func)
+
+
+    def test_get_g_rmc(self):
+        ref = -0.001087
+        e, = get_g_rmc(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
+    def test_get_g_oz1(self):
+        ref = ((4.201293559040e-04, 0, 0), (0, 0, 0), (0, 0, 0))
+        e, = get_g_oz1(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
 #Electronic quadrupole -7.26005 -0.00000  0.00000 -5.25405  0.00000 -6.40304
 #Nuclear    quadrupole  4.21864  0.00000  0.00000  0.00000  0.00000  2.02330
 #Total      quadrupole -3.04141 -0.00000  0.00000 -5.25405  0.00000 -4.37974
 
+if __name__ == "__main__":
+    unittest.main()

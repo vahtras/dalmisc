@@ -1,8 +1,8 @@
 import os
 import numpy as np
-from util.full import matrix, init
+from ..util.full import matrix, init
 from daltools import prop
-from dalmisc.two import fockab, fock
+from ..two import fockab, fock
 
 def assert_(this, ref):
     print this, ref
