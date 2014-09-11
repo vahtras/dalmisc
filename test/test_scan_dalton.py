@@ -50,6 +50,12 @@ class TestScan(unittest.TestCase):
      KINENERG active part  :    10.19430190
      KINENERG total        :    10.19430190
 ...
+     D1-SO XX inactive part:     0.00000000
+     D1-SO XX active part  :    11.25069842
+     D1-SO XX total        :    11.25069842
+...
+@G GC2    -0.000671 -0.000807 -0.000807 -0.000056 -0.000055  0.000056  0.000056
+...
  Center-of-mass coordinates (a.u.):    0.000000    0.000000   -0.099054
 ...
 @ QRLRVE:  << XDIPLEN  ; XDIPLEN  >> (   0.00000):     7.21103625278    
@@ -64,9 +70,12 @@ class TestScan(unittest.TestCase):
 ...
 @ FREQUENCY INDEPENDENT SECOND ORDER PROPERTIES
 
-@ -<< XANGMOM  ; XANGMOM  >> =  8.189284222330D+02
-@ -<< XANGMOM  ; X1SPNORB >> = -4.201293559040D-04
-@ -<< X1SPNORB ; X1SPNORB >> =  1.236592254974D-08
+@ -<< XANGMOM  ; XANGMOM  >> =  7.647374881166D+01
+@ -<< XANGMOM  ; X1SPNORB >> =  2.065248721972D-01
+@ -<< X1SPNORB ; X1SPNORB >> =  6.963789419286D-04
+
+@ -<< XANGMOM  ; X2SPNORB >> = -8.426341638486D-02
+...
 ... 
 @ B-freq = 0.000000  C-freq = 0.000000     beta(X;X,X) =      0.00000000
 @ B-freq = 0.000000  C-freq = 0.000000     beta(Y;X,X) =     -0.00000000
@@ -216,7 +225,7 @@ class TestScan(unittest.TestCase):
         np.testing.assert_allclose(q, ref)
 
     def test_get_final_hf_energy(self):
-        ref = -76.02568148394
+        ref = (-76.02568148394,)
         e, = get_final_energy(self.filename)
         self.assertAlmostEqual(e, ref)
 
@@ -231,9 +240,29 @@ class TestScan(unittest.TestCase):
         e, = get_g_rmc(self.filename)
         np.testing.assert_almost_equal(e, ref)
 
+    def test_get_g_gc1(self):
+        ref = ((0.000599, 0, 0), (0, 0, 0), (0, 0, 0))
+        e, = get_g_gc1(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
+    def test_get_g_gc2(self):
+        ref = (
+            (-0.000671, -0.000056, 0.000056), 
+            (-0.000055, -0.000807, 0), 
+            (0.0000560, 0, -0.000807)
+        )
+
+        e, = get_g_gc2(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
     def test_get_g_oz1(self):
-        ref = ((4.201293559040e-04, 0, 0), (0, 0, 0), (0, 0, 0))
+        ref = ((0.41304974, 0, 0), (0, 0, 0), (0, 0, 0))
         e, = get_g_oz1(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
+    def test_get_g_oz2(self):
+        ref = ((-0.16852683, 0, 0), (0, 0, 0), (0, 0, 0))
+        e, = get_g_oz2(self.filename)
         np.testing.assert_almost_equal(e, ref)
 
 #Electronic quadrupole -7.26005 -0.00000  0.00000 -5.25405  0.00000 -6.40304
