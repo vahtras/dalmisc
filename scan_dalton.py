@@ -6,10 +6,13 @@ DIPLEN = ["XDIPLEN", "YDIPLEN", "ZDIPLEN"]
 SECMOM = ["XXSECMOM", "XYSECMOM", "XZSECMOM", "YYSECMOM", "YZSECMOM", "ZZSECMOM"]
 
 def get_final_energy(*args):
+    energies = []
     for output in args:
         for line in open(output):
             if "Final" in line and "energy:" in line:
-                return float(line.split()[-1])
+                energies.append((last_float(line),))
+                break
+    return tuple(energies)
     
 def get_total_dipole_moment(*args):
     RN = get_nuclear_dipole_moment(*args)
@@ -205,13 +208,14 @@ def outline(floats, fmt="%10.5f"):
     for f in floats:
         retstr += fmt*len(f) % tuple(f) + "\n"
     return retstr
-        
+
 
 if __name__ == "__main__":
     import sys
     import argparse
     parser = argparse.ArgumentParser("Scan Dalton output file")
     parser.add_argument('--coordinates', action='store_true')
+    parser.add_argument('--energy', action='store_true')
     parser.add_argument('--dipole', action='store_true')
     parser.add_argument('--nuclear-dipole', action='store_true')
     parser.add_argument('--quadrupole', action='store_true')
@@ -270,3 +274,17 @@ if __name__ == "__main__":
 
     if args.cm:
         print outline([cm for cm in get_center_of_mass(*args.files)])
+
+    def  blob(files, func, fmt="%10.5f"):
+        floats = func(*files)
+        retstr = ""
+        for f, v in zip(files, floats):
+            retstr += "%-40s" % f + fmt*len(v) % tuple(x for x in v) + "\n"
+        return retstr
+
+    if args.energy:
+        #floats = [e for e in get_final_energy(*args.files)]
+        print blob(args.files, get_final_energy)
+
+        
+

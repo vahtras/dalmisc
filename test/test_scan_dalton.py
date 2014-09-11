@@ -207,7 +207,7 @@ class TestScan(TestCase):
 
     def test_get_final_hf_energy(self):
         ref = -76.02568148394
-        e = get_final_energy(self.filename)
+        e, = get_final_energy(self.filename)
         self.assertAlmostEqual(e, ref)
 
 #Electronic quadrupole -7.26005 -0.00000  0.00000 -5.25405  0.00000 -6.40304
