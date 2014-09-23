@@ -306,7 +306,7 @@ def xyz_to_tuple(string):
     ints = tuple(['xyz'.index(i) for i  in string])
     return ints
 
-def outline(floats, fmt="%10.5f"):
+def outline(floats, fmt="%10.6f"):
     retstr = ""
     for f in floats:
         retstr += fmt*len(f) % tuple(f) + "\n"
@@ -375,7 +375,7 @@ if __name__ == "__main__":
         elif args.upper_triangular:
             print outline([upper_triangular(beta) for beta in betas])
         else:
-            print outline(np.ravel(betas))
+            print outline([np.ravel(beta) for beta in betas])
 
     if args.generate_potential:
         print generate_pot_output(*args.files)
@@ -392,7 +392,7 @@ if __name__ == "__main__":
 
     if args.energy:
         #floats = [e for e in get_final_energy(*args.files)]
-        print blob(args.files, get_final_energy)
+        print blob(args.files, get_final_energy, fmt="%14.8f")
 
 
     if args.g_rmc:
