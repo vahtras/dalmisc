@@ -301,6 +301,38 @@ def get_g_oz2(*args, **kwargs):
         oz2s.append(oz2*G_FAC)
     return tuple(oz2s)
 
+def get_orbital_energies(*args, **kwargs):
+    orbital_energies = []
+    for output in args:
+        file_ = open(output)
+        for line in file_:
+            if "Hartree-Fock orbital energies" in line:
+                floats = []
+                file_.next() #blank
+                line = file_.next().split()[2:]
+                while line != []:
+                    floats += map(float, line)
+                    line = file_.next().split()
+                break
+        orbital_energies.append(np.array(floats))
+    return tuple(orbital_energies)
+
+def get_excitation_energies(*args, **kwargs):
+    excitation_energies = []
+    for output in args:
+        file_ = open(output)
+        exe = []
+        for line in file_:
+            wmatch = re.search(
+                r"@ Excitation energy : (.*) au",
+#                 @ Excitation energy : 0.20348808     au
+                line
+                )
+            if wmatch:
+                exe.append(float(wmatch.groups(1)[0]))
+        excitation_energies.append(np.array(exe))
+    return excitation_energies
+                
         
 def xyz_to_tuple(string):
     ints = tuple(['xyz'.index(i) for i  in string])

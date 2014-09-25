@@ -34,6 +34,20 @@ class TestScan(unittest.TestCase):
   H1      :     4  x   1.4523500000    5  y   0.0000000000    6  z   0.8996230000
   H2      :     7  x  -1.4523500000    8  y   0.0000000000    9  z   0.8996230000
 ...
+ Sym       Hartree-Fock orbital energies
+
+1 A     -20.55302081    -1.32934124    -0.69144670    -0.56387102    -0.49212361
+          0.18304191     0.25403508     0.77887068     0.84069361     1.16451072
+
+...
+
+@ Excitation energy :  0.20348808     au
+@ Excitation energy :  0.27095312     au
+@ Excitation energy :  0.27500777     au
+@ Excitation energy :  0.31446588     au
+@ Excitation energy :  0.32292011     au
+
+...
 @    Final HF energy:             -76.025681483940
 ...
      XDIPLEN  total        :-2.03844916D-15
@@ -265,9 +279,18 @@ class TestScan(unittest.TestCase):
         e, = get_g_oz2(self.filename)
         np.testing.assert_almost_equal(e, ref)
 
-#Electronic quadrupole -7.26005 -0.00000  0.00000 -5.25405  0.00000 -6.40304
-#Nuclear    quadrupole  4.21864  0.00000  0.00000  0.00000  0.00000  2.02330
-#Total      quadrupole -3.04141 -0.00000  0.00000 -5.25405  0.00000 -4.37974
+    def test_get_orbital_energies(self):
+        ref = (
+            -20.55302081, -1.32934124, -0.69144670, -0.56387102, -0.49212361,
+              0.18304191,  0.25403508,  0.77887068,  0.84069361,  1.16451072
+            )
+        e, = get_orbital_energies(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
+    def test_get_excitation_energies(self):
+        ref = (0.20348808, 0.27095312, 0.27500777, 0.31446588, 0.32292011)
+        e, = get_excitation_energies(self.filename)
+        np.testing.assert_almost_equal(e, ref)
 
 if __name__ == "__main__":
     unittest.main()
