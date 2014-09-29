@@ -185,6 +185,11 @@ class TestScan(unittest.TestCase):
             ([ 2.03844916e-15,   -1.53769063e-15,  8.14577550e-01],)
             )
 
+    def test_electronic_no_diplen_raises_exception(self):
+        self.assertRaises(
+            NotFoundError, get_electronic_dipole_moment, '/dev/null'
+            )
+
     def test_electronic_quadrupole(self):
         np.testing.assert_almost_equal(
             get_electronic_quadrupole_moment(self.filename), 

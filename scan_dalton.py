@@ -83,10 +83,14 @@ def get_electronic_dipole_moment(*args):
     diplens = []
     for output in args:
         diplen = np.zeros(3)
+        found_diplen = False
         for line in open(output):
             if "DIPLEN  total" in line:
+                found_diplen = True
                 index, value = read_dipole_component(line)
                 diplen[index] = -value
+        if not found_diplen:
+            raise NotFoundError()
         diplens.append(diplen)
     return tuple(diplens)
 
