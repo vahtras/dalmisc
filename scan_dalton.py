@@ -486,5 +486,4 @@ if __name__ == "__main__":
         print outline([np.ravel(oz2) for oz2 in oz2s], fmt="%10.6f")
 
     if args.excitation_energy:
-        #print outline([ws for ws in get_excitation_energies(*args.files)])
-        print get_excitation_energies(*args.files)
+        print outline([ws for ws in get_excitation_energies(*args.files)])
