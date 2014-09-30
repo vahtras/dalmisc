@@ -392,8 +392,6 @@ def transition_operator_pattern(label):
 def extract_transition_moment(line):
     pattern = r'@ STATE NO:.*NT: +(\S+)'
     match = re.search(pattern, line)
-    print line
-    print match.groups(1)
     return float(match.groups(1)[0])
     
         
