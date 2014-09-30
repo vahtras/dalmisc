@@ -356,18 +356,17 @@ def get_orbital_energies(*args, **kwargs):
     return tuple(orbital_energies)
 
 def get_excitation_energies(*args, **kwargs):
+    pattern = r"@ Excitation energy : (.*) au"
     excitation_energies = []
     for output in args:
         file_ = open(output)
         exe = []
         for line in file_:
-            wmatch = re.search(
-                r"@ Excitation energy : (.*) au",
-#                 @ Excitation energy : 0.20348808     au
-                line
-                )
+            wmatch = re.search(pattern, line)
             if wmatch:
                 exe.append(float(wmatch.groups(1)[0]))
+        if not exe:
+            raise NotFoundError(pattern, output)
         excitation_energies.append(np.array(exe))
     return excitation_energies
                 
@@ -406,6 +405,7 @@ if __name__ == "__main__":
     parser.add_argument('--g-gc2', action='store_true')
     parser.add_argument('--g-oz1', action='store_true')
     parser.add_argument('--g-oz2', action='store_true')
+    parser.add_argument('--excitation-energy', action='store_true')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -484,3 +484,7 @@ if __name__ == "__main__":
     if args.g_oz2:
         oz2s = get_g_oz2(*args.files)
         print outline([np.ravel(oz2) for oz2 in oz2s], fmt="%10.6f")
+
+    if args.excitation_energy:
+        #print outline([ws for ws in get_excitation_energies(*args.files)])
+        print get_excitation_energies(*args.files)
