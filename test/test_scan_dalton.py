@@ -82,6 +82,26 @@ class TestScan(unittest.TestCase):
 @ QRLRVE:  << YDIPLEN  ; ZDIPLEN  >> (   0.00000):    4.387168195962E-15
 @ QRLRVE:  << ZDIPLEN  ; ZDIPLEN  >> (   0.00000):     5.22710462524    
 ...
+
+@ Transition operator type:    XDIPLEN
+@ STATE NO:    1 *TRANSITION MOMENT: -7.59491062E-16 *ENERGY(eV):   9.0419086
+@ STATE NO:    2 *TRANSITION MOMENT:  4.32992333E-16 *ENERGY(eV):   9.0543615
+@ STATE NO:    3 *TRANSITION MOMENT:  2.62890021E-17 *ENERGY(eV):   15.594527
+@ STATE NO:    4 *TRANSITION MOMENT:  1.61762067E-16 *ENERGY(eV):   15.763878
+
+@ Transition operator type:    YDIPLEN
+@ STATE NO:    1 *TRANSITION MOMENT:  0.23546966     *ENERGY(eV):   9.0419086
+@ STATE NO:    2 *TRANSITION MOMENT:  0.43727594     *ENERGY(eV):   9.0543615
+@ STATE NO:    3 *TRANSITION MOMENT:  2.99603676E-03 *ENERGY(eV):   15.594527
+@ STATE NO:    4 *TRANSITION MOMENT:  2.47044333E-03 *ENERGY(eV):   15.763878
+
+@ Transition operator type:    ZDIPLEN
+@ STATE NO:    1 *TRANSITION MOMENT:  1.16578641E-15 *ENERGY(eV):   9.0419086
+@ STATE NO:    2 *TRANSITION MOMENT:  5.73781327E-16 *ENERGY(eV):   9.0543615
+@ STATE NO:    3 *TRANSITION MOMENT:  1.41349350E-17 *ENERGY(eV):   15.594527
+@ STATE NO:    4 *TRANSITION MOMENT:  6.63118919E-15 *ENERGY(eV):   15.763878
+
+...
 @ FREQUENCY INDEPENDENT SECOND ORDER PROPERTIES
 
 @ -<< XANGMOM  ; XANGMOM  >> =  7.647374881166D+01
@@ -304,6 +324,22 @@ class TestScan(unittest.TestCase):
         ref = (0.20348808, 0.27095312, 0.27500777, 0.31446588, 0.32292011)
         e, = get_excitation_energies(self.filename)
         np.testing.assert_almost_equal(e, ref)
+
+
+    def notest_get_transition_moments(self):
+        ref = (0.23546966, 0.43727594, 2.99603676E-03, 2.47044333E-03)
+        e, = get_transition_moments("YDIPLEN", self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
+    def test_transition_operator_pattern(self):
+        self.assertIsNotNone(
+            re.match(
+                transition_operator_pattern("XDIPLEN"),
+                "@ Transition operator type:    XDIPLEN"
+                )
+            )
+            
+
 
 if __name__ == "__main__":
     unittest.main()

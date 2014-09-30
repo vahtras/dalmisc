@@ -369,7 +369,25 @@ def get_excitation_energies(*args, **kwargs):
             raise NotFoundError(pattern, output)
         excitation_energies.append(np.array(exe))
     return excitation_energies
-                
+
+def get_transition_moments(label, *args, **kwargs):
+    pattern = r"@ Transition operator type: .*%s" % label
+    sub_pattern = r"@ STATE.*NT: (\w*) .*"
+    moments = []
+    for output in args:
+        file_ = open(output)
+        for line in file_:
+            if re.search(pattern, line):
+                import pdb; pdb.set_trace()
+                state_line = re.match(sub_pattern, file_.next())
+                while state_line:
+                    moments.append(float(state_line.groups(1)[0]))
+                    state_line = re.match(sub_pattern, file_.next())
+        if not moments: 
+            raise NotFoundError, (pattern, output)
+
+def transition_operator_pattern(label):
+    return r'@ Transition operator type: .*%s' % label
         
 def xyz_to_tuple(string):
     ints = tuple(['xyz'.index(i) for i  in string])
