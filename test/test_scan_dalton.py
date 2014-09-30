@@ -326,7 +326,7 @@ class TestScan(unittest.TestCase):
         np.testing.assert_almost_equal(e, ref)
 
 
-    def notest_get_transition_moments(self):
+    def test_get_transition_moments(self):
         ref = (0.23546966, 0.43727594, 2.99603676E-03, 2.47044333E-03)
         e, = get_transition_moments("YDIPLEN", self.filename)
         np.testing.assert_almost_equal(e, ref)

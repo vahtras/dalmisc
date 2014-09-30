@@ -2,8 +2,8 @@ import unittest
 import os
 import numpy as np
 from daltools import one, dens
-from util.full import init
-from dalmisc import twoso
+from ..util.full import init
+from .. import twoso
 
 class TestSpinOrbit(unittest.TestCase):
 

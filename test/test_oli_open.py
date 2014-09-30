@@ -1,5 +1,5 @@
 import os
-from util.full import matrix, unit, init
+from ..util.full import matrix, unit, init
 from .. import oli
 from .common_tests import assert_
 

@@ -371,27 +371,29 @@ def get_excitation_energies(*args, **kwargs):
     return excitation_energies
 
 def get_transition_moments(label, *args, **kwargs):
-    pattern = r"@ Transition operator type: .*%s" % label
-    sub_pattern = r"@ STATE.*NT: (\w*) .*"
+    pattern = transition_operator_pattern(label)
     moments = []
     for output in args:
         file_ = open(output)
+        mom = []
         for line in file_:
             if re.search(pattern, line):
-                import pdb; pdb.set_trace()
-                state_line = re.match(sub_pattern, file_.next())
-                while state_line:
-                    moments.append(float(state_line.groups(1)[0]))
-                    state_line = re.match(sub_pattern, file_.next())
-        if not moments: 
+                next_line = file_.next()
+                while re.match(XMOM_PATTERN, next_line):
+                    mom.append(extract_transition_moment(next_line))
+                    next_line = file_.next()
+        if not mom: 
             raise NotFoundError, (pattern, output)
+        moments.append(np.array(mom))
+    return moments
 
 def transition_operator_pattern(label):
     return r'@ Transition operator type: .*%s' % label
 
+XMOM_PATTERN = r'@ STATE NO:.*NT: +(\S+)'
+
 def extract_transition_moment(line):
-    pattern = r'@ STATE NO:.*NT: +(\S+)'
-    match = re.search(pattern, line)
+    match = re.search(XMOM_PATTERN, line)
     return float(match.groups(1)[0])
     
         
