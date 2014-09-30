@@ -388,6 +388,14 @@ def get_transition_moments(label, *args, **kwargs):
 
 def transition_operator_pattern(label):
     return r'@ Transition operator type: .*%s' % label
+
+def extract_transition_moment(line):
+    pattern = r'@ STATE NO:.*NT: +(\S+)'
+    match = re.search(pattern, line)
+    print line
+    print match.groups(1)
+    return float(match.groups(1)[0])
+    
         
 def xyz_to_tuple(string):
     ints = tuple(['xyz'.index(i) for i  in string])

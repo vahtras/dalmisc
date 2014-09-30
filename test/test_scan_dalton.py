@@ -338,6 +338,14 @@ class TestScan(unittest.TestCase):
                 "@ Transition operator type:    XDIPLEN"
                 )
             )
+
+    def test_transition_moment_pattern(self):
+        line = """\
+@ STATE NO:    1 *TRANSITION MOMENT:  0.23546966     *ENERGY(eV):   9.0419086
+"""
+        self.assertAlmostEqual(
+            extract_transition_moment(line), 0.23546966
+            )
             
 
 
