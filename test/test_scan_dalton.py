@@ -55,7 +55,7 @@ class TestScan(unittest.TestCase):
      ZDIPLEN  total        :    -0.81457755
      XXSECMOM total        :     7.26004973
      XYSECMOM total        : 2.11454908D-16
-     XYSECMOM total        : 2.11454908D-16
+     XZSECMOM total        : 2.11454908D-16
      YYSECMOM total        :     5.25404533
      YZSECMOM total        :-1.84889923D-18
      ZZSECMOM total        :     6.40304140
@@ -196,6 +196,11 @@ class TestScan(unittest.TestCase):
             ([ -7.26004973, 0, 0, -5.25404533, 0, -6.40304140],)
             )
 
+    def test_electronic_no_quadrupole_raises_exception(self):
+        self.assertRaises(
+            NotFoundError, get_electronic_quadrupole_moment, '/dev/null'
+            )
+
 
     def test_pol(self):
         np.testing.assert_almost_equal(
@@ -206,6 +211,9 @@ class TestScan(unittest.TestCase):
                 [ -6.11870031e-15,  4.38716820e-15,  5.22710463e+00]
             ],)
             )
+
+    def test_nopol(self):
+        self.assertRaises(NotFoundError, get_polarizability, "/dev/null")
 
     def test_hyp(self):
         np.testing.assert_almost_equal(

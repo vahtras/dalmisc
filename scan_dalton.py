@@ -11,7 +11,10 @@ G_E = scipy.constants.physical_constants["electron g factor"][0]
 ALPHA = scipy.constants.alpha
 
 class NotFoundError(Exception):
-    pass
+
+    def __init__(self, pattern, filename):
+        self.pattern = pattern
+        self.filename = filename
 
 def get_final_energy(*args):
     energies = []
@@ -21,6 +24,24 @@ def get_final_energy(*args):
                 energies.append((last_float(line),))
                 break
     return tuple(energies)
+
+# with generators
+
+def get_last_float(pattern, scale=1):
+    def get_last_float(*args):
+        floats = []
+        for output in args:
+            found_pattern = False
+            for line in open(output):
+                if re.search(pattern, line):
+                    found_pattern = True
+                    floats.append((scale*last_float(line),))
+            if not found_pattern:
+                raise NotFoundError, (pattern, output)
+        return floats
+    return get_last_float
+
+get_final_energy = get_last_float("@.*Final.*energy:")
     
 def get_total_dipole_moment(*args):
     RN = get_nuclear_dipole_moment(*args)
@@ -81,16 +102,17 @@ def last(line):
 
 def get_electronic_dipole_moment(*args):
     diplens = []
+    pattern = "DIPLEN  total"
     for output in args:
         diplen = np.zeros(3)
         found_diplen = False
         for line in open(output):
-            if "DIPLEN  total" in line:
+            if pattern in line:
                 found_diplen = True
                 index, value = read_dipole_component(line)
                 diplen[index] = -value
         if not found_diplen:
-            raise NotFoundError()
+            raise NotFoundError, (pattern, output)
         diplens.append(diplen)
     return tuple(diplens)
 
@@ -115,25 +137,34 @@ def get_nuclear_quadrupole_moment(*args):
 
 def get_electronic_quadrupole_moment(*args):
     quadrupoles = []
+    pattern = "SECMOM total"
     for output in (args):
         quadrupole = np.zeros(6)
+        found_quadrupole = False
         for line in open(output):
-            if "SECMOM total" in line:
+            if pattern in line:
+                found_quadrupole = True
                 index, value = read_quadrupole_component(line)
                 quadrupole[index] = -value
+        if not found_quadrupole:
+            raise NotFoundError, (pattern, output)
         quadrupoles.append(quadrupole)
     return tuple(quadrupoles)
 
 
 def get_polarizability(*args):
     alphas = []
+    pattern = "@ QRLRVE:  <<"
     for output in args:
         alpha = np.zeros((3,3))
+        found_alpha = False
         for line in open(output):
-            if "@ QRLRVE:  <<" in line:
+            if pattern  in line:
+                found_alpha = True
                 i, j, a = read_pol_component(line)
                 alpha[i, j] = a
                 alpha[j, i] = a
+        if not found_alpha: raise NotFoundError, (pattern, output)
         alphas.append(alpha)
     return tuple(alphas)
 
@@ -212,18 +243,21 @@ def get_center_of_mass(*args):
 
 def get_g_rmc(*args, **kwargs):
     rmcs = []
+    pattern = "KINENERG active"
     m_s = kwargs.get("M_S", 0.5)
     clebsh_gordan_factor = 1/m_s
     G_FAC = ALPHA**2*G_E/2*clebsh_gordan_factor
-    for output in args:
-        for line in open(output):
-            if "KINENERG active" in line:
-                rmc = last_float(line)
-                break
-        else:
-            raise NotFoundError()
-        rmcs.append(rmc*G_FAC)
-    return tuple(rmcs)
+    return get_last_float(pattern, G_FAC)(*args, **kwargs)
+#   for output in args:
+#       for line in open(output):
+#           if pattern in line:
+#               rmc = last_float(line)
+#               break
+#       else:
+#           raise NotFoundError, (pattern, output)
+#       rmcs.append(rmc*G_FAC)
+#   return tuple(rmcs)
+
 
 def get_g_gc1(*args, **kwargs):
     gc1s = []
