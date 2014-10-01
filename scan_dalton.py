@@ -394,7 +394,7 @@ XMOM_PATTERN = r'@ STATE NO:.*NT: +(\S+)'
 
 def extract_transition_moment(line):
     match = re.search(XMOM_PATTERN, line)
-    return float(match.groups(1)[0])
+    return abs(float(match.groups(1)[0]))
     
         
 def xyz_to_tuple(string):
@@ -432,6 +432,7 @@ if __name__ == "__main__":
     parser.add_argument('--g-oz1', action='store_true')
     parser.add_argument('--g-oz2', action='store_true')
     parser.add_argument('--excitation-energy', action='store_true')
+    parser.add_argument('--transition-moment')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -513,3 +514,9 @@ if __name__ == "__main__":
 
     if args.excitation_energy:
         print outline([ws for ws in get_excitation_energies(*args.files)])
+
+    if args.transition_moment:
+        try:
+            print outline([ws for ws in get_transition_moments(args.transition_moment, *args.files)])
+        except NotFoundError as e:
+            print e.pattern, e.filename
