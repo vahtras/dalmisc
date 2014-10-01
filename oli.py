@@ -2,6 +2,16 @@
 import os
 from daltools import sirifc, one, dens, rspvec
 import two
+import util
+
+def get_cmo(AOONEINT, SIRIFC):
+    ifc = sirifc.sirifc(SIRIFC).cmo.unblock()
+    return ifc.view(util.full.matrix)
+
+def get_densities(SIRIFC):
+    da, db = [d.view(util.full.matrix) for d in dens.Dab(SIRIFC)]
+    return da, db
+
 
 def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     """
@@ -30,15 +40,15 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     LUINDF = os.path.join(tmpdir, 'LUINDF')
 
     ifc = sirifc.sirifc(SIRIFC)
-    cmo = ifc.cmo.unblock()
+    cmo = get_cmo(AOONEINT, SIRIFC)
 
     h = one.read('ONEHAMIL', filename=AOONEINT).unblock().unpack()
-    S = one.read('OVERLAP',  filename=AOONEINT).unblock().unpack()
+    S = one.read('OVERLAP',  filename=AOONEINT).unblock().unpack().view(util.full.matrix)
 
-    da, db = dens.Dab(SIRIFC)
+    da, db = get_densities(SIRIFC)
 
-    kN = rspvec.tomat(N, ifc, tmpdir=tmpdir).T #transpose  = (q, q+) to (q+/q)
-    kn = cmo*kN*cmo.T
+    kN = rspvec.tomat(N, ifc, tmpdir=tmpdir).view(util.full.matrix).T
+    kn = (cmo*kN*cmo.T).view(util.full.matrix)
 
     dak = (kn.T*S*da - da*S*kn.T)
     dbk = (kn.T*S*db - db*S*kn.T)*Sv
@@ -48,6 +58,7 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     fa += h; fb += h
     fak, fbk = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
 
+    print type(S), type(kn), type(fa)
     kfa = (S*kn*fa - fa*kn*S)
     kfb = (S*kn*fb - fb*kn*S)*Sv
 

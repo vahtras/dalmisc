@@ -23,3 +23,4 @@ def test_s2n_S():
 
 if __name__ == "__main__":
     setup()
+    test_e2n_S()
