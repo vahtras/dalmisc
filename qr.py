@@ -90,8 +90,12 @@ def E3(pB, pC, ifc, **kwargs):
     fb = fbBC + BfbC + CfbB + .5*(BCfb + CBfb)
 
     G = cmo.T*(S*(da*fa.T + db*fb.T) - (fa.T*da + fb.T*db)*S)*cmo
+    #G =  cmo.T*(S*da*fa.T - fa.T*da *S)*cmo + \
+    #      cmo.T*(S*db*fb.T - fb.T*db *S)*cmo 
+
 
     Gv = rspvec.tovec(G, ifc)
+    #print Gv
 
     return Gv
 
