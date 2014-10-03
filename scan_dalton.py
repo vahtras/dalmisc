@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import re
+import os
 import numpy as np
 import scipy.constants
+import matplotlib.pyplot as mpl
 
 DIPLEN = ["XDIPLEN", "YDIPLEN", "ZDIPLEN"]
 SECMOM = ["XXSECMOM", "XYSECMOM", "XZSECMOM", "YYSECMOM", "YZSECMOM", "ZZSECMOM"]
@@ -407,6 +409,15 @@ def outline(floats, fmt="%10.6f"):
         retstr += fmt*len(f) % tuple(f) + "\n"
     return retstr
 
+def single_plot(files, numbers):
+    mpl.plot(numbers)
+    filenames = [os.path.basename(f) for f in files]
+    mpl.xticks(range(len(files)), filenames, rotation='vertical')
+    mpl.margins(0.2)
+    mpl.subplots_adjust(bottom=0.50)
+    mpl.show()
+    pass
+
 
 if __name__ == "__main__":
     import sys
@@ -433,6 +444,7 @@ if __name__ == "__main__":
     parser.add_argument('--g-oz2', action='store_true')
     parser.add_argument('--excitation-energy', action='store_true')
     parser.add_argument('--transition-moment')
+    parser.add_argument('--plot', action='store_true')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -488,8 +500,10 @@ if __name__ == "__main__":
         return retstr
 
     if args.energy:
-        #floats = [e for e in get_final_energy(*args.files)]
         print blob(args.files, get_final_energy, fmt="%14.8f")
+        if args.plot:
+            floats = np.array([e[0] for e in get_final_energy(*args.files)])
+            single_plot(args.files, floats)
 
 
     if args.g_rmc:

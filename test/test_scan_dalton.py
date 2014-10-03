@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 from ..scan_dalton import *
+import mock
+from .. import scan_dalton
 
 class TestScan(unittest.TestCase):
 
@@ -347,6 +349,32 @@ class TestScan(unittest.TestCase):
             extract_transition_moment(line), 0.23546966
             )
             
+    @mock.patch.object(scan_dalton.mpl, 'show')
+    @mock.patch.object(scan_dalton.mpl, 'xticks')
+    @mock.patch.object(scan_dalton.mpl, 'plot')
+    def test_single_plot_show(self, mock_plot, mock_xticks, mock_show):
+        mockfiles = ['a', 'b', 'c']
+        mocknumbers = [1, 2, 3]
+        single_plot(mockfiles, mocknumbers)
+        mock_show.assert_called_once_with()
+
+    @mock.patch.object(scan_dalton.mpl, 'show')
+    @mock.patch.object(scan_dalton.mpl, 'xticks')
+    @mock.patch.object(scan_dalton.mpl, 'plot')
+    def test_single_plot_plot(self, mock_plot, mock_xticks, mock_show):
+        mockfiles = ['a', 'b', 'c']
+        mocknumbers = [1, 2, 3]
+        single_plot(mockfiles, mocknumbers)
+        mock_plot.assert_called_once_with(mocknumbers)
+
+    @mock.patch.object(scan_dalton.mpl, 'show')
+    @mock.patch.object(scan_dalton.mpl, 'xticks')
+    @mock.patch.object(scan_dalton.mpl, 'plot')
+    def test_single_plot_xticks(self, mock_plot, mock_xticks, mock_show):
+        mockfiles = ['a', 'b', 'c']
+        mocknumbers = [1, 2, 3]
+        single_plot(mockfiles, mocknumbers)
+        mock_xticks.assert_called_once_with([0, 1, 2], mockfiles, rotation='vertical')
 
 
 if __name__ == "__main__":
