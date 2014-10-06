@@ -490,7 +490,7 @@ if __name__ == "__main__":
         return retstr
 
     if args.energy:
-        print blob(args.files, get_final_energy, fmt="%14.8f")
+        print blob(args.files, get_final_energy, fmt=args.fmt)
         if args.plot:
             floats = np.array([e[0] for e in get_final_energy(*args.files)])
             single_plot(args.files, floats)
