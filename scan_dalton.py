@@ -100,7 +100,7 @@ def last_int(line):
     return int(last(line))
 
 def last(line):
-    return line.split()[-1]
+    return line.split()[-1].split(':')[-1]
 
 def get_electronic_dipole_moment(*args):
     diplens = []
@@ -120,13 +120,11 @@ def get_electronic_dipole_moment(*args):
 
 def read_dipole_component(line):
     first = line.split()[0]
-    last_double = line.split(':')[-1].replace('D', 'E')
-    return DIPLEN.index(first), float(last_double)
+    return DIPLEN.index(first), last_float(line)
 
 def read_quadrupole_component(line):
     first = line.split()[0]
-    last_double = line.split(':')[-1].replace('D', 'E')
-    return SECMOM.index(first), float(last_double)
+    return SECMOM.index(first), last_float(line)
 
 def get_nuclear_quadrupole_moment(*args):
     quadrupoles = []
@@ -250,15 +248,6 @@ def get_g_rmc(*args, **kwargs):
     clebsh_gordan_factor = 1/m_s
     G_FAC = ALPHA**2*G_E/2*clebsh_gordan_factor
     return get_last_float(pattern, G_FAC)(*args, **kwargs)
-#   for output in args:
-#       for line in open(output):
-#           if pattern in line:
-#               rmc = last_float(line)
-#               break
-#       else:
-#           raise NotFoundError, (pattern, output)
-#       rmcs.append(rmc*G_FAC)
-#   return tuple(rmcs)
 
 
 def get_g_gc1(*args, **kwargs):
@@ -445,6 +434,7 @@ if __name__ == "__main__":
     parser.add_argument('--excitation-energy', action='store_true')
     parser.add_argument('--transition-moment')
     parser.add_argument('--plot', action='store_true')
+    parser.add_argument('--fmt', default='%10.6f')
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -508,23 +498,23 @@ if __name__ == "__main__":
 
     if args.g_rmc:
         rmcs = get_g_rmc(*args.files)
-        print outline([np.ravel(rmc) for rmc in rmcs], fmt="%10.6f")
+        print outline([np.ravel(rmc) for rmc in rmcs], fmt=args.fmt)
 
     if args.g_gc1:
         gc1s = get_g_gc1(*args.files)
-        print outline([np.ravel(gc1) for gc1 in gc1s], fmt="%10.6f")
+        print outline([np.ravel(gc1) for gc1 in gc1s], fmt=args.fmt)
 
     if args.g_gc2:
         gc2s = get_g_gc2(*args.files)
-        print outline([np.ravel(gc2) for gc2 in gc2s], fmt="%10.6f")
+        print outline([np.ravel(gc2) for gc2 in gc2s], fmt=args.fmt)
 
     if args.g_oz1:
         oz1s = get_g_oz1(*args.files)
-        print outline([np.ravel(oz1) for oz1 in oz1s], fmt="%10.6f")
+        print outline([np.ravel(oz1) for oz1 in oz1s], fmt=args.fmt)
 
     if args.g_oz2:
         oz2s = get_g_oz2(*args.files)
-        print outline([np.ravel(oz2) for oz2 in oz2s], fmt="%10.6f")
+        print outline([np.ravel(oz2) for oz2 in oz2s], fmt=args.fmt)
 
     if args.excitation_energy:
         print outline([ws for ws in get_excitation_energies(*args.files)])
