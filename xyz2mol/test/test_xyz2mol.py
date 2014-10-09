@@ -41,6 +41,11 @@ class Test2Mol(unittest.TestCase):
         element = extract_element(atom_line)
         self.assertEqual(element, "He")
 
+    def test_extract_numbered_element_before_negative(self):
+        atom_line = "H  -1.452350  0.000000  0.899623"
+        element = extract_element(atom_line)
+        self.assertEqual(element, "H")
+
     def test_extract_unnumbered_element(self):
         atom_line = "O 0 0 0"
         element = extract_element(atom_line)

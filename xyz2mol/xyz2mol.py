@@ -60,8 +60,7 @@ Atomtypes=%d"""%(comment, len(comment)*"=", len(atomtypes))
     return molstring
 
 def extract_element(atom_line):
-    match_digit = re.compile('\d')
-    element = re.split(match_digit, atom_line)[0].strip()
+    element = re.search("(^[A-Z][a-z]?)", atom_line).groups()[0]
     if element not in ELEMENTS:
         raise Exception("No such element:" + element)
     return element
