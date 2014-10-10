@@ -435,6 +435,7 @@ if __name__ == "__main__":
     parser.add_argument('--transition-moment')
     parser.add_argument('--plot', action='store_true')
     parser.add_argument('--fmt', default='%10.6f')
+    parser.add_argument('--decimals', type=int)
     parser.add_argument('files', nargs='+')
     args = parser.parse_args()
     if args.generate_potential:
@@ -445,6 +446,11 @@ if __name__ == "__main__":
 
     if args.dipole:
         print get_total_dipole_moment(*args.files)
+
+    if args.decimals:
+        print  args.decimals
+        args.fmt = "%%%d.%df" % (args.decimals + 4, args.decimals)
+        print args.fmt
 
     if args.nuclear_dipole:
         print get_nuclear_dipole_moment(*args.files)
