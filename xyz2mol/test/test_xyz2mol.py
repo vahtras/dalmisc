@@ -57,7 +57,7 @@ class Test2Mol(unittest.TestCase):
     def test_xyz2mol(self):
         mol = xyz2mol(xyz)
         print mol, molref
-        assert mol == molref
+        self.assertEqual(mol, molref)
 
     def test_wrong_infile_extension_raises(self):
         self.assertRaises(Exception, rename, "infile.yo")
@@ -80,10 +80,31 @@ In Angstrom
 ===========
 Atomtypes=1 Units=Angstrom
 Charge=1 Atoms=2
-H1    0.000000    0.000000    0.000000
-H2    0.000000    0.000000    3.400000
+H1 0 0 0
+H2 0 0 3.4
 """
         mol = xyz2mol(xyz, units="Angstrom")
+        self.assertEqual(mol, molref)
+
+    def test_alternative_basis(self):
+        xyz = """2
+Trying STO-3G
+H1 0 0 0
+H2 0 0 3.4
+"""
+        molref = """\
+BASIS
+STO-3G
+Trying STO-3G
+=============
+Atomtypes=1
+Charge=1 Atoms=2
+H1 0 0 0
+H2 0 0 3.4
+"""
+        mol = xyz2mol(xyz, basis="STO-3G")
+        self.assertEqual(mol, molref)
+    
 
 if __name__ == "__main__":
     test_xyz2mol()
