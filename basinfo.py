@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Extract info from DALTON/SIRIUS restart file stored under label BASINFO"""
 import numpy
-from util.unformatted import FortranBinary
+from daltools.util.unformatted import FortranBinary
 
 class BasInfo():
     """Simple class for BASINFO data"""

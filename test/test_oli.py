@@ -1,5 +1,5 @@
 import os
-from ..util.full import unit, init, matrix
+from daltools.util.full import unit, init, matrix
 from .. import oli
 from .common_tests import assert_
 

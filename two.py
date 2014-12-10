@@ -2,8 +2,8 @@
 """Module for getting stuff from Dalton two-electron integral file AOTWOINT"""
 
 import numpy as np
-from util.unformatted import FortranBinary as FB
-from util.full import matrix
+from daltools.util.unformatted import FortranBinary as FB
+from daltools.util.full import matrix
 
 def info(filename="AOTWOINT"):
     """Extract info block BASINFO on AOTWOINT"""

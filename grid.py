@@ -2,7 +2,7 @@
 import math
 import numpy as np
 import daltools
-from util import full
+from daltools.util import full
 
 def readfirst(quad_file):
     for f in quaditer(quad_file):

@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from ..util.full import matrix, init
+from daltools.util.full import matrix, init
 from daltools import prop
 from ..two import fockab, fock
 

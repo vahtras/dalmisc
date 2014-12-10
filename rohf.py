@@ -146,7 +146,7 @@ class Converged(Exception):
 #      return repr(self.value)
 
 from math import sqrt
-from util import full
+from daltools.util import full
 from daltools import one, dens
 from dalmisc.two import fockab
 

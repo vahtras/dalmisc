@@ -1,5 +1,5 @@
 import os
-from ..util.full import unit, init
+from daltools.util.full import unit, init
 from daltools import rspvec, sirifc, dens, one, prop
 from .. import qr
 
@@ -26,7 +26,10 @@ class TestQR(unittest.TestCase):
 
 
         RSPVEC = os.path.join(self.suppdir, 'RSPVEC')
-        self.NA, self.NB, self.NC = rspvec.read(self.A, self.B, self.C, propfile=RSPVEC)[0]
+        rspvecs = rspvec.read(self.A, self.B, self.C, propfile=RSPVEC)
+        self.NA = rspvecs[(self.A, 0)]
+        self.NB = rspvecs[(self.B, 0)]
+        self.NC = rspvecs[(self.C, 0)]
 
         self.kA = rspvec.tomat(self.NA, self.ifc, tmpdir = self.suppdir)
         self.kB = rspvec.tomat(self.NB, self.ifc, tmpdir = self.suppdir).T

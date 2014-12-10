@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import numpy
-from util import unformatted, blocked, full
+from daltools.util import unformatted, blocked, full
 from basinfo import BasInfo
 
 class SiriusRestart(unformatted.FortranBinary):
@@ -28,7 +28,7 @@ class SiriusRestart(unformatted.FortranBinary):
         cmo_rec=self.next()
         assert cmo_rec.reclen/8 == numpy.dot(self.basinfo.nbas, self.basinfo.norb)
         n=0
-        cmo=blocked.matrix(self.basinfo.nbas, self.basinfo.norb)
+        cmo=blocked.BlockDiagonalMatrix(self.basinfo.nbas, self.basinfo.norb)
         for isym in range(self.basinfo.nsym):
             cmoi = numpy.array(cmo_rec.read(self.basinfo.nbas[isym]*self.basinfo.norb[isym],'d')
                    ).reshape((self.basinfo.nbas[isym], self.basinfo.norb[isym]), order='F')
