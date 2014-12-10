@@ -445,7 +445,8 @@ if __name__ == "__main__":
         print get_coordinates(*args.files)
 
     if args.dipole:
-        print get_total_dipole_moment(*args.files)
+        dipoles = get_total_dipole_moment(*args.files)
+        print outline([dip for dip in dipoles])
 
     if args.decimals:
         print  args.decimals
