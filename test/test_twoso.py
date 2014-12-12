@@ -35,18 +35,18 @@ class TestSpinOrbit(unittest.TestCase):
         ])
 
     def test_first_integral(self):
-        for c, ig, g in twoso.list_integrals(self.ao2soint, label="AO2SOINT"):
+        for c, ig, g in twoso.list_integrals(self.ao2soint):
             break
         self.assertEqual(c, 0)
         self.assertAlmostEqual(g, 2.88719908251)
 
     def test_fc(self):
-        fc = twoso.fock(self.dc, 'z' , filename=self.ao2soint, label='AO2SOINT')
+        fc = twoso.fock(self.dc, 'z' , filename=self.ao2soint)
         np.testing.assert_almost_equal(fc, self.fcref)
 
     def test_fab(self):
         da = db = 0.5*self.dc
-        fa, fb  = twoso.fockab(da, db, 'z' , filename=self.ao2soint, label='AO2SOINT')
+        fa, fb  = twoso.fockab(da, db, 'z' , filename=self.ao2soint)
         fc = 0.5*(fa - fb)
         np.testing.assert_almost_equal(fc, self.fcref)
 

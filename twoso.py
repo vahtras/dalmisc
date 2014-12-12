@@ -19,7 +19,7 @@ import two
 def list_integrals(*args, **kwargs):
     """ List two-electron spin-orbit integrals in file """
 
-    for buf, ibuf in two.list_buffers(*args, **kwargs):
+    for buf, ibuf in two.list_buffers(*args, label='AO2SOINT', **kwargs):
         for g, ig in zip(buf, ibuf):
             if ig[0] == 0:
                 comp = ig[1] - 1
@@ -54,7 +54,7 @@ def fock(D, component, S_g=1,  **kwargs):
     JR = matrix((nbast, nbast))
     K = matrix((nbast, nbast))
 
-    for buf, ibuf in two.list_buffers(**kwargs):
+    for buf, ibuf in two.list_buffers(label='AO2SOINT', **kwargs):
         for g, ig in zip(buf, ibuf):
             if ig[0] == 0:
                 comp = "*xyz"[ig[1]]
@@ -101,7 +101,7 @@ def fockab(Da, Db, component, **kwargs):
     Fb = matrix(Db.shape)
     
 
-    for buf, ibuf in two.list_buffers(**kwargs):
+    for buf, ibuf in two.list_buffers(label='AO2SOINT', **kwargs):
         for g, ig in zip(buf, ibuf):
             if ig[0] == 0:
                 comp = "*xyz"[ig[1]]
