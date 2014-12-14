@@ -1,6 +1,8 @@
 import unittest
 import os
-from dalmisc.basinfo import BasInfo
+import numpy
+from ..basinfo import BasInfo
+
 
 class TestBasInfo(unittest.TestCase):
     
@@ -13,13 +15,32 @@ class TestBasInfo(unittest.TestCase):
         self.assertEqual(self.bas_info.nsym, 1)
 
     def test_nbas(self): 
-        self.assertEqual(self.bas_info.nbas[0], 5)
+        numpy.testing.assert_equal(self.bas_info.nbas, [5,0,0,0,0,0,0,0])
 
     def test_nbast(self): 
         self.assertEqual(self.bas_info.nbast, 5)
 
+    def test_norb(self): 
+        numpy.testing.assert_equal(self.bas_info.norb, [5,0,0,0,0,0,0,0])
+
+    def test_norbt(self): 
+        self.assertEqual(self.bas_info.norbt, 5)
+
     def test_ncmot(self):
         self.assertEqual(self.bas_info.ncmot, 25)
+
+    def test_str(self):
+        ref = """\
+NSYM   :   1
+NBAS   :   5  0  0  0  0  0  0  0
+NORB   :   5  0  0  0  0  0  0  0
+NRHF   :   1  0  0  0  0  0  0  0
+IOPRHF :   0
+"""
+        self.assertEqual(str(self.bas_info), ref)
+
+    def test_main(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

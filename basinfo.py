@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """Extract info from DALTON/SIRIUS restart file stored under label BASINFO"""
+
+import sys
 import numpy
 from daltools.util.unformatted import FortranBinary
 
@@ -44,11 +46,13 @@ class BasInfo():
         """Return numboer of MO coefficients"""
         return sum([i*j for i,j in zip(self.nbas, self.norb)])
 
-if __name__ == "__main__":
-    import sys
+#if __name__ == "__main__":
+def main():
     try:
         print BasInfo(sys.argv[1])
     except IndexError:
-        print "Usage: %s [path]/SIRIFC" % sys.argv[0]
+        print "Usage: %s [path]/SIRIUS.RST" % sys.argv[0]
         sys.exit(1)
 
+if __name__ == "__main__":
+    sys.exit(main())
