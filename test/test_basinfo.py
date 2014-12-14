@@ -4,6 +4,7 @@ import os
 import sys
 import numpy
 from ..basinfo import BasInfo, main
+from .. import basinfo
 
 
 
@@ -42,9 +43,11 @@ IOPRHF :   0
 """
         self.assertEqual(str(self.bas_info), ref)
 
-    def test_main_without_args_exits(self):
-        del sys.argv[1:]
-        self.assertRaises(SystemExit, main)
+    @mock.patch.object(basinfo.sys, 'argv')
+    @mock.patch.object(basinfo, 'BasInfo')
+    def test_main_without_args_exits(self, mock_BasInfo, mock_argv):
+        mock_argv =  ['one']
+        mock_BasInfo.called_once_with('one')
 
 
 if __name__ == "__main__":
