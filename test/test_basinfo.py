@@ -1,7 +1,10 @@
 import unittest
+import mock
 import os
+import sys
 import numpy
-from ..basinfo import BasInfo
+from ..basinfo import BasInfo, main
+
 
 
 class TestBasInfo(unittest.TestCase):
@@ -39,8 +42,10 @@ IOPRHF :   0
 """
         self.assertEqual(str(self.bas_info), ref)
 
-    def test_main(self):
-        pass
+    def test_main_without_args_exits(self):
+        del sys.argv[1:]
+        self.assertRaises(SystemExit, main)
+
 
 if __name__ == "__main__":
     unittest.main()

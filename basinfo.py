@@ -46,7 +46,6 @@ class BasInfo():
         """Return numboer of MO coefficients"""
         return sum([i*j for i,j in zip(self.nbas, self.norb)])
 
-#if __name__ == "__main__":
 def main():
     try:
         print BasInfo(sys.argv[1])
