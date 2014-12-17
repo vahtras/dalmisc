@@ -440,6 +440,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Scan Dalton output file")
     parser.add_argument('--coordinates', action='store_true')
     parser.add_argument('--energy', action='store_true')
+    parser.add_argument('--ci-energies', action='store_true')
     parser.add_argument('--dipole', action='store_true')
     parser.add_argument('--nuclear-dipole', action='store_true')
     parser.add_argument('--quadrupole', action='store_true')
@@ -528,7 +529,7 @@ if __name__ == "__main__":
             floats = np.array([e[0] for e in get_final_energy(*args.files)])
             single_plot(args.files, floats)
 
-    if args.ci-energies:
+    if args.ci_energies:
         print blob(args.files, get_ci_energies, fmt=args.fmt)
         if args.plot:
             pass
