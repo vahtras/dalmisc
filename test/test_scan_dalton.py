@@ -52,6 +52,10 @@ class TestScan(unittest.TestCase):
 ...
 @    Final HF energy:             -76.025681483940
 ...
+@ Final CI energies and residuals in symmetry 1 (irrep A' )
+@    1     -152.661141962639476       5.96D-06
+@    2     -152.233411824992402       9.22D-06
+...
      XDIPLEN  total        :-2.03844916D-15
      YDIPLEN  total        : 1.53769063D-15
      ZDIPLEN  total        :    -0.81457755
@@ -325,6 +329,11 @@ class TestScan(unittest.TestCase):
     def test_get_excitation_energies(self):
         ref = (0.20348808, 0.27095312, 0.27500777, 0.31446588, 0.32292011)
         e, = get_excitation_energies(self.filename)
+        np.testing.assert_almost_equal(e, ref)
+
+    def test_get_ci_energies(self):
+        ref = (-152.661141962639476, -152.233411824992402)
+        e, = get_ci_energies(self.filename)
         np.testing.assert_almost_equal(e, ref)
 
 

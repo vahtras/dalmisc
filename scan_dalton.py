@@ -27,6 +27,26 @@ def get_final_energy(*args):
                 break
     return tuple(energies)
 
+def get_ci_energies(*args):
+    CI_PATTERN = "@ Final CI energies"
+    CI_ROOT_PATTERN = r'^@ +\d+ +(\S+) .*'
+   
+    energies = []
+    for output in args:
+        file_ = open(output)
+        roots = []
+        for line in file_:
+            if re.search(CI_PATTERN, line):
+                next_line = file_.next()
+                while re.match(CI_ROOT_PATTERN, next_line):
+                    roots.append(last_but_one_float(next_line))
+                    next_line = file_.next()
+        if not roots: 
+            raise NotFoundError, (CI_PATTERN, output)
+        energies.append(np.array(roots))
+
+    return tuple(energies)
+
 # with generators
 
 def get_last_float(pattern, scale=1):
@@ -93,6 +113,9 @@ def get_nuclear_charges(*args):
         charge_sets.append(np.array(charges))
     return tuple(charge_sets)
             
+def last_but_one_float(line):
+    return float(last_but_one(line).replace('D', 'e'))
+
 def last_float(line):
     return float(last(line).replace('D', 'e'))
 
@@ -101,6 +124,9 @@ def last_int(line):
 
 def last(line):
     return line.split()[-1].split(':')[-1]
+
+def last_but_one(line):
+    return line.split()[-2]
 
 def get_electronic_dipole_moment(*args):
     diplens = []
@@ -501,6 +527,11 @@ if __name__ == "__main__":
         if args.plot:
             floats = np.array([e[0] for e in get_final_energy(*args.files)])
             single_plot(args.files, floats)
+
+    if args.ci-energies:
+        print blob(args.files, get_ci_energies, fmt=args.fmt)
+        if args.plot:
+            pass
 
 
     if args.g_rmc:
