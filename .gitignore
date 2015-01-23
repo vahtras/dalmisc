@@ -2,3 +2,11 @@
 *.pyo
 *.swp
 build
+*.so
+*.[0-9]
+*.gz
+*.out
+.coverage
+cover
+sirfckmodule.c
+*.AOTWOINT
