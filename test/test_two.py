@@ -196,6 +196,24 @@ class TestH2O(TestBase):
     def test_dens_fock_f2py(self):
         numpy.testing.assert_almost_equal(two.fock(self.d, filename=self.aotwoint, f2py=True), self.f)
 
+class TestAcetaldehyde(TestBase):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestAcetaldehyde, cls).setUpClass()
+        cls.subdir = "acetaldehyde"
+        cls.dal = "hf"
+        cls.mol = "acetaldehyde"
+        cls.filename = "%s_%s.AOTWOINT" % (cls.dal, cls.mol)
+        cls.tmpdir = os.path.join(cls.base_dir, cls.subdir)
+        cls.aotwoint = os.path.join(cls.tmpdir, cls.filename)
+        if not os.path.exists(cls.aotwoint):
+            os.chdir(cls.tmpdir)
+            os.system('dalton -get AOTWOINT %s %s' % (cls.dal, cls.mol))
+
+    def test_number_of_integrals(self):
+        self.assertEqual(len(list(two.list_integrals(self.aotwoint))), 28346779)
+
 if __name__ == "__main__":
     unittest.main()
 
