@@ -10,3 +10,4 @@ build
 cover
 sirfckmodule.c
 *.AOTWOINT
+venv
