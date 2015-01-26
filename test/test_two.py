@@ -94,7 +94,7 @@ class TestAcetaldehyde(TestBase):
         self.d = numpy.loadtxt(os.path.join(self.tmpdir, 'dcao')).view(matrix).reshape((146, 146))
         self.f = numpy.loadtxt(os.path.join(self.tmpdir, 'fcao')).view(matrix).reshape((146, 146))
 
-    #@unittest.skip('long test')
+    @unittest.skip('long test')
     def test_number_of_integrals(self):
         self.assertEqual(len(list(two.list_integrals(self.aotwoint))), 28346779)
 
