@@ -150,28 +150,16 @@ def fock(D, filename="AOTWOINT", hfc=1, hfx=1, f2py=True):
     return hfc*J - 0.5*hfx*K
 
 if __name__ == "__main__":
-    import sys, os, optparse 
-    parser = optparse.OptionParser()
-    parser.add_option(
-       '-d','--directory', dest='dir', default='/tmp', 
-       help='Directory containing Dalton job files')
-    parser.add_option(
-       '-l','--list', dest='list', default=False, action='store_true', 
-       help='List integrals on file')
 
-    opt, arg = parser.parse_args(sys.argv[1:])
+    import sys, os, argparse 
 
-    #
-    # Get ao basis dimension from one-integral file
-    #
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--file', default='/tmp/AOTWOINT', help='Two-electron integral file')
+    parser.add_argument( '--list', action='store_true', help='List integrals on file')
 
+    args = parser.parse_args()
 
-    aotwoint = os.path.sep.join([opt.dir, "AOTWOINT"])
-
-    if opt.list:
+    if args.list:
         print "List integrals"
-        for ig, g in list_integrals(aotwoint):
+        for ig, g in list_integrals(args.file):
             print ig, g
-
-
-    sys.exit(0)
