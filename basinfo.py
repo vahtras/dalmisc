@@ -14,9 +14,9 @@ class BasInfo():
         sirrst.find(BasInfo.label)
         sirrst.next()
         self.nsym, = sirrst.readbuf(1,'i')
-        self.nbas = numpy.array(sirrst.readbuf(8,'i'))
-        self.norb = numpy.array(sirrst.readbuf(8,'i'))
-        self.nrhf = numpy.array(sirrst.readbuf(8,'i'))
+        self.nbas = numpy.array(sirrst.readbuf(8,'i'))[:self.nsym]
+        self.norb = numpy.array(sirrst.readbuf(8,'i'))[:self.nsym]
+        self.nrhf = numpy.array(sirrst.readbuf(8,'i'))[:self.nsym]
         self.ioprhf, = sirrst.readbuf(1,'i')
         sirrst.close()
 

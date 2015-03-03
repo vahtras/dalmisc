@@ -19,13 +19,13 @@ class TestBasInfo(unittest.TestCase):
         self.assertEqual(self.bas_info.nsym, 1)
 
     def test_nbas(self): 
-        numpy.testing.assert_equal(self.bas_info.nbas, [5,0,0,0,0,0,0,0])
+        numpy.testing.assert_equal(self.bas_info.nbas, [5,])
 
     def test_nbast(self): 
         self.assertEqual(self.bas_info.nbast, 5)
 
     def test_norb(self): 
-        numpy.testing.assert_equal(self.bas_info.norb, [5,0,0,0,0,0,0,0])
+        numpy.testing.assert_equal(self.bas_info.norb, [5,])
 
     def test_norbt(self): 
         self.assertEqual(self.bas_info.norbt, 5)
@@ -36,9 +36,9 @@ class TestBasInfo(unittest.TestCase):
     def test_str(self):
         ref = """\
 NSYM   :   1
-NBAS   :   5  0  0  0  0  0  0  0
-NORB   :   5  0  0  0  0  0  0  0
-NRHF   :   1  0  0  0  0  0  0  0
+NBAS   :   5
+NORB   :   5
+NRHF   :   1
 IOPRHF :   0
 """
         self.assertEqual(str(self.bas_info), ref)
