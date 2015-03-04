@@ -2,6 +2,7 @@ import unittest
 import os
 import numpy
 from ..sirrst import SiriusRestart
+from util.blocked import BlockDiagonalMatrix
 
 class TestSirRst(unittest.TestCase):
 
@@ -25,6 +26,19 @@ class TestSirRst(unittest.TestCase):
             self.sirrst.get_rhf_density(), 
             2*occupied*occupied.T
         )
+
+    def test_dens_symmetry(self):
+        sir = SiriusRestart(os.path.join(self.suppdir, 'hf_S.SIRIUS.RST'))
+        occupied = BlockDiagonalMatrix(sir.basinfo.nbas, sir.basinfo.nrhf)
+        for nrhf, occ, cmo in zip(sir.basinfo.nrhf, occupied, sir.cmo):
+            if nrhf > 0:
+                occ[:, :] = cmo[:, :nrhf]
+        full_occupied = occupied.unblock()
+        full_density = 2*full_occupied*full_occupied.T
+        numpy.testing.assert_almost_equal(
+            sir.get_rhf_density(), full_density
+        )
+
 
     def test_hf_S_symmetry(self):
         sirius_restart = SiriusRestart(os.path.join(self.suppdir, 'hf_S.SIRIUS.RST'))
