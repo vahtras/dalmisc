@@ -35,6 +35,12 @@ class SiriusRestart(unformatted.FortranBinary):
             cmo.subblock[isym] = cmoi.view(full.matrix)
         return cmo
 
+    def get_rhf_density(self):
+        density = full.matrix((self.basinfo.nbast, self.basinfo.nbast))
+        for occ, cmo in zip(self.basinfo.nrhf, self.cmo):
+            density += 2*cmo[:, :occ]*cmo[:, :occ].T
+        return density
+
 if __name__ == "__main__":
     import os, sys
     try:

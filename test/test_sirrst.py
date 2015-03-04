@@ -19,6 +19,13 @@ class TestSirRst(unittest.TestCase):
     def test_cmo(self):
         numpy.testing.assert_almost_equal(self.sirrst.cmo[0], self.ref_cmo)
 
+    def test_dens(self):
+        occupied = self.ref_cmo[:, :1]
+        numpy.testing.assert_almost_equal(
+            self.sirrst.get_rhf_density(), 
+            2*occupied*occupied.T
+        )
+
     def test_hf_S_symmetry(self):
         sirius_restart = SiriusRestart(os.path.join(self.suppdir, 'hf_S.SIRIUS.RST'))
         cmo = sirius_restart.cmo
