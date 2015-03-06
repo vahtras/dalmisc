@@ -282,6 +282,11 @@ class TestScan(unittest.TestCase):
         e, = get_final_energy(self.filename)
         self.assertAlmostEqual(e, ref)
 
+    def test_two_files_get_final_hf_energy(self):
+        ref = (-76.02568148394, -76.02568148394)
+        e = get_final_energy(self.filename, self.filename)
+        np.testing.assert_allclose(e, ref)
+
     def test_not_found(self):
         def func():
             e = get_g_rmc('/dev/null')

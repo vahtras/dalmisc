@@ -2,7 +2,7 @@ import unittest
 import os
 import numpy as np
 from daltools import one, dens
-from daltools.util.full import init
+from daltools.util.full import init, matrix
 from .. import twoso
 
 class TestSpinOrbit(unittest.TestCase):
@@ -49,6 +49,42 @@ class TestSpinOrbit(unittest.TestCase):
         fa, fb  = twoso.fockab(da, db, 'z' , filename=self.ao2soint)
         fc = 0.5*(fa - fb)
         np.testing.assert_almost_equal(fc, self.fcref)
+
+class TestS(unittest.TestCase):
+
+    def setUp(self):
+        self.dc = np.loadtxt('test_twoso.d/S_2el_dc.txt')
+        self.da = 0.5*self.dc
+        self.db = 0.5*self.dc
+        self.fc = np.loadtxt('test_twoso.d/S_2el_fc.txt').view(matrix).T
+        self.ao2soint = 'test_twoso.d/S.AO2SOINT'
+
+    def test_fc(self):
+        fc = twoso.fock(self.dc, 'z', filename=self.ao2soint)
+        np.testing.assert_allclose(fc, self.fc, atol=1e-10)
+
+    def test_fab(self):
+        fa, fb = twoso.fockab(self.da, self.db, 'z', filename=self.ao2soint)
+        fc = 0.5*(fa - fb)
+        np.testing.assert_allclose(fc, self.fc, atol=1e-10)
+
+class TestNoSymS(unittest.TestCase):
+
+    def setUp(self):
+        self.dc = np.loadtxt('test_twoso.d/S_nosym_2el_dc.txt')
+        self.da = 0.5*self.dc
+        self.db = 0.5*self.dc
+        self.fc = np.loadtxt('test_twoso.d/S_nosym_2el_fc.txt').view(matrix).T
+        self.ao2soint = 'test_twoso.d/S_nosym.AO2SOINT'
+
+    def test_fc(self):
+        fc = twoso.fock(self.dc, 'z', filename=self.ao2soint)
+        np.testing.assert_allclose(fc, self.fc, atol=1e-10)
+
+    def test_fab(self):
+        fa, fb = twoso.fockab(self.da, self.db, 'z', filename=self.ao2soint)
+        fc = 0.5*(fa - fb)
+        np.testing.assert_allclose(fc, self.fc, atol=1e-10)
 
 if __name__ == "__main__":
     unittest.main()
