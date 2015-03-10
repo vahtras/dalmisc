@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     if opt.list:
         print "List integrals"
-        for c, ig, g in list_integrals(ao2soint, "AO2SOINT"):
+        for c, ig, g in list_integrals(ao2soint):
             print c, ig, g
 
     if opt.fock:
