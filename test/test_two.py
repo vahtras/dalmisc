@@ -137,17 +137,66 @@ class TestAcetaldehydeSmall(TestBase):
     def test_number_of_integrals(self):
         self.assertEqual(len(list(two.list_integrals(self.aotwoint))), 972549)
 
+    @unittest.skip('long')
     def test_dens_fock(self):
         numpy.testing.assert_almost_equal(
             two.fock(self.d, filename=self.aotwoint, f2py=False), 
             self.f
             )
 
+    @unittest.skip('long')
     def test_dens_fock_f2py(self):
         numpy.testing.assert_almost_equal(
             two.fock(self.d, filename=self.aotwoint, f2py=True), 
             self.f
         )
+
+class TestCystein255(TestBase):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestCystein255, cls).setUpClass()
+        cls.subdir = "cys"
+        cls.dal = "int"
+        cls.mol = "cc-pVTZ"
+        cls.filename = "%s_%s.AOTWOINT" % (cls.dal, cls.mol)
+        cls.tmpdir = os.path.join(cls.base_dir, cls.subdir)
+        cls.aotwoint = os.path.join(cls.tmpdir, cls.filename)
+        if not os.path.exists(cls.aotwoint):
+            os.chdir(cls.tmpdir)
+            #os.system('dalton -get AOTWOINT %s %s' % (cls.dal, cls.mol))
+            args = ['dalton', '-get', 'AOTWOINT', cls.dal, cls.mol]
+            subprocess.call(args)
+
+    def setUp(self):
+        pass
+
+    @unittest.skip('very large')
+    def test_first_integral(self):
+        self.assertEqual(len(list(two.list_integrals(self.aotwoint))), 1010677162)
+
+    def test_first_integral(self):
+        for ig, g in two.list_integrals(self.aotwoint):
+            break
+        self.assertAlmostEqual(g, 9.680978253560676)
+
+    def test_second_integral(self):
+        for i, (ig, g) in enumerate(two.list_integrals(self.aotwoint)):
+            if i == 1:
+                break
+        self.assertAlmostEqual(g, -1.1472552842661021)
+
+    def test_first_indices(self):
+        for ig, g in two.list_integrals(self.aotwoint):
+            break
+        numpy.testing.assert_equal(ig, [1,1,1,1])
+
+    def test_second_index(self):
+        for i, (ig, g) in enumerate(two.list_integrals(self.aotwoint)):
+            if i == 1:
+                break
+        numpy.testing.assert_equal(ig, [1,2,1,1])
+
 
 if __name__ == "__main__":
     unittest.main()

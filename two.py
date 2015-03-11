@@ -25,16 +25,27 @@ def list_buffers(filename="AOTWOINT", label="BASTWOEL"):
     """ Return integral buffers in AOTWOINT"""
     _info = info(filename)
     lbuf = _info['lbuf']
+    nibuf = _info['nibuf']
 
     _aofile = FB(filename, label=label)
     for rec in _aofile:
 
         buf = np.array(rec.read(lbuf,'d'))
-        ibuf = np.array(rec.read(4*lbuf,'B')).reshape(lbuf, 4)
-        length = rec.read(1,'i')[0]
+        if nibuf == 1:
+            ibuf = np.array(rec.read(4*lbuf,'B')).reshape(lbuf, 4)
+            length = rec.read(1,'i')[0]
 
-        if length < 0: raise StopIteration
-        yield buf[:length], ibuf[:length]
+            if length < 0: raise StopIteration
+            yield buf[:length], ibuf[:length]
+        elif nibuf == 2:
+            ibuf = np.array(rec.read(4*lbuf,'H')).reshape(lbuf, 4)
+
+            length = rec.read(1,'i')[0]
+            if length < 0: raise StopIteration
+
+            yield buf[:length], ibuf[:length]
+        else:
+            raise Exception("Unknown value of nibuf: %d" % nibuf)
 
 def list_integrals(*args, **kwargs):
     """ List two-electron spin-orbit integrals in file """
