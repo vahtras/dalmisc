@@ -23,10 +23,11 @@ def info(filename="AOTWOINT"):
 
 def list_buffers(filename="AOTWOINT", label="BASTWOEL"):
     """ Return integral buffers in AOTWOINT"""
-    _aofile = FB(filename, label=label)
+    _info = info(filename)
+    lbuf = _info['lbuf']
 
+    _aofile = FB(filename, label=label)
     for rec in _aofile:
-        lbuf = (_aofile.reclen-4)/12
 
         buf = np.array(rec.read(lbuf,'d'))
         ibuf = np.array(rec.read(4*lbuf,'B')).reshape(lbuf, 4)
@@ -156,6 +157,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--file', default='/tmp/AOTWOINT', help='Two-electron integral file')
     parser.add_argument( '--list', action='store_true', help='List integrals on file')
+    parser.add_argument( '--info', action='store_true', help='List basis set info on file')
 
     args = parser.parse_args()
 
@@ -163,3 +165,10 @@ if __name__ == "__main__":
         print "List integrals"
         for ig, g in list_integrals(args.file):
             print ig, g
+
+    if args.info:
+
+        basinfo = info(args.file)
+        for key in basinfo:
+            print key, basinfo[key]
+
