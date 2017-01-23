@@ -11,3 +11,5 @@ cover
 sirfckmodule.c
 *.AOTWOINT
 venv
+.cache
+*.egg-info
