@@ -2,7 +2,7 @@
 import os
 from daltools import sirifc, one, dens, rspvec
 import two
-from daltools import util
+import util
 
 def get_cmo(AOONEINT, SIRIFC):
     ifc = sirifc.sirifc(SIRIFC).cmo.unblock()

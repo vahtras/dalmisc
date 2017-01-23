@@ -2,7 +2,8 @@
 import os
 import numpy as np
 from daltools import one, dens
-from dalmisc import rohf, two
+from dalmisc import rohf
+import two
 
 
 def setup():

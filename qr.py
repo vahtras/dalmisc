@@ -4,7 +4,7 @@ Module for evaluating quadratic response functions at SCF level from LR vectors
 """
 import os, sys
 from daltools import dens, prop, lr, sirifc, rspvec, one
-from daltools.util.full import matrix
+from util.full import matrix
 #local
 import two
 
