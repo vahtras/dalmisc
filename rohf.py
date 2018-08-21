@@ -158,9 +158,9 @@ def energy(Da, Db, h1, Fa, Fb):
 def uroothan(Ca, Cb, na, nb, hfx=1, iters=10, threshold=1e-6, unrest=False):
     """Open-shell Roothan iterations, restricted or unrestricted"""
     if (unrest):
-        print "Unrestricted HF Na=%d Nb=%d\n" % (na, nb)
+        print("Unrestricted HF Na=%d Nb=%d\n" % (na, nb))
     else:
-        print "Restricted RHF Na=%d Nb=%d\n" % (na, nb)
+        print("Restricted RHF Na=%d Nb=%d\n" % (na, nb))
     E0 = 0.0
     h = one.read('ONEHAMIL','AOONEINT').unpack().unblock()
     S = one.read('OVERLAP','AOONEINT').unpack().unblock()
@@ -186,7 +186,7 @@ def uroothan(Ca, Cb, na, nb, hfx=1, iters=10, threshold=1e-6, unrest=False):
                 g2 = -(ga+gb)*(ga+gb)/2
             gn = sqrt(g2.tr())
             iterinf.append((E, gn))
-            print "%2d:E=%16.12f %16.5e %16.2e" % (i+1, E, gn, E-E0)
+            print("%2d:E=%16.12f %16.5e %16.2e" % (i+1, E, gn, E-E0))
             if  (gn < threshold): raise Converged(gn)
             if unrest:
                 Ca = dens.cmo(Fa, S)
@@ -200,7 +200,7 @@ def uroothan(Ca, Cb, na, nb, hfx=1, iters=10, threshold=1e-6, unrest=False):
                 Ca = dens.cmo(F, S)
                 Cb = Ca
     except Converged:
-        print "-Converged-"
+        print("-Converged-")
     if (unrest):
         return (Ca, Cb)
     else:

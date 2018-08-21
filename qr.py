@@ -182,15 +182,15 @@ def main(*args, **kwargs):
     A2C = (.5*(kB^(kC^a))&D)
     #print "E3BC",E3BC
     val = AE3BC
-    print "E3  %14.8f %14.8f" % (AE3BC, val)
+    print("E3  %14.8f %14.8f" % (AE3BC, val))
     val += B2C
-    print "B2C %14.8f %14.8f" % (B2C, val)
+    print("B2C %14.8f %14.8f" % (B2C, val))
     val += C2B
-    print "C2B %14.8f %14.8f" % (C2B, val)
+    print("C2B %14.8f %14.8f" % (C2B, val))
     val += A2B
-    print "A2B %14.8f %14.8f" % (A2B, val)
+    print("A2B %14.8f %14.8f" % (A2B, val))
     val += A2C
-    print "A2C %14.8f %14.8f" % (A2C, val)
+    print("A2C %14.8f %14.8f" % (A2C, val))
     
     return val
 
@@ -232,4 +232,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     tmpdir = args.tmpdir
 
-    print "QR %14.8f" % main(args.A, args.B, args.C, tmpdir=args.tmpdir)
+    print("QR %14.8f" % main(args.A, args.B, args.C, tmpdir=args.tmpdir))

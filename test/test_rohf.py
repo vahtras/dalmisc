@@ -21,9 +21,9 @@ def setup():
     nb = 5
 
 def assert_(this, ref):
-    print this
-    print ref
-    assert np.allclose(this, ref)
+    print(this)
+    print(ref)
+    assert(np.allclose(this, ref))
 
 def test_potnuc():
     assert np.allclose(EN, 9.055004525638)

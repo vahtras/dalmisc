@@ -26,10 +26,10 @@ if __name__ == "__main__":
     try:
         A, = arg
     except:
-        print "Usage:%s [-t <tmpdir>] A" % sys.argv[0]
+        print("Usage:%s [-t <tmpdir>] A" % sys.argv[0])
         raise SystemExit
     
-    print value(A, tmpdir = opt.tmpdir)
+    print(value(A, tmpdir = opt.tmpdir))
 
    
 

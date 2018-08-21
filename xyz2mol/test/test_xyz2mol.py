@@ -56,7 +56,7 @@ class Test2Mol(unittest.TestCase):
 
     def test_xyz2mol(self):
         mol = xyz2mol(xyz)
-        print mol, molref
+        print(mol, molref)
         self.assertEqual(mol, molref)
 
     def test_wrong_infile_extension_raises(self):
