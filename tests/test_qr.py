@@ -1,7 +1,7 @@
 import os
 from util.full import unit, init
 from daltools import rspvec, sirifc, dens, one, prop
-from .. import qr
+from dalmisc import qr
 
 import unittest
 

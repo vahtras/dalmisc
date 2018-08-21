@@ -13,3 +13,4 @@ sirfckmodule.c
 venv
 .cache
 *.egg-info
+errors.err

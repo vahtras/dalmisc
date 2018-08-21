@@ -1,4 +1,5 @@
-from .. import dalinp
+from dalmisc import dalinp
+
 X = 'XDIPLEN'
 Y = 'YDIPLEN'
 Z = 'ZDIPLEN'

@@ -1,6 +1,6 @@
 import os
 from util.full import matrix, unit, init
-from .. import oli
+from dalmisc import oli
 from .common_tests import assert_
 
 def setup():
