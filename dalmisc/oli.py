@@ -58,7 +58,6 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     fa += h; fb += h
     fak, fbk = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
 
-    print(type(S), type(kn), type(fa))
     kfa = (S*kn*fa - fa*kn*S)
     kfb = (S*kn*fb - fb*kn*S)*Sv
 
