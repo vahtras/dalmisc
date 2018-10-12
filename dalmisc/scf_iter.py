@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os
 import math
+import numpy
+from fractions import Fraction
 from daltools import one, dens
 from two.core import fockab
 
@@ -17,7 +19,7 @@ class RoothanIterator(SCFIterator):
         self.C = kwargs.get('C0', None)
         self.tmpdir = kwargs.get('tmpdir', '/tmp')
         self.nel = kwargs.get('electrons', 0)
-        self.ms = kwargs.get('ms', 0)
+        self.ms = Fraction(kwargs.get('ms', 0))
         self.Z = None
         self.h1 = None
         self.S = None
@@ -53,6 +55,12 @@ class RoothanIterator(SCFIterator):
             
     def update_mo(self):
         F = self.h1 + (self.Fa + self.Fb)/2
+        if self.ms != 0 and self.Da is not None:
+            Fs = (self.Fa - self.Fb)/2
+            D = self.Da + self.Db
+            Ds = self.Da - self.Db
+            ID = numpy.eye(D.shape[0]) - D
+            F += (Ds*Fs*ID + ID*Fs*Ds)/2
         Ca = dens.cmo(F, self.S)[:, :self.na]
         Cb = Ca[:, :self.nb]
         self.C = Ca, Cb
@@ -66,7 +74,7 @@ class RoothanIterator(SCFIterator):
     def set_densities(self):
         Ca, Cb = self.C
         self.Da = Ca*Ca.T
-        self.Db = Ca*Ca.T
+        self.Db = Cb*Cb.T
 
     def set_focks(self):
         AOTWOINT = os.path.join(self.tmpdir, 'AOTWOINT')
@@ -79,20 +87,13 @@ class RoothanIterator(SCFIterator):
         return e1 + e2 + self.Z
 
     def gn(self):
-        AOTWOINT = os.path.join(self.tmpdir, 'AOTWOINT')
-        Ca, Cb = self.C
-        Da = Ca*Ca.T
-        Db = Cb*Cb.T
-        Fa, Fb = fockab((Da, Db), filename=AOTWOINT)
-        Fa += self.h1
-        Fb += self.h1
-        ga = Da*Fa - self.S.I*Fa*Da*self.S
-        gb = Db*Fb - self.S.I*Fb*Db*self.S
+        Fa = self.h1 + self.Fa
+        Fb = self.h1 + self.Fb
+        ga = self.Da*Fa - self.S.I*Fa*self.Da*self.S
+        gb = self.Db*Fb - self.S.I*Fb*self.Db*self.S
         gn = ((ga + gb)**2).tr()
         return  gn
         
-
-
 
 if __name__ == "__main__":
     import sys
