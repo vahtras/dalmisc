@@ -11,41 +11,25 @@ class RoothanIterator(SCFIterator):
 
     def __init__(self, *args, **kwargs):
 
+        self.it = 0
         self.max_iterations = kwargs.get('max_iterations', 10)
         self.threshold = kwargs.get('threshold', 1e-3)
         self.C = kwargs.get('C0', None)
         self.tmpdir = kwargs.get('tmpdir', '/tmp')
+        self.nel = kwargs.get('electrons', 0)
+        self.ms = kwargs.get('ms', 0)
         self.Z = None
         self.h1 = None
         self.S = None
-        self.nel = kwargs.get('electrons', 0)
-        self.ms = kwargs.get('ms', 0)
-        #self.unrest = kwargs.get('unrest', False)
-
-        #assert os.path.isdir(self.tmpdir)
-        #AOONEINT = os.path.join(self.tmpdir, 'AOONEINT')
-        #assert os.path.isfile(AOONEINT)
-
-        #self.h = one.read(label='ONEHAMIL', filename=AOONEINT).unpack().unblock()
-        #self.S = one.read(label='OVERLAP', filename=AOONEINT).unpack().unblock()
-        #self.Z = one.readhead(AOONEINT)['potnuc']
-#
-        # default initialization H1DIAG
-        #if self.C is None:
-        #    Ca = dens.cmo(self.h, self.S)[:na]
-        #    if self.unrest:
-        #        Cb = dens.cmo(self.h, self.S)[:nb]
-        #    else:
-        #        Cb = Ca[:nb]
-        #    self.C = (Ca, Cb)
+        self.Fa = None
+        self.Fb = None
+        self.Da = None
+        self.Db = None
 
     def __iter__(self):
-        """This is a self-iterator"""
-        self.it = 0
-#
-# n = na + nb            na = (n + 2ms)/2
-# ms = (na - nb)/2       nb = (n - 2ms)/2
-#
+        """
+        Initial setup for SCF iterations
+        """
         self.na = (self.nel + 2*self.ms)//2
         self.nb = (self.nel - 2*self.ms)//2
 
@@ -53,46 +37,45 @@ class RoothanIterator(SCFIterator):
         self.Z = one.readhead(AOONEINT)['potnuc']
         self.h1 = one.read(label='ONEHAMIL', filename=AOONEINT).unpack().unblock()
         self.S = one.read(label='OVERLAP', filename=AOONEINT).unpack().unblock()
-#
-        #default initialization H1DIAG
-        if self.C is None:
-            Ca = dens.cmo(self.h1, self.S)[:, :self.na]
-            Cb = Ca[:, :self.nb]
-            self.C = (Ca, Cb)
+        self.Fa = self.h1*0
+        self.Fb = self.Fa
         return self
 
     def __next__(self):
-        if self.gn() > self.threshold and  self.it < self.max_iterations:
+        if not self.converged() and self.it < self.max_iterations:
             self.it += 1
-            Fa, Fb = self.focks()
-            F = self.h1 + (Fa + Fb)/2
-            Ca = dens.cmo(F, self.S)[:, :self.na]
-            Cb = Ca[:, :self.nb]
-            self.C = Ca, Cb
-            e = self.energy()
-            gn = self.gn()
-            return e, gn
+            self.update_mo()
+            self.set_densities()
+            self.set_focks()
+            return self.energy(), self.gn()
         else:
             raise StopIteration
+            
+    def update_mo(self):
+        F = self.h1 + (self.Fa + self.Fb)/2
+        Ca = dens.cmo(F, self.S)[:, :self.na]
+        Cb = Ca[:, :self.nb]
+        self.C = Ca, Cb
 
-    def densities(self):
+    def converged(self):
+        if self.it == 0:
+            return False
+        else:
+            return self.gn() < self.threshold
+
+    def set_densities(self):
         Ca, Cb = self.C
-        Da = Ca*Ca.T
-        Db = Ca*Ca.T
-        return Da, Db
+        self.Da = Ca*Ca.T
+        self.Db = Ca*Ca.T
 
-    def focks(self):
-        Da, Db = self.densities()
+    def set_focks(self):
         AOTWOINT = os.path.join(self.tmpdir, 'AOTWOINT')
-        Fa, Fb = fockab((Da, Db), filename=AOTWOINT)
-        return Fa, Fb
+        self.Fa, self.Fb = fockab((self.Da, self.Db), filename=AOTWOINT)
 
 
     def energy(self):
-        Da, Db = self.densities()
-        e1 = self.h1&(Da + Db)
-        Fa, Fb = self.focks()
-        e2 = 0.5*((Da&Fa) + (Db&Fb))
+        e1 = self.h1&(self.Da + self.Db)
+        e2 = 0.5*((self.Da&self.Fa) + (self.Db&self.Fb))
         return e1 + e2 + self.Z
 
     def gn(self):

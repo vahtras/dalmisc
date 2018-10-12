@@ -31,6 +31,13 @@ def test_setup(roothan):
     assert roothan.max_iterations == 15
     assert roothan.threshold == 1e-5
 
+def test_converged(roothan):
+    roothan.it = 0
+    assert not roothan.converged()
+    roothan.it = 1
+    roothan.gn = lambda: 0
+    assert roothan.converged()
+
 def test_iter(roothan):
     assert iter(roothan) is roothan
 
@@ -39,6 +46,7 @@ def test_initial(roothan):
 
 def test_stop_threshold(roothan):
     with pytest.raises(StopIteration):
+        roothan.it = 1
         roothan.gn = lambda: 0
         next(roothan)
 
@@ -49,12 +57,14 @@ def test_stop_iterations(roothan):
         next(roothan)
 
 def test_initial_guess(roothan):
-    initial = iter(roothan)
-    assert initial.energy() == approx(-73.2292918615)
+    initial_energy, _  = next(iter(roothan))
+    assert initial_energy == approx(-73.2292918615)
 
 def test_one_fockit(roothan):
-    initial = iter(roothan)
-    assert next(initial)[0] == approx(-74.946960167351)
+    scf = iter(roothan)
+    next(scf)
+    next(scf)
+    assert scf.energy() == approx(-74.946960167351)
 
 def test_initial_electrons(roothan):
     initial = iter(roothan)
@@ -65,24 +75,20 @@ def test_Z(roothan):
     assert roothan.Z is None
     assert iter(roothan).Z == approx(9.263515863231)
 
-def test_h1(roothan):
-    assert roothan.h1 is None
-    assert iter(roothan).h1 is not None
-
 def test_overlap(roothan):
     assert roothan.S is None
     assert iter(roothan).S is not None
 
 def test_densities(roothan):
     initial = iter(roothan)
-    Da, Db = initial.densities()
-    assert Da&initial.S == approx(5)
-    assert Db&initial.S == approx(5)
+    next(initial)
+    assert initial.Da&initial.S == approx(5)
+    assert initial.Db&initial.S == approx(5)
 
 def test_h1(roothan):
-    initial = iter(roothan)
-    Da, Db = initial.densities()
-    assert initial.h1&(Da + Db) == approx(-127.45439681043854)
+    scf = iter(roothan)
+    next(scf)
+    assert scf.h1&(scf.Da + scf.Db) == approx(-127.45439681043854)
     
 
 
