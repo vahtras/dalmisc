@@ -44,6 +44,9 @@ class RoothanIterator(SCFIterator):
         return self
 
     def __next__(self):
+        """
+        Updates for in a SCF iteration
+        """
         if not self.converged() and self.it < self.max_iterations:
             self.it += 1
             self.update_mo()
@@ -93,20 +96,3 @@ class RoothanIterator(SCFIterator):
         gb = self.Db*Fb - self.S.I*Fb*self.Db*self.S
         gn = ((ga + gb)**2).tr()
         return  gn
-        
-
-if __name__ == "__main__":
-    import sys
-    import optparse 
-    op = optparse.OptionParser()
-    op.add_option(
-        '-t', '--tmpdir', dest='tmpdir', default='/tmp',
-        help='Scratch directory'
-        )
-    o, a = op.parse_args(sys.argv[1:])
-    na = int(a[0])
-    nb = int(a[1])
-
-    for E, gn in Roothan(5, 5):
-        print(E, gn)
-    
