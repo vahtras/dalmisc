@@ -60,7 +60,7 @@ def test_h1diag_initial_energy():
     Cb = Cmo[:, :nb]
     Da  = Ca*Ca.T
     Db  = Cb*Cb.T
-    Fa, Fb = two.fockab((Da, Db), filename=aotwoint)
+    (Fa, Fb), = two.fockab((Da, Db), filename=aotwoint)
     E = EN + rohf.energy(Da, Db, h1, Fa, Fb)
     Eref = -73.240064311328
     assert_(E, Eref)

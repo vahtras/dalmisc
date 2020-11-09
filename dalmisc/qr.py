@@ -60,7 +60,7 @@ def E3(pB, pC, ifc, **kwargs):
     # Fock matrices
     #
     da, db = dens.Dab(ifc_=ifc)
-    fa, fb = two.fockab((da, db), **kwargs)
+    (fa, fb), = two.fockab((da, db), **kwargs)
     fa += h
     fb += h
     Bfa, Bfb = [_kB*f - f*kB_ for f in (fa, sB*fb)]
@@ -70,18 +70,18 @@ def E3(pB, pC, ifc, **kwargs):
     CBfa, CBfb = [_kC*Bf - Bf*kC_ for Bf in (Bfa, sC*Bfb)]
 
     daB, dbB = [_kB.T*d - d*kB_.T  for d in (da, sB*db)]
-    faB, fbB = two.fockab((daB, dbB), **kwargs)
+    (faB, fbB), = two.fockab((daB, dbB), **kwargs)
     CfaB, CfbB = [_kC*fB - fB*kC_ for fB in (faB, sC*fbB)]
 
     daC, dbC = [_kC.T*d - d*kC_.T  for d in (da, sC*db)]
-    faC, fbC = two.fockab((daC, dbC), **kwargs)
+    (faC, fbC), = two.fockab((daC, dbC), **kwargs)
     BfaC, BfbC = [_kB*fC - fC*kB_ for fC in (faC, sB*fbC)]
     
     daBC, dbBC  = (_kB.T*dC - dC*kB_.T for dC in (daC, sB*dbC))
     daCB, dbCB  = (_kC.T*dB - dB*kC_.T for dB in (daB, sC*dbB))
     daBC = 0.5*(daBC + daCB)
     dbBC = 0.5*(dbBC + dbCB)
-    faBC, fbBC = two.fockab((daBC, dbBC), **kwargs)
+    (faBC, fbBC), = two.fockab((daBC, dbBC), **kwargs)
 
  #
  # Add all focks

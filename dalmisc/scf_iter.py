@@ -81,7 +81,7 @@ class RoothanIterator(SCFIterator):
 
     def set_focks(self):
         AOTWOINT = os.path.join(self.tmpdir, 'AOTWOINT')
-        self.Fa, self.Fb = fockab((self.Da, self.Db), filename=AOTWOINT)
+        (self.Fa, self.Fb), = fockab((self.Da, self.Db), filename=AOTWOINT)
 
 
     def energy(self):

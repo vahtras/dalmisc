@@ -1,2 +1,1 @@
-daltools==1.0.0
--e git+https://github.com/vahtras/two_electron.git@master#egg=two_electron 
+-e .
