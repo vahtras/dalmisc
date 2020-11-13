@@ -61,8 +61,8 @@ def test_rohf_fix(rohf_roothan):
 
 def test_defaults():
     roothan = RoothanIterator()
-    assert roothan.max_iterations == 10
-    assert roothan.threshold == 1e-3
+    assert roothan.max_iterations == 20
+    assert roothan.threshold == 1e-5
 
 
 def test_setup(roothan):

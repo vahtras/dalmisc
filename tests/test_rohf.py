@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import numpy.testing as npt
-import pytest
+from pytest import approx
 from daltools import one, dens
 import two
 
@@ -23,18 +23,15 @@ class TestROHF:
         self.S = one.read("OVERLAP", self.aooneint).unpack().unblock()
         self.EN = one.readhead(self.aooneint)["potnuc"]
         self.na = 5
-        self.nb = 5
+        self.nb = 4
 
     def test_potnuc(self):
-        assert np.allclose(self.EN, 9.055004525638)
+        assert self.EN == approx(9.263515863231)
 
     def test_h1diag_initial_mo(self):
 
-        Cmo = dens.cmo(self.h1, self.S)
-        Ca = Cmo[:, :self.na]
-        Cb = Cmo[:, :self.nb]
-        npt.assert_allclose(Ca, ref.Ca)
-        npt.assert_allclose(Cb, ref.Cb)
+        cmo = dens.cmo(self.h1, self.S)
+        npt.assert_allclose(cmo, ref.C1)
 
     def test_h1diag_initial_dens(self):
 
@@ -43,18 +40,8 @@ class TestROHF:
         Cb = Cmo[:, :self.nb]
         Da = Ca @ Ca.T
         Db = Cb @ Cb.T
-        assert np.allclose(Da, ref.Da)
-        assert np.allclose(Db, ref.Db)
-
-    def test_h1diag_initial_fock(self):
-
-        Cmo = dens.cmo(self.h1, self.S)
-        Ca = Cmo[:, :self.na]
-        Cb = Cmo[:, :self.nb]
-        Da = Ca @ Ca.T
-        Db = Cb @ Cb.T
-        np.allclose(Da, ref.Da)
-        np.allclose(Db, ref.Db)
+        npt.assert_allclose(Da, ref.Da)
+        npt.assert_allclose(Db, ref.Db)
 
     def test_h1diag_initial_energy(self):
         Cmo = dens.cmo(self.h1, self.S)
@@ -64,5 +51,5 @@ class TestROHF:
         Db = Cb * Cb.T
         (Fa, Fb), = two.fockab((Da, Db), filename=self.aotwoint)
         E = self.EN + rohf.energy(Da, Db, self.h1, Fa, Fb)
-        Eref = -73.240064311328
-        np.allclose(E, Eref)
+        Eref = -73.4538472272
+        assert E == approx(Eref)

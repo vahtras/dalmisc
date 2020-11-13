@@ -212,6 +212,8 @@ def uroothan(
             else:
                 g2 = -(ga + gb) @ (ga + gb)
             gn = sqrt(g2.tr())
+            if i == 19:
+                breakpoint()
             iterinf.append((E, gn))
             print("%2d:E=%16.10f %16.5e %16.2e" % (i + 1, E, gn, E - E0))
             if gn < threshold:
@@ -223,7 +225,7 @@ def uroothan(
                 D = Da + Db
                 Ds = Da - Db
                 Fs = Fa - Fb
-                ID = I - D
+                ID = S - D
                 F = ((Fa + Fb) + Ds @ Fs @ ID + ID @ Fs @ Ds) / 2
                 Ca = dens.cmo(F, S)
                 Cb = Ca
@@ -629,7 +631,7 @@ def udiis1(
 
 
 if __name__ == "__main__":
-    wrkdir = 'tests/test_rohf.d'
+    wrkdir = 'tests/test_h2o.d'
     aooneint = os.path.join(wrkdir, "AOONEINT")
     aotwoint = os.path.join(wrkdir, "AOTWOINT")
     potnuc = one.readhead(aooneint)["potnuc"]
@@ -638,5 +640,6 @@ if __name__ == "__main__":
     Ca = dens.cmo(h, S)
     Cb = Ca
 
-    uroothan(Ca, Cb, 5, 4, unrest=True, wrkdir="tests/test_rohf.d", iters=20, threshold=1e-5)
+    uroothan(Ca, Cb, 5, 5, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
+    # uroothan(Ca, Cb, 2, 1, unrest=True, wrkdir=wrkdir, iters=20, threshold=1e-5)
     # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)

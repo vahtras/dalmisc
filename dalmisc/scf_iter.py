@@ -16,8 +16,8 @@ class RoothanIterator(SCFIterator):
     def __init__(self, *args, **kwargs):
 
         self.it = 0
-        self.max_iterations = kwargs.get('max_iterations', 10)
-        self.threshold = kwargs.get('threshold', 1e-3)
+        self.max_iterations = kwargs.get('max_iterations', 20)
+        self.threshold = kwargs.get('threshold', 1e-5)
         self.C = kwargs.get('C0', None)
         self.tmpdir = kwargs.get('tmpdir', '/tmp')
         self.nel = kwargs.get('electrons', 0)
@@ -99,6 +99,9 @@ class RoothanIterator(SCFIterator):
         Fb = self.h1 + self.Fb
         ga = self.Da*Fa - self.S.I*Fa*self.Da*self.S
         gb = self.Db*Fb - self.S.I*Fb*self.Db*self.S
+        """
+         
+        """
         gn = ((ga + gb)**2).tr()
         gn = -((ga + gb)@(ga + gb)).tr()
         return math.sqrt(gn)
@@ -116,25 +119,26 @@ class URoothanIterator(RoothanIterator):
         Fb = self.h1 + self.Fb
         ga = self.Da@Fa - self.S.I@Fa@self.Da@self.S
         gb = self.Db@Fb - self.S.I@Fb@self.Db@self.S
-        gn = -(ga@ga + gb@gb).tr()
+        Da = self.Da
+        Db = self.Db
+        Δa = self.S.I - Da
+        Δb = self.S.I - Db
+        gn = (ga@Δa@ga.T@Da + gb@Δb@gb.T@Db).tr()
         return math.sqrt(gn)
 
 
 if __name__ == "__main__":
-    roo = RoothanIterator(
-        electrons=9,
-        tmpdir='tests/test_scf.d',
+
+    kwargs = dict(
+        electrons=10,
+        tmpdir='tests/test_h2o.d',
         threshold=1e-6,
         max_iterations=20,
-        ms=1/2,
+        ms=0/2,
         )
 
-    uroo = URoothanIterator(
-        electrons=9,
-        tmpdir='tests/test_scf.d',
-        threshold=1e-6,
-        max_iterations=20,
-        ms=1/2,
-        )
-    for i, (e, gn) in enumerate(uroo, start=1):
+    roo = RoothanIterator(**kwargs)
+    uroo = URoothanIterator(**kwargs)
+
+    for i, (e, gn) in enumerate(roo, start=1):
         print(f'{i:2d}: {e:14.10f} {gn:.3e}')
