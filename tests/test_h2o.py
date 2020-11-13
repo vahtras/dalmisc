@@ -9,9 +9,9 @@ def test_rhf():
         threshold=1e-5,
         max_iterations=20,
         )
-    for i, (e, gn) in enumerate(roo, start=1):
-        print(f'{i:2d}: {e:14.10f} {gn:.3e}')
-    assert e == approx(-74.9615984420)
+    final_energy, final_gradient = list(roo)[-1]
+    assert final_energy == approx(-74.9615984420)
+    assert final_gradient < 1e-5
 
 
 def test_rohf():
@@ -22,6 +22,6 @@ def test_rohf():
         max_iterations=20,
         ms=1/2,
         )
-    for i, (e, gn) in enumerate(roo, start=1):
-        print(f'{i:2d}: {e:14.10f} {gn:.3e}')
-    assert e == approx(-74.651129646549)
+    final_energy, final_gradient = list(roo)[-1]
+    assert final_energy == approx(-74.651129646549)
+    assert final_gradient < 1e-5
