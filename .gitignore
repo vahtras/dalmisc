@@ -17,3 +17,4 @@ sirfckmodule.c
 *.swp
 .tox
 .venv*
+dist
