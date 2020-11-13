@@ -1,0 +1,10 @@
+BASIS
+STO-3G
+Generated from h2o.zmat by molconvert
+====================================
+Atomtypes=2 Units=Angtrom Nosymmetry Charge=1
+Charge=8.0 Atoms=1
+O   0.000000   0.000000   0.000000
+Charge=1.0 Atoms=2
+H   0.950000   0.000000   0.000000
+H  -0.245878   0.917630   0.000000
