@@ -1,0 +1,10 @@
+-------- START OF -MOLPLT- INPUT FILE ----------
+NATOMS=   2   NKINDS=   2    NBONDS=   0
+     CH2O                                                                    
+     ------------------------                                                
+  He14 0.22
+  H  5 0.22
+  He   -0.620668   -1.294822    0.054251
+  H    -2.508043   -1.382001    0.040282
+BONDATOMS 
+-------- END OF -MOLPLT- INPUT FILE ----------

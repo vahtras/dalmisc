@@ -1,0 +1,67 @@
+ Print level for DALTON.STAT    1
+
+ CPU and wall time for SIRINP :       0.002       0.002
+
+ (SIRNR) LINTRN needs (at most) LA + NCSIM*LB + NOSIM*LC
+ NCONF,NWOPT,MAXRL               :         1         1       120
+ LA,LB,LC,LBC                    :        -1        10        19        19
+ LFREE(total), LFREE(for LINTRN) :  63999695  63992193
+ MAXSIM                          :         2
+
+
+ (TIMOPT) Timing of MC optimization:
+
+    Name . # calls .    total CPU .   CPU / call .   total wall .  wall / call .
+ ------------------------------------------------------------------------------
+
+     GRAD         3           0.00           0.00           0.00           0.00
+
+    MAKDM                     0.00           0.00           0.00           0.00
+
+   FCKMAT                     0.00           0.00           0.00           0.00
+
+    GETH2                     0.00           0.00           0.00           0.00
+
+   ORDIAG                     0.00           0.00           0.00           0.00
+
+   ORBGRD                     0.00           0.00           0.00           0.00
+
+   CIGRAD                     0.00           0.00           0.00           0.00
+ ------------------------------------------------------------------------------
+
+   CISIGC has not been called in this calculation.
+ ------------------------------------------------------------------------------
+
+   LINTRN         2           0.00           0.00           0.00           0.00
+
+   SIRTR1                     0.00           0.00           0.00           0.00
+
+   ORBSIG                     0.00           0.00           0.00           0.00
+
+    CISIG                     0.00           0.00           0.00           0.00
+
+   SOLLIN                     0.00           0.00           0.00           0.00
+ ------------------------------------------------------------------------------
+
+   MAKTDM has not been called in this calculation.
+ ------------------------------------------------------------------------------
+
+   CISIGO has not been called in this calculation.
+ ------------------------------------------------------------------------------
+
+   ORBLIN has not been called in this calculation.
+ ------------------------------------------------------------------------------
+
+  UPDGRAD has not been called in this calculation.
+ ------------------------------------------------------------------------------
+
+ CPU and wall time for SCF :       0.003       0.003
+
+
+
+ Total CPU  time used in SIRIUS :      0.01 seconds
+ Total wall time used in SIRIUS :      0.01 seconds
+
+ 
+     Date and time (Linux)  : Thu Nov 12 16:59:57 2020
+     Host name              : bat                                     

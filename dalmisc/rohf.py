@@ -2,6 +2,7 @@
 
 import math
 import os
+from itertools import combinations
 
 import numpy as np
 
@@ -205,13 +206,15 @@ def uroothan(
             Fa += h
             Fb += h
             E = 0.5 * ((Da & (h + Fa)) + (Db & (h + Fb))) + potnuc
-            ga = Da @ Fa - S.I @ Fa @ Da @ S
-            gb = Db @ Fb - S.I @ Fb @ Db @ S
+            ga = S @ Da @ Fa - Fa @ Da @ S
+            gb = S @ Db @ Fb - Fb @ Db @ S
+            g = ga + gb
             if unrest:
                 g2 = -(ga @ ga + gb @ gb)
             else:
-                g2 = -(ga + gb) @ (ga + gb)
+                g2 = (ga + gb) @ (S.I@(ga + gb)@S.I).T
             gn = sqrt(g2.tr())
+            gn = sqrt((ga + gb) & (S.I@(ga + gb)@S.I))
             if i == 19:
                 breakpoint()
             iterinf.append((E, gn))
@@ -225,8 +228,15 @@ def uroothan(
                 D = Da + Db
                 Ds = Da - Db
                 Fs = Fa - Fb
-                ID = S - D
-                F = ((Fa + Fb) + Ds @ Fs @ ID + ID @ Fs @ Ds) / 2
+                ID = S.I - D
+                F0 = (Fa + Fb)/2
+                V = sum(
+                    S@P@(g - F0)@Q@S
+                    for P, Q in combinations((Db, Da - Db, S.I - Da), 2)
+                )
+                V += V.T
+                # F = ((Fa + Fb) + Ds @ Fs @ ID + ID @ Fs @ Ds) / 2
+                F = F0 + V
                 Ca = dens.cmo(F, S)
                 Cb = Ca
     except Converged:
@@ -631,7 +641,7 @@ def udiis1(
 
 
 if __name__ == "__main__":
-    wrkdir = 'tests/test_h2o.d'
+    wrkdir = 'tests/test_heh.d'
     aooneint = os.path.join(wrkdir, "AOONEINT")
     aotwoint = os.path.join(wrkdir, "AOTWOINT")
     potnuc = one.readhead(aooneint)["potnuc"]
@@ -640,6 +650,5 @@ if __name__ == "__main__":
     Ca = dens.cmo(h, S)
     Cb = Ca
 
-    uroothan(Ca, Cb, 5, 5, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
-    # uroothan(Ca, Cb, 2, 1, unrest=True, wrkdir=wrkdir, iters=20, threshold=1e-5)
+    uroothan(Ca, Cb, 2, 1, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
     # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)

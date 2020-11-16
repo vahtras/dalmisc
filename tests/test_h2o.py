@@ -1,4 +1,4 @@
-from pytest import approx
+from pytest import approx, mark
 from dalmisc.scf_iter import RoothanIterator
 
 
@@ -14,6 +14,7 @@ def test_rhf():
     assert final_gradient < 1e-5
 
 
+@mark.skip()
 def test_rohf():
     roo = RoothanIterator(
         electrons=9,

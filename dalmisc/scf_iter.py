@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import os
 import math
-import numpy
+from itertools import combinations
 from fractions import Fraction
+
+import numpy
+
 from daltools import one, dens
 from two.core import fockab
 
@@ -29,6 +32,8 @@ class RoothanIterator(SCFIterator):
         self.Fb = None
         self.Da = None
         self.Db = None
+        self.ga = None
+        self.gb = None
 
     def __iter__(self):
         """
@@ -45,8 +50,9 @@ class RoothanIterator(SCFIterator):
         self.S = one.read(
             label='OVERLAP', filename=AOONEINT
         ).unpack().unblock()
-        self.Fa = self.h1*0
-        self.Fb = self.h1*0
+        self.Ca = dens.cmo(self.h1, self.S)
+        self.Cb = self.Ca
+        self.C = (self.Ca, self.Cb)
         return self
 
     def __next__(self):
@@ -55,35 +61,17 @@ class RoothanIterator(SCFIterator):
         """
         if not self.converged() and self.it < self.max_iterations:
             self.it += 1
-            self.update_mo()
             self.set_densities()
             self.set_focks()
+            self.update_mo()
             return self.energy(), self.gn()
         else:
             raise StopIteration
-
-    def update_mo(self):
-        F = self.h1 + (self.Fa + self.Fb)/2
-        if self.ms != 0 and self.Da is not None:
-            Fs = (self.Fa - self.Fb)/2
-            D = self.Da + self.Db
-            Ds = self.Da - self.Db
-            ID = numpy.eye(D.shape[0]) - D
-            F += (Ds@Fs@ID + ID@Fs@Ds)/2
-        Ca = dens.cmo(F, self.S)[:, :self.na]
-        Cb = Ca[:, :self.nb]
-        self.C = Ca, Cb
-
-    def converged(self):
-        if self.it == 0:
-            return False
-        else:
-            return self.gn() < self.threshold
-
+    
     def set_densities(self):
         Ca, Cb = self.C
-        self.Da = Ca@Ca.T
-        self.Db = Cb@Cb.T
+        self.Da = dens.C1D(Ca, self.na)
+        self.Db = dens.C1D(Cb, self.nb)
 
     def set_focks(self):
         AOTWOINT = os.path.join(self.tmpdir, 'AOTWOINT')
@@ -97,14 +85,47 @@ class RoothanIterator(SCFIterator):
     def gn(self):
         Fa = self.h1 + self.Fa
         Fb = self.h1 + self.Fb
-        ga = self.Da*Fa - self.S.I*Fa*self.Da*self.S
-        gb = self.Db*Fb - self.S.I*Fb*self.Db*self.S
-        """
-         
-        """
-        gn = ((ga + gb)**2).tr()
-        gn = -((ga + gb)@(ga + gb)).tr()
+        Da = self.Da
+        Db = self.Db
+        S = self.S
+
+        self.ga = ga = S@Da@Fa - Fa@Da@S
+        self.gb = gb = S@Db@Fb - Fb@Db@S
+
+        gn = ((ga + gb) & (S.I@(ga + gb)@S.I))
+
         return math.sqrt(gn)
+
+    def update_mo(self):
+        F = self.h1 + (self.Fa + self.Fb)/2
+        S = self.S
+
+        Da = self.Da
+        Db = self.Db
+        Fa = self.h1 + self.Fa
+        Fb = self.h1 + self.Fb
+
+        ga = S @ Da @ Fa - Fa @ Da @ S
+        gb = S @ Db @ Fb - Fb @ Db @ S
+        g = ga + gb
+
+        if self.ms != 0 and self.Da is not None:
+            V = sum(
+                S@P@(g - F)@Q@S
+                for P, Q in combinations((Db, Da - Db, S.I - Da), 2)
+            )
+            F += V + V.T
+
+        Ca = dens.cmo(F, self.S)
+        Cb = Ca
+        self.C = Ca, Cb
+
+    def converged(self):
+        if self.it == 0:
+            return False
+        else:
+            return self.gn() < self.threshold
+
 
 
 class URoothanIterator(RoothanIterator):
@@ -130,15 +151,15 @@ class URoothanIterator(RoothanIterator):
 if __name__ == "__main__":
 
     kwargs = dict(
-        electrons=10,
-        tmpdir='tests/test_h2o.d',
-        threshold=1e-6,
+        electrons=3,
+        tmpdir='tests/test_heh.d',
+        threshold=1e-5,
         max_iterations=20,
-        ms=0/2,
+        ms=1/2,
         )
 
     roo = RoothanIterator(**kwargs)
     uroo = URoothanIterator(**kwargs)
 
     for i, (e, gn) in enumerate(roo, start=1):
-        print(f'{i:2d}: {e:14.10f} {gn:.3e}')
+        print(f'{i:2d}: {e:14.10f} {gn:.5e}')

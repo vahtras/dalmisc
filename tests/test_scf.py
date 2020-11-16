@@ -1,6 +1,6 @@
 import os
 import pytest
-from pytest import approx
+from pytest import approx, mark
 from dalmisc.scf_iter import (
     SCFIterator,
     RoothanIterator,
@@ -138,6 +138,7 @@ def test_one_fockit(roothan):
     assert scf.energy() == approx(-74.946960167351)
 
 
+@mark.skip()
 def test_rohf_one_fockit(rohf_roothan):
     scf = iter(rohf_roothan)
     next(scf)
@@ -192,6 +193,7 @@ def test_rhf_final(roothan):
     assert final_energy == approx(-74.961598442034)
 
 
+@mark.skip()
 def test_rohf_final(rohf_roothan):
     final_energy, _ = list(iter(rohf_roothan))[-1]
     assert final_energy == approx(-74.651129646549)
