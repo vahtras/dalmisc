@@ -13,38 +13,14 @@ import two
 
 """A lot of cleanup to do"""
 
-# import dens,one,two,prop,full,sirifc,math,cmath
-# class gradient(full.matrix):
-#   def __init__(self,nrow,ncol):
-#      full.matrix.__init__(self,nrow,ncol)
-#      self.nisht=0
-#      self.nasht=0
-#      self.norbt=0
-#   def init(self,S,C,Dc,Do,Fc,Fo):
-#      self.nisht=int((S&Dc)+0.5)/2
-#      self.nasht=int((S&Do)+0.5)
-#      self.norbt=C.cdim
-#      g=2*C.T*S*(Dc*Fc+Do*Fo)*C
-#      g=g-g.T
-#      self.data=g.data
-#      return self
-# def grad(S,C,Dc,Do,Fc,Fo):
-#   #print "C",C
-#   #print "4CS",4*C.T*S
-#   #print "Dc",Dc
-#   #print "Fc",Fc
-#   #print "Dc*Fc",Dc*Fc
-#   #print "Do",Do
-#   #print "Fo",Fo
-#   #print "Dc*Fc+DoFo",Dc*Fc+Do*Fo
-#   g=2*C.T*S*(Dc*Fc+Do*Fo)*C
-#   #print "grad:2*g",2*g
-#   g=g-g.T
-#   #print "grad:g-gt",g
-#   #print "grad.Fc,Fo",Fc.lower(),Fo.lower()
-#   #print "grad.g",g.lower()
-#   return g
-# def gradao(S,C,Dc,Do,Fc,Fo):
+
+def grad(S, C, Dc, Do, Fc, Fo):
+    g = 2*C.T*S*(Dc*Fc + Do*Fo)*C
+    g = g - g.T
+    return g
+
+
+#def gradao(S,C,Dc,Do,Fc,Fo):
 #   g=2*S*(Dc*Fc+Do*Fo)
 #   #print "gradao:2*g",2*g
 #   g=g-g.T

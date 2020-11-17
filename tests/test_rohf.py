@@ -13,7 +13,6 @@ from . import ref_rohf as ref
 class TestROHF:
 
     def setup(self):
-        global suppdir
         n, e = os.path.splitext(__file__)
         suppdir = n + ".d"
 
@@ -28,28 +27,72 @@ class TestROHF:
     def test_potnuc(self):
         assert self.EN == approx(9.263515863231)
 
+    def cmo(self):
+        return dens.cmo(self.h1, self.S)
+
+    def cab(self):
+        cmo = self.cmo()
+        ca = cmo[:, :self.na]
+        cb = cmo[:, :self.nb]
+        return ca, cb
+
+    def dab(self):
+        ca, cb = self.cab()
+        da = ca @ ca.T
+        db = cb @ cb.T
+        return da, db
+
+    def fab(self):
+        da, db = self.dab()
+        (fa, fb), = two.fockab((da, db), filename=self.aotwoint)
+        return fa, fb
+
     def test_h1diag_initial_mo(self):
 
         cmo = dens.cmo(self.h1, self.S)
+        cmo = self.cmo()
         npt.assert_allclose(cmo, ref.C1)
 
     def test_h1diag_initial_dens(self):
 
-        Cmo = dens.cmo(self.h1, self.S)
-        Ca = Cmo[:, :self.na]
-        Cb = Cmo[:, :self.nb]
-        Da = Ca @ Ca.T
-        Db = Cb @ Cb.T
+        Da, Db = self.dab()
         npt.assert_allclose(Da, ref.Da)
         npt.assert_allclose(Db, ref.Db)
 
     def test_h1diag_initial_energy(self):
-        Cmo = dens.cmo(self.h1, self.S)
-        Ca = Cmo[:, :self.na]
-        Cb = Cmo[:, :self.nb]
-        Da = Ca * Ca.T
-        Db = Cb * Cb.T
+
+        Da, Db = self.dab()
         (Fa, Fb), = two.fockab((Da, Db), filename=self.aotwoint)
         E = self.EN + rohf.energy(Da, Db, self.h1, Fa, Fb)
         Eref = -73.4538472272
         assert E == approx(Eref)
+
+    def dco(self):
+        da, db = self.dab()
+        dc = 2*db
+        do = da - db
+        return dc, do
+
+    def fco(self):
+        Dc, Do = self.dco()
+        Fc = two.fock(Dc + Do, filename=self.aotwoint)
+        Fo = two.fock(Do, hfc=0, filename=self.aotwoint) + Fc
+        return Fc, Fo
+
+    def test_fo(self):
+        Fc, Fo = self.fco()
+        Fa, Fb = self.fab()
+
+        npt.assert_allclose(
+            np.array(Fo - Fc),
+            .5*np.array((Fa - Fb)),
+        )
+
+    def test_fco(self):
+        Fc, Fo = self.fco()
+        Fa, Fb = self.fab()
+
+        npt.assert_allclose(
+             np.array(Fc),
+             .5*np.array((Fa + Fb)),
+        )
