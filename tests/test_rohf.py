@@ -1,4 +1,4 @@
-import os
+import pathlib
 
 import numpy as np
 import numpy.testing as npt
@@ -13,11 +13,10 @@ from . import ref_rohf as ref
 class TestROHF:
 
     def setup(self):
-        n, e = os.path.splitext(__file__)
-        suppdir = n + ".d"
+        suppdir = pathlib.Path(__file__).with_suffix('.d')
 
-        self.aooneint = os.path.join(suppdir, "AOONEINT")
-        self.aotwoint = os.path.join(suppdir, "AOTWOINT")
+        self.aooneint = suppdir/"AOONEINT"
+        self.aotwoint = suppdir/"AOTWOINT"
         self.h1 = one.read("ONEHAMIL", self.aooneint).unpack().unblock()
         self.S = one.read("OVERLAP", self.aooneint).unpack().unblock()
         self.EN = one.readhead(self.aooneint)["potnuc"]
