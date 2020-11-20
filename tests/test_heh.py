@@ -29,9 +29,9 @@ def test_initial_energy(rohf):
 def test_initial_gradient(rohf):
     iter(rohf)
     energy, gradient = next(rohf)
-    assert gradient == approx(3.120774185e-02)
+    assert gradient == approx(4.413441177e-02)
     energy, gradient = next(rohf)
-    assert gradient == approx(4.281715155e-03)
+    assert gradient == approx(6.055260228e-03)
     # energy, gradient = next(rohf)
     # assert gradient == approx(0.000572018305)
 

@@ -1,10 +1,13 @@
 import os
+import pathlib
+
 import pytest
-from pytest import approx, mark
+
 from dalmisc.scf_iter import (
     SCFIterator,
     RoothanIterator,
     URoothanIterator,
+    DaltonOutputIterator,
 )
 
 
@@ -19,12 +22,13 @@ def test_fixture_scf(scf):
 
 @pytest.fixture
 def roothan():
-    return RoothanIterator(
+    _roothan = RoothanIterator(
         electrons=10,
         max_iterations=15,
         threshold=1e-5,
         tmpdir=os.path.splitext(__file__)[0] + ".d",
     )
+    return _roothan
 
 
 @pytest.fixture
@@ -46,6 +50,14 @@ def uhf_roothan():
         threshold=1e-5,
         tmpdir=os.path.splitext(__file__)[0] + ".d",
         ms="1/2",
+    )
+
+
+@pytest.fixture
+def dalton_output():
+    test_dir = pathlib.Path(__file__).with_suffix('.d')
+    return DaltonOutputIterator(
+        dalton_output=test_dir/"hf_h2o.out"
     )
 
 
@@ -123,27 +135,26 @@ def test_rohf_stop_iterations(roothan):
 
 def test_initial_guess(roothan):
     initial_energy, _ = next(iter(roothan))
-    assert initial_energy == approx(-73.2292918615)
+    assert initial_energy == pytest.approx(-73.2292918615)
 
 
 def test_rohf_initial_guess(rohf_roothan):
     initial_energy, _ = next(iter(rohf_roothan))
-    assert initial_energy == approx(-73.4538472272)
+    assert initial_energy == pytest.approx(-73.4538472272)
 
 
 def test_one_fockit(roothan):
     scf = iter(roothan)
     next(scf)
     next(scf)
-    assert scf.energy() == approx(-74.946960167351)
+    assert scf.energy() == pytest.approx(-74.946960167351)
 
 
-@mark.skip()
 def test_rohf_one_fockit(rohf_roothan):
     scf = iter(rohf_roothan)
     next(scf)
     next(scf)
-    assert scf.energy() == approx(-74.64791006861331)
+    assert scf.energy() == pytest.approx(-74.64791006861331)
 
 
 def test_initial_electrons(roothan):
@@ -160,7 +171,7 @@ def test_initial_rohf_electrons(rohf_roothan):
 
 def test_Z(roothan):
     assert roothan.Z is None
-    assert iter(roothan).Z == approx(9.263515863231)
+    assert iter(roothan).Z == pytest.approx(9.263515863231)
 
 
 def test_overlap(roothan):
@@ -171,34 +182,45 @@ def test_overlap(roothan):
 def test_densities(roothan):
     initial = iter(roothan)
     next(initial)
-    assert initial.Da & initial.S == approx(5)
-    assert initial.Db & initial.S == approx(5)
+    assert initial.Da & initial.S == pytest.approx(5)
+    assert initial.Db & initial.S == pytest.approx(5)
 
 
 def test_rohf_densities(rohf_roothan):
     initial = iter(rohf_roothan)
     next(initial)
-    assert initial.Da & initial.S == approx(5)
-    assert initial.Db & initial.S == approx(4)
+    assert initial.Da & initial.S == pytest.approx(5)
+    assert initial.Db & initial.S == pytest.approx(4)
 
 
 def test_h1(roothan):
     scf = iter(roothan)
     next(scf)
-    assert scf.h1 & (scf.Da + scf.Db) == approx(-127.45439681043854)
+    assert scf.h1 & (scf.Da + scf.Db) == pytest.approx(-127.45439681043854)
 
 
 def test_rhf_final(roothan):
     final_energy, _ = list(iter(roothan))[-1]
-    assert final_energy == approx(-74.961598442034)
+    assert final_energy == pytest.approx(-74.961598442034)
 
 
-@mark.skip()
 def test_rohf_final(rohf_roothan):
     final_energy, _ = list(iter(rohf_roothan))[-1]
-    assert final_energy == approx(-74.651129646549)
+    assert final_energy == pytest.approx(-74.651129646549)
 
 
 def test_uhf_final(uhf_roothan):
     final_energy, _ = list(iter(uhf_roothan))[-1]
-    assert final_energy == approx(-74.6531282076)
+    assert final_energy == pytest.approx(-74.6531282076)
+
+
+def test_daltin_initial(dalton_output):
+    initial_energy, initial_gradient = next(iter(dalton_output))
+    assert initial_energy == pytest.approx(-73.2292918615)
+    assert initial_gradient == pytest.approx(2.98017)
+
+
+def test_daltin_final(dalton_output):
+    final_energy, final_gradient = list(dalton_output)[-1]
+    assert final_energy == pytest.approx(-74.9615984420)
+    assert final_gradient == pytest.approx(6.72407e-06)

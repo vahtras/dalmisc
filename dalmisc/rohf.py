@@ -15,19 +15,17 @@ import two
 
 
 def grad(S, C, Dc, Do, Fc, Fo):
-    g = 2*C.T*S*(Dc*Fc + Do*Fo)*C
+    g = 2*C.T@S@(Dc@Fc + Do@Fo)@C
     g = g - g.T
     return g
 
 
-#def gradao(S,C,Dc,Do,Fc,Fo):
-#   g=2*S*(Dc*Fc+Do*Fo)
-#   #print "gradao:2*g",2*g
-#   g=g-g.T
-#   #print "gradao:g-gt",g
-#   #print "grad.Fc,Fo",Fc.lower(),Fo.lower()
-#   #print "grad.g",g.lower()
-#   return g
+def gradao(S, Dc, Do, Fc, Fo):
+    g = 2*S*(Dc*Fc + Do*Fo)
+    g = g - g.T
+    return g
+
+
 # def gradvec(S,C,Dc,Do,Fc,Fo,nisht=0,nasht=0,nocct=0):
 #   g=grad(S,C,Dc,Do,Fc,Fo)
 #   nisht=int((S&Dc)/2 + .5)
@@ -72,18 +70,19 @@ def grad(S, C, Dc, Do, Fc, Fo):
 #         new[j,i]=p[ij,0]
 #         ij+=1
 #   return new
-# def gradnorm(S,C,Dc,Do,Fc,Fo,nisht,nasht):
-#   import math
-#   g=grad(S,C,Dc,Do,Fc,Fo)
-#   norbt=C.cdim
-#   gsum=0.0
-#   for i in range(nisht):
-#      for j in range(nisht,norbt):
-#         gsum+=g[i,j]**2
-#   for i in range(nisht,nisht+nasht):
-#      for j in range(nisht+nasht,norbt):
-#         gsum+=g[i,j]**2
-#   return math.sqrt(gsum)
+
+
+def gradnorm(S, C, Dc, Do, Fc, Fo, nisht, nasht):
+    g = grad(S, C, Dc, Do, Fc, Fo)
+    norbt = C.shape[1]
+    gsum = 0.0
+    for i in range(nisht):
+        for j in range(nisht, norbt):
+            gsum += g[i, j]**2
+    for i in range(nisht, nisht + nasht):
+        for j in range(nisht+nasht, norbt):
+            gsum += g[i, j]**2
+    return math.sqrt(gsum)
 
 
 def jensen(S, Dc, Do, Fc, Fo, C=None, h=None):
@@ -190,7 +189,8 @@ def uroothan(
             else:
                 g2 = (ga + gb) @ (S.I@(ga + gb)@S.I).T
             gn = sqrt(g2.tr())
-            gn = sqrt((ga + gb) & (S.I@(ga + gb)@S.I))
+            gn = sqrt(2*(ga + gb) & (S.I@(ga + gb)@S.I))
+            breakpoint()
             if i == 19:
                 breakpoint()
             iterinf.append((E, gn))
@@ -211,8 +211,10 @@ def uroothan(
                     for P, Q in combinations((Db, Da - Db, S.I - Da), 2)
                 )
                 V += V.T
+                V = jensen(S, 2*Db, Da - Db, F0, Fa)
                 # F = ((Fa + Fb) + Ds @ Fs @ ID + ID @ Fs @ Ds) / 2
                 F = F0 + V
+                F = S@Feff(Da@S, Db@S, S.I@Fa, S.I@Fb)
                 Ca = dens.cmo(F, S)
                 Cb = Ca
     except Converged:
@@ -540,7 +542,7 @@ def udiis1(
             if unrest:
                 g2 = -(ga @ ga + gb @ gb)
             else:
-                g2 = -(ga + gb) @ (ga + gb) / 2
+                g2 = -(ga + gb) @ (ga + gb)
             gn = math.sqrt(g2.tr())
             print("%2d:E = %16.12f %16.5e %16.2e" % (i + 1, E, gn, E - E0))
             if gn < threshold:
@@ -617,14 +619,28 @@ def udiis1(
 
 
 if __name__ == "__main__":
-    wrkdir = 'tests/test_heh.d'
-    aooneint = os.path.join(wrkdir, "AOONEINT")
-    aotwoint = os.path.join(wrkdir, "AOTWOINT")
-    potnuc = one.readhead(aooneint)["potnuc"]
-    h = one.read("ONEHAMIL", aooneint).unpack().unblock()
-    S = one.read("OVERLAP", aooneint).unpack().unblock()
-    Ca = dens.cmo(h, S)
-    Cb = Ca
+    if 1:
+        wrkdir = 'tests/test_heh.d'
+        aooneint = os.path.join(wrkdir, "AOONEINT")
+        aotwoint = os.path.join(wrkdir, "AOTWOINT")
+        potnuc = one.readhead(aooneint)["potnuc"]
+        h = one.read("ONEHAMIL", aooneint).unpack().unblock()
+        S = one.read("OVERLAP", aooneint).unpack().unblock()
+        Ca = dens.cmo(h, S)
+        Cb = Ca
 
-    uroothan(Ca, Cb, 2, 1, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
-    # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)
+        uroothan(Ca, Cb, 2, 1, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
+        # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)
+
+    if 0:
+        wrkdir = 'tests/test_h2o.d'
+        aooneint = os.path.join(wrkdir, "AOONEINT")
+        aotwoint = os.path.join(wrkdir, "AOTWOINT")
+        potnuc = one.readhead(aooneint)["potnuc"]
+        h = one.read("ONEHAMIL", aooneint).unpack().unblock()
+        S = one.read("OVERLAP", aooneint).unpack().unblock()
+        Ca = dens.cmo(h, S)
+        Cb = Ca
+
+        uroothan(Ca, Cb, 5, 4, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
+        # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)

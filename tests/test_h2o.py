@@ -1,4 +1,4 @@
-from pytest import approx, mark
+import pytest
 from dalmisc.scf_iter import RoothanIterator
 
 
@@ -10,11 +10,10 @@ def test_rhf():
         max_iterations=20,
         )
     final_energy, final_gradient = list(roo)[-1]
-    assert final_energy == approx(-74.9615984420)
+    assert final_energy == pytest.approx(-74.9615984420)
     assert final_gradient < 1e-5
 
 
-@mark.skip()
 def test_rohf():
     roo = RoothanIterator(
         electrons=9,
@@ -24,5 +23,5 @@ def test_rohf():
         ms=1/2,
         )
     final_energy, final_gradient = list(roo)[-1]
-    assert final_energy == approx(-74.651129646549)
+    assert final_energy == pytest.approx(-74.651129646549)
     assert final_gradient < 1e-5
