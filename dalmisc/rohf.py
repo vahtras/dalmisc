@@ -235,6 +235,7 @@ def mkB(vecs):
             B[i, j] = vecs[i] & vecs[j]
         B[i, len(vecs)] = 1
         B[len(vecs), i] = 1
+    print(B)
     return B
 
 
@@ -440,15 +441,18 @@ def diis(
             if gn < threshold:
                 raise Converged(gn)
             vecs.append(F)
+            print(f'vecs[0]={vecs[0]}')
             evecs.append(g)
             edim = min(len(evecs), maxerr)
+            print(f'evecs[0]={evecs[0]}')
             ev = evecs[-edim:]
             fv = vecs[-edim:]
             B = mkB(ev)
             rhs = full.matrix((edim + 1, 1))
             rhs[-1, 0] = 1
             c = rhs / B
-            #breakpoint()
+            print('c', c)
+            breakpoint()
             subevecs = full.matrix(g.shape)
             subvecs = full.matrix(F.shape)
             for i in range(edim):
@@ -459,6 +463,7 @@ def diis(
             upd.anti = 0
             update = upd.unpack()
             F = subvecs  # +update
+            print("F", F)
             C = dens.cmo(F, S)
     except Converged:
         print("-Converged-")

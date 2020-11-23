@@ -96,9 +96,9 @@ class RoothanIterator(SCFIterator):
             self.it += 1
             self.set_densities()
             self.set_focks()
-            self.update_mo()
             e = self.energy()
             gn = self.gn()
+            self.update_mo()
             self.energies.append(e)
             self.gradient_norms.append(gn)
             return (e, gn)
@@ -173,8 +173,8 @@ class RoothanIterator(SCFIterator):
         return F
 
     def Feff2(self):
-        Fa = self.SS.I@(self.h1 + self.Fa)
-        Fb = self.SS.I@(self.h1 + self.Fb)
+        Fa = self.S.I@(self.h1 + self.Fa)
+        Fb = self.S.I@(self.h1 + self.Fb)
         Da = self.Da@self.S
         Db = self.Db@self.S
         return self.S@rohf.Feff(Da, Db, Fa, Fb)
@@ -204,6 +204,58 @@ class URoothanIterator(RoothanIterator):
         Δb = self.S.I - Db
         gn = (ga@Δa@ga.T@Da + gb@Δb@gb.T@Db).tr()
         return math.sqrt(gn)
+
+
+class DiisIterator(RoothanIterator):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.evecs = []
+        self.vecs = []
+
+    def __next__(self):
+        """
+        Updates for in a SCF iteration
+        """
+        if not self.converged() and self.it < self.max_iterations:
+            self.it += 1
+            self.set_densities()
+            self.set_focks()
+            e = self.energy()
+            gn = self.gn()
+
+            self.vecs.append(self.Feff())
+            self.evecs.append(self.ga + self.gb)
+
+            self.update_mo()
+            self.energies.append(e)
+            self.gradient_norms.append(gn)
+            return (e, gn)
+        else:
+            raise StopIteration
+
+    def B(self):
+        dim = len(self.evecs) + 1
+        Bmat = numpy.ones((dim, dim))
+        for i, vi in enumerate(self.evecs):
+            for j, vj in enumerate(self.evecs):
+                Bmat[i, j] = 4*(vi & (self.S.I@vj@self.S.I))
+
+        Bmat[-1, -1] = 0
+        return Bmat
+
+    def c(self):
+        rhs = numpy.zeros(len(self.evecs) + 1)
+        rhs[-1] = 1.0
+        return numpy.linalg.solve(self.B(), rhs)[:-1]
+
+    def Fopt(self):
+        return sum(
+            c*e
+            for c, e in zip(self.c(), self.vecs)
+        )
+
+
 
 
 if __name__ == "__main__":

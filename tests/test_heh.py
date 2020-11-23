@@ -1,12 +1,23 @@
 import numpy.testing as npt
 from pytest import approx, fixture
 
-from dalmisc.scf_iter import RoothanIterator
+from dalmisc.scf_iter import RoothanIterator, DiisIterator
 
 
 @fixture
 def rohf():
     roo = RoothanIterator(
+        electrons=3,
+        tmpdir='tests/test_heh.d',
+        threshold=1e-5,
+        max_iterations=20,
+        ms=1/2,
+        )
+    return roo
+
+@fixture
+def diis():
+    roo = DiisIterator(
         electrons=3,
         tmpdir='tests/test_heh.d',
         threshold=1e-5,
@@ -149,3 +160,66 @@ def test_rohf(rohf):
     final_energy, final_gradient = list(rohf)[-1]
     assert final_energy == approx(-3.269722925573)
     assert final_gradient < 1e-5
+
+
+def test_diis_final(diis):
+    final_energy, final_gradient = list(diis)[-1]
+    assert final_energy == approx(-3.269722925573)
+    assert final_gradient < 1e-5
+
+
+def test_diis_first_eg(diis):
+    idiis = iter(diis)
+    initial_energy, initial_gradient = next(idiis)
+    assert initial_energy == approx(-3.269190923870)
+
+
+def test_diis_first_vecs(diis):
+    idiis = iter(diis)
+    next(idiis)
+    assert len(idiis.vecs) == 1
+    npt.assert_allclose(
+        idiis.vecs[0],
+        [[-0.87742810, -0.09307271], [-0.09307271, -0.08178182]]
+    )
+
+
+def test_diis_first_evecs(diis):
+    idiis = iter(diis)
+    next(idiis)
+    assert len(idiis.evecs) == 1
+    npt.assert_allclose(
+        idiis.Ca@idiis.evecs[0]@idiis.Ca.T * 2,
+        [[0.0, -0.04413441], [0.04413441, 0.0]],
+        atol=1e-8,
+    )
+
+
+def test_diis_first_B(diis):
+    idiis = iter(diis)
+    next(idiis)
+    B = idiis.B()
+    assert B.shape == (2, 2)
+    npt.assert_allclose(
+        B,
+        [[0.00389569, 1], [1, 0]],
+        atol=1e-8,
+    )
+
+
+def test_diis_first_c(diis):
+    idiis = iter(diis)
+    next(idiis)
+    c = idiis.c()
+    assert c.shape == (1,)
+    npt.assert_allclose(
+        c,
+        [1.0],
+        atol=1e-8,
+    )
+
+
+def test_diis_first_Fopt(diis):
+    idiis = iter(diis)
+    next(idiis)
+    npt.assert_allclose(idiis.Fopt(), idiis.vecs[0])
