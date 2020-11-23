@@ -14,16 +14,17 @@ from dalmisc import rohf
 
 
 class SCFIterator():
-    pass
-
-
-class DaltonOutputIterator():
-
-    def __init__(self, *args, **kwargs):
-        self.output = kwargs.get('dalton_output', 'DALTON.OUT')
-        self.f = None
+    def __init__(self):
         self.energies = []
         self.gradient_norms = []
+
+
+class DaltonOutputIterator(SCFIterator):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.output = kwargs.get('dalton_output', 'DALTON.OUT')
+        self.f = None
 
     def __iter__(self):
         regex = r'@\s+\d+\s+(-?[\d.]+)\s+([\d.D+-]+)'
@@ -44,7 +45,7 @@ class DaltonOutputIterator():
 class RoothanIterator(SCFIterator):
 
     def __init__(self, *args, **kwargs):
-
+        super().__init__()
         self.it = 0
         self.max_iterations = kwargs.get('max_iterations', 20)
         self.threshold = kwargs.get('threshold', 1e-5)
@@ -63,8 +64,7 @@ class RoothanIterator(SCFIterator):
         self.Db = None
         self.ga = None
         self.gb = None
-        self.energies = []
-        self.gradient_norms = []
+        self.rohf_factors = kwargs.get('factors', (1.0, 1.0))
 
     def __iter__(self):
         """
@@ -158,11 +158,15 @@ class RoothanIterator(SCFIterator):
         active = Da - Db
         virtual = S.I - Da
 
+        # factor_pq = (1.0, 1.0)
+        projectors = [(inactive, active), (active, virtual)]
+        factors = self.rohf_factors
+
         if self.ms != 0 and self.Da is not None:
             V = sum(
-                S@P@(g - F)@Q@S - S@Q@(g + F)@P@S
+                S@P@(f*g - F)@Q@S - S@Q@(f*g + F)@P@S
+                for f, (P, Q) in zip(factors, projectors)
                 # for P, Q in ((Db, Da-Db), (Da-Db, S.I-Da))
-                for P, Q in [(inactive, active), (active, virtual)]
             )
             F += V
             # F = S@rohf.Feff(Da@S, Db@S, S.I@Fa, S.I@Fb)

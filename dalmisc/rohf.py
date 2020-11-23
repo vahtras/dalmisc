@@ -2,6 +2,7 @@
 
 import math
 import os
+import pathlib
 from itertools import combinations
 
 import numpy as np
@@ -15,61 +16,63 @@ import two
 
 
 def grad(S, C, Dc, Do, Fc, Fo):
-    g = 2*C.T@S@(Dc@Fc + Do@Fo)@C
+    g = 2 * C.T @ S @ (Dc @ Fc + Do @ Fo) @ C
     g = g - g.T
     return g
 
 
 def gradao(S, Dc, Do, Fc, Fo):
-    g = 2*S*(Dc*Fc + Do*Fo)
+    g = 2 * S * (Dc * Fc + Do * Fo)
     g = g - g.T
     return g
 
 
-# def gradvec(S,C,Dc,Do,Fc,Fo,nisht=0,nasht=0,nocct=0):
-#   g=grad(S,C,Dc,Do,Fc,Fo)
-#   nisht=int((S&Dc)/2 + .5)
-#   nasht=int((S&Do)   + .5)
-#   norbt=C.cdim
-#   nocct=nisht+nasht
-#   #print nisht,nasht,nocct,norbt
-#   dim=nisht*(norbt-nisht)+nasht*(norbt-nocct)
-#   gv=full.matrix(dim,2)
-#   ij=0
-#   for i in range(nisht):
-#      for j in range(nisht,nocct):
-#         #print ij+1,i+1,j+1
-#         gv[ij,0]=-g[i,j]
-#         gv[ij,1]=-g[j,i]
-#         ij+=1
-#   for i in range(nisht):
-#      for j in range(nocct,norbt):
-#         #print ij+1,i+1,j+1
-#         gv[ij,0]=-g[i,j]
-#         gv[ij,1]=-g[j,i]
-#         ij+=1
-#   for i in range(nisht,nocct):
-#      for j in range(nocct,norbt):
-#         #print ij+1,i+1,j+1
-#         gv[ij,0]=-g[i,j]
-#         gv[ij,1]=-g[j,i]
-#         ij+=1
-#   return gv
-# def gradmatrix(p,nisht,nasht,norbt):
-#   new=full.matrix(norbt,norbt)
-#   nocct=nisht+nasht
-#   ij=0
-#   for i in range(nisht):
-#      for j in range(nisht,norbt):
-#         new[i,j]=-p[ij,0]
-#         new[j,i]=p[ij,0]
-#         ij+=1
-#   for i in range(nisht,nocct):
-#      for j in range(nocct,norbt):
-#         new[i,j]=-p[ij,0]
-#         new[j,i]=p[ij,0]
-#         ij+=1
-#   return new
+def gradvec(S, C, Dc, Do, Fc, Fo, nisht=0, nasht=0, nocct=0):
+    g = grad(S, C, Dc, Do, Fc, Fo)
+    nisht = int((S & Dc) / 2 + 0.5)
+    nasht = int((S & Do) + 0.5)
+    norbt, _ = C.shape
+    nocct = nisht + nasht
+    # print nisht,nasht,nocct,norbt
+    dim = nisht * (norbt - nisht) + nasht * (norbt - nocct)
+    gv = full.matrix((dim, 2))
+    ij = 0
+    for i in range(nisht):
+        for j in range(nisht, nocct):
+            # print ij+1,i+1,j+1
+            gv[ij, 0] = -g[i, j]
+            gv[ij, 1] = -g[j, i]
+            ij += 1
+    for i in range(nisht):
+        for j in range(nocct, norbt):
+            # print ij+1,i+1,j+1
+            gv[ij, 0] = -g[i, j]
+            gv[ij, 1] = -g[j, i]
+            ij += 1
+    for i in range(nisht, nocct):
+        for j in range(nocct, norbt):
+            # print ij+1,i+1,j+1
+            gv[ij, 0] = -g[i, j]
+            gv[ij, 1] = -g[j, i]
+            ij += 1
+    return gv
+
+
+def gradmatrix(p, nisht, nasht, norbt):
+    new = full.matrix(norbt, norbt)
+    nocct = nisht + nasht
+    ij = 0
+    for i in range(nisht):
+        for j in range(nisht, norbt):
+            new[i, j] = -p[ij, 0]
+            new[j, i] = p[ij, 0]
+            ij += 1
+    for i in range(nisht, nocct):
+        for j in range(nocct, norbt):
+            new[i, j] = -p[ij, 0]
+            new[j, i] = p[ij, 0]
+            ij += 1
+    return new
 
 
 def gradnorm(S, C, Dc, Do, Fc, Fo, nisht, nasht):
@@ -78,10 +81,10 @@ def gradnorm(S, C, Dc, Do, Fc, Fo, nisht, nasht):
     gsum = 0.0
     for i in range(nisht):
         for j in range(nisht, norbt):
-            gsum += g[i, j]**2
+            gsum += g[i, j] ** 2
     for i in range(nisht, nisht + nasht):
-        for j in range(nisht+nasht, norbt):
-            gsum += g[i, j]**2
+        for j in range(nisht + nasht, norbt):
+            gsum += g[i, j] ** 2
     return math.sqrt(gsum)
 
 
@@ -125,11 +128,15 @@ class Increase(Exception):
     pass
 
 
+class Stop(Exception):
+    pass
+
+
 class Converged(Exception):
     """To be removed"""
 
     def __init__(self, value):
-        Exception.__init__(self)
+        super().__init__()
         self.value = value
 
     def __str__(self):
@@ -169,7 +176,6 @@ def uroothan(
     aotwoint = os.path.join(wrkdir, "AOTWOINT")
     h = one.read("ONEHAMIL", aooneint).unpack().unblock()
     S = one.read("OVERLAP", aooneint).unpack().unblock()
-    I = full.unit(len(Ca))
     potnuc = one.readhead(aooneint)["potnuc"]
     print(potnuc)
     iterinf = []
@@ -190,9 +196,6 @@ def uroothan(
                 g2 = (ga + gb) @ (S.I@(ga + gb)@S.I).T
             gn = sqrt(g2.tr())
             gn = sqrt(2*(ga + gb) & (S.I@(ga + gb)@S.I))
-            breakpoint()
-            if i == 19:
-                breakpoint()
             iterinf.append((E, gn))
             print("%2d:E=%16.10f %16.5e %16.2e" % (i + 1, E, gn, E - E0))
             if gn < threshold:
@@ -225,22 +228,24 @@ def uroothan(
         return Ca
 
 
-# def mkB(vecs):
-#   B=full.matrix(len(vecs)+1,len(vecs)+1)
-#   for i in range(len(vecs)):
-#      for j in range(len(vecs)):
-#         B[i,j]=vecs[i]&vecs[j]
-#      B[i,len(vecs)]=1
-#      B[len(vecs),i]=1
-#   return B
-# def mkB2(vecs):
-#   B=full.matrix(len(vecs)+1,len(vecs)+1)
-#   for i in range(len(vecs)):
-#      for j in range(len(vecs)):
-#         B[i,j]=-(vecs[i]*vecs[j]).tr()
-#      B[i,len(vecs)]=-1
-#      B[len(vecs),i]=-1
-#   return B
+def mkB(vecs):
+    B = full.Matrix((len(vecs) + 1, len(vecs) + 1))
+    for i in range(len(vecs)):
+        for j in range(len(vecs)):
+            B[i, j] = vecs[i] & vecs[j]
+        B[i, len(vecs)] = 1
+        B[len(vecs), i] = 1
+    return B
+
+
+def mkB2(vecs):
+    B = full.matrix(len(vecs) + 1, len(vecs) + 1)
+    for i in range(len(vecs)):
+        for j in range(len(vecs)):
+            B[i, j] = -(vecs[i] * vecs[j]).tr()
+        B[i, len(vecs)] = -1
+        B[len(vecs), i] = -1
+    return B
 
 
 def mkB3(avecs, bvecs, unrest):
@@ -249,7 +254,7 @@ def mkB3(avecs, bvecs, unrest):
     for i in range(dim):
         for j in range(dim):
             if unrest:
-                B[i, j] = -(avecs[i]*avecs[j]).tr() - (bvecs[i]*bvecs[j]).tr()
+                B[i, j] = -(avecs[i] @ avecs[j]).tr() - (bvecs[i] @ bvecs[j]).tr()
             else:
                 vecsi = avecs[i] + bvecs[i]
                 vecsj = avecs[j] + bvecs[j]
@@ -395,77 +400,72 @@ def mkB3(avecs, bvecs, unrest):
 ##           gv[ij,0] /= 2*de
 ##           gv[ij,1] /= 2*de
 #
-# def diis(C,nisht,nasht,iter=10,fock=jensen,hfx=1,threshold=1e-6,maxerr=2):
-#   import one
-#   C1=C
-#   E=0
-#   potnuc=one.info()[0]["potnuc"]
-#   vecs=[]
-#   evecs=[]
-#   h=one.read('ONEHAMIL','AOONEINT').unpack().unblock()
-#   S=one.read('OVERLAP','AOONEINT').unpack().unblock()
-#   I=full.unit(S.rdim)
-#   try:
-#      for i in range(iter):
-#         print "--- Iteration %d"%(i+1)
-#         Di,Da=dens.C2D(C,nisht,nasht)
-#         D=Di+Da
-#         Fc=h+two.fock(D,hfx)
-#         Fo=two.fock(Da,hfc=0)+Fc
-#         F=fock(S,Di,Da,Fc,Fo,C,h)
-#         #print "F",(C.T*F*C).pack()
-#         E0=E
-#         E=((h+Fc)&D)/2+((Fo-Fc)&Da)/2 + potnuc
-#         g=grad(S,C1,Di,Da,Fc,Fo)
-#         gao=gradao(S,C,Di,Da,Fc,Fo)
-#         gn=gradvec(S,C,Di,Da,Fc,Fo,nisht,nasht)[:,0].norm2()
-#         print "%2d:E=%16.12f %16.5e %16.2e"%(i+1,E,gn,E-E0)
-#         if  (gn  < threshold): raise "converged"
-#         vecs.append(F)
-#         evecs.append(g)
-#         #evecs.append(gao)
-#         #print "vecs",vecs
-#         #print "evecs",evecs
-#         edim=min(len(evecs),maxerr)
-#         ev=evecs[-edim:]
-#         print "ev",ev
-#         fv=vecs[-edim:]
-#         B=mkB(ev)
-#         print "B",B
-#         rhs=full.matrix(edim+1,1)
-#         rhs[-1,0]=1
-#         #print "B",B
-#         #print "B/2",B/2
-#         print "rhs",rhs
-#         c=rhs/B
-#         print "c",c
-#         subevecs=full.matrix(g.rdim,g.cdim)
-#         subvecs=full.matrix(F.rdim,F.cdim)
-#         for i in range(edim):
-#            #print "diis average %d(%d)"%(i+1,edim),c[i,0],fv[i]
-#            subevecs+=c[i,0]*ev[i]
-#            subvecs+=c[i,0]*fv[i]
-#         if 0:
-#            #TEST
-#            # sum previous
-#            # add current correction
-#             print "last fv",(fv[edim-1]-h)
-#         #evecs[edim]=
-#         update=-subevecs
-#         upd=update.lower()
-#         upd.anti=0
-#         update=upd.unpack()
-#         #print 'update',C.T*update*C
-#         F=subvecs#+update
-#         #print "F(ao)",F.lower()
-#         #print "F(mo)",(C.T*F*C).lower()
-#         #print "F(eig)",(C.T*F*C).eig()
-#         C=dens.cmo(F,S)
-#         print "C",C
-#   except "converged":
-#      print "-Converged-"
-#   except "stop":
-#      print "-STOP-"
+
+
+def diis(
+    C,
+    nisht,
+    nasht,
+    iters=10,
+    fock=jensen,
+    hfx=1,
+    threshold=1e-6,
+    maxerr=2,
+    wrkdir="/tmp",
+):
+    C1 = C
+    E = 0
+
+    aooneint = pathlib.Path(wrkdir) / "AOONEINT"
+    aotwoint = pathlib.Path(wrkdir) / "AOTWOINT"
+    potnuc = one.readhead(aooneint)["potnuc"]
+    vecs = []
+    evecs = []
+    h = one.read("ONEHAMIL", aooneint).unpack().unblock()
+    S = one.read("OVERLAP", aooneint).unpack().unblock()
+    try:
+        for i in range(iters):
+            Di, Da = dens.C2D(C, nisht, nasht)
+            D = Di + Da
+            Fc = h + two.fock(D, filename=aotwoint, hfx=hfx)
+            Fo = two.fock(Da, hfc=0, filename=aotwoint) + Fc
+            F = fock(S, Di, Da, Fc, Fo, C, h)
+            E0 = E
+            E = ((h + Fc) & D) / 2 + ((Fo - Fc) & Da) / 2 + potnuc
+            g = grad(S, C1, Di, Da, Fc, Fo)
+            # gao = gradao(S, C, Di, Da, Fc, Fo)
+            gn = gradvec(S, C, Di, Da, Fc, Fo, nisht, nasht).norm2()
+            gn /= math.sqrt(2)
+            print("%2d:E = %16.12f %16.5e %16.2e" % (i + 1, E, gn, E - E0))
+            if gn < threshold:
+                raise Converged(gn)
+            vecs.append(F)
+            evecs.append(g)
+            edim = min(len(evecs), maxerr)
+            ev = evecs[-edim:]
+            fv = vecs[-edim:]
+            B = mkB(ev)
+            rhs = full.matrix((edim + 1, 1))
+            rhs[-1, 0] = 1
+            c = rhs / B
+            #breakpoint()
+            subevecs = full.matrix(g.shape)
+            subvecs = full.matrix(F.shape)
+            for i in range(edim):
+                subevecs += c[i, 0] * ev[i]
+                subvecs += c[i, 0] * fv[i]
+            update = -subevecs
+            upd = update.lower()
+            upd.anti = 0
+            update = upd.unpack()
+            F = subvecs  # +update
+            C = dens.cmo(F, S)
+    except Converged:
+        print("-Converged-")
+    except Stop:
+        print("-STOP-")
+
+
 #
 # def fab(Da,Db,Si=None,hfx=1):
 #   if Si: # mixed representation in/out
@@ -476,7 +476,7 @@ def mkB3(avecs, bvecs, unrest):
 #      Ft=two.fock(Da-Db,hfx=hfx,hfc=0)
 #   Fa=Fs+Ft
 #   Fb=Fs-Ft
-#   #print ((Da*Fa).tr() + (Db*Fb).tr())/2
+#   # print ((Da*Fa).tr() + (Db*Fb).tr())/2
 #   return Fa,Fb
 #
 
@@ -491,19 +491,20 @@ def Feff(Da, Db, Fa, Fb):
     return F
 
 
-def udiis1(
+def udiis(
     Ca,
     Cb,
     na,
     nb,
-    iter=10,
+    iters=10,
     fock=jensen,
     hfx=1,
     threshold=1e-6,
     maxerr=2,
-    unrest=0,
+    unrest=False,
     wrkdir="/tmp",
 ):
+    print(Ca, Cb)
     saveD = 1
     saveC = 0
     E = 0
@@ -513,29 +514,27 @@ def udiis1(
     vecs = []
     vecsa = []
     vecsb = []
-    evecs = []
     evecsa = []
     evecsb = []
     Eit = []
     S = one.read("OVERLAP", aooneint).unpack().unblock()
-    Si = 1 / S
-    Si = Ca @ Ca.T
-    h = Si * one.read("ONEHAMIL", aooneint).unpack().unblock()
-    I = full.unit(len(S))
-    Da = dens.C1D(Ca, na) * S
-    Db = dens.C1D(Cb, nb) * S
-    C0 = Ca[:, :]
-    p0 = 0 * S
+    h = S.I @ one.read("ONEHAMIL", aooneint).unpack().unblock()
+    Da = dens.C1D(Ca, na) @ S
+    Db = dens.C1D(Cb, nb) @ S
 
     try:
-        for i in range(iter):
-            Da = dens.C1D(Ca, na) * S
-            Db = dens.C1D(Cb, nb) * S
-            (Fa, Fb), = two.fockab((Da, Db), Si=Si, hfx=hfx, filename=aotwoint)
-            Fa = h + Fa
-            Fb = h + Fb
+        for i in range(iters):
+            Da = dens.C1D(Ca, na) @ S
+            Db = dens.C1D(Cb, nb) @ S
+            print("D", (Da + Db) @ S.I)
+            (Fa, Fb), = two.fockab((Da, Db), hfx=hfx, filename=aotwoint)
+            Fa = h + S.I @ Fa
+            Fb = h + S.I @ Fb
             E0 = E
-            E = (Da @ (h + Fa) + Db @ (h + Fb)).tr() / 2 + potnuc
+            E = ((Da @ (h + Fa)) + (Db @ (h + Fb))).tr() / 2 + potnuc
+            D = Da + Db
+            print("hd", (h @ D).tr(), h & D, h & D.T)
+            print("FD", Fa & Da)
             Eit.append(E)
             ga = Da @ Fa - Fa @ Da
             gb = Db @ Fb - Fb @ Db
@@ -557,13 +556,13 @@ def udiis1(
             else:
                 Ca = dens.cmo(Feff(Da, Db, Fa, Fb), S)
                 Cb = Ca[:, :]
-            Da = dens.C1D(Ca, na) * S
-            Db = dens.C1D(Cb, nb) * S
+            Da = dens.C1D(Ca, na) @ S
+            Db = dens.C1D(Cb, nb) @ S
             if saveD:
                 vecsa.append(Da)
                 vecsb.append(Db)
-                evecsa.append(ga * Da - Da * ga)
-                evecsb.append(gb * Db - Db * gb)
+                evecsa.append(ga @ Da - Da @ ga)
+                evecsb.append(gb @ Db - Db @ gb)
             elif saveC:
                 vecsa.append(Ca)
                 vecsb.append(Cb)
@@ -591,21 +590,21 @@ def udiis1(
             if saveD:
                 Da = subvecsa
                 Db = subvecsb
-                (Fa, Fb), = two.fockab((Da, Db), Si=Si, hfx=hfx, filename=aotwoint)
-                Fa = h + Fa
-                Fb = h + Fb
+                (Fa, Fb), = two.fockab((Da, Db), hfx=hfx, filename=aotwoint)
+                Fa = h + S.I @ Fa
+                Fb = h + S.I @ Fb
                 vecsa[i] = Da
                 vecsb[i] = Db
             elif saveC:
                 Ca = subvecsa
                 Cb = subvecsb
-                Da = dens.C1D(Ca, na) * S
-                Db = dens.C1D(Cb, nb) * S
+                Da = dens.C1D(Ca, na) @ S
+                Db = dens.C1D(Cb, nb) @ S
             else:
                 Fa = subvecsa
                 Fb = subvecsb
-                Da = dens.C1D(Ca, na) * S
-                Db = dens.C1D(Cb, nb) * S
+                Da = dens.C1D(Ca, na) @ S
+                Db = dens.C1D(Cb, nb) @ S
     except Converged:
         print("Converged after %d iterations\n" % (i + 1,))
     except Increase:
@@ -620,7 +619,7 @@ def udiis1(
 
 if __name__ == "__main__":
     if 1:
-        wrkdir = 'tests/test_heh.d'
+        wrkdir = "tests/test_heh.d"
         aooneint = os.path.join(wrkdir, "AOONEINT")
         aotwoint = os.path.join(wrkdir, "AOTWOINT")
         potnuc = one.readhead(aooneint)["potnuc"]
@@ -629,11 +628,13 @@ if __name__ == "__main__":
         Ca = dens.cmo(h, S)
         Cb = Ca
 
-        uroothan(Ca, Cb, 2, 1, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
-        # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)
+        kwargs = dict(wrkdir=wrkdir, iters=20, threshold=1e-5)
+        uroothan(Ca, Cb, 2, 1, unrest=False, **kwargs)
+        diis(Ca, 1, 1, **kwargs)
+        # udiis(Ca, Cb, 1, 1, **kwargs)
 
     if 0:
-        wrkdir = 'tests/test_h2o.d'
+        wrkdir = "tests/test_h2.d"
         aooneint = os.path.join(wrkdir, "AOONEINT")
         aotwoint = os.path.join(wrkdir, "AOTWOINT")
         potnuc = one.readhead(aooneint)["potnuc"]
@@ -642,5 +643,5 @@ if __name__ == "__main__":
         Ca = dens.cmo(h, S)
         Cb = Ca
 
-        uroothan(Ca, Cb, 5, 4, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
+        uroothan(Ca, Cb, 1, 1, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
         # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)
