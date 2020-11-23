@@ -3,12 +3,14 @@ from fractions import Fraction
 import math
 import os
 import re
+from collections import deque
 
 import numpy
 
 
 from daltools import one, dens
 from two.core import fockab
+from util.full import Matrix
 
 from dalmisc import rohf
 
@@ -210,8 +212,9 @@ class DiisIterator(RoothanIterator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.evecs = []
-        self.vecs = []
+        self.evecs = deque()
+        self.vecs = deque()
+        self.max_vecs = kwargs.get('max_vecs', 2)
 
     def __next__(self):
         """
@@ -226,6 +229,9 @@ class DiisIterator(RoothanIterator):
 
             self.vecs.append(self.Feff())
             self.evecs.append(self.ga + self.gb)
+            if len(self.vecs) > self.max_vecs:
+                self.vecs.popleft()
+                self.evecs.popleft()
 
             self.update_mo()
             self.energies.append(e)
@@ -255,6 +261,12 @@ class DiisIterator(RoothanIterator):
             for c, e in zip(self.c(), self.vecs)
         )
 
+    def update_mo(self):
+
+        F = self.Fopt()
+        Ca = dens.cmo(F, self.S)
+        Cb = Ca
+        self.C = Ca, Cb
 
 
 
@@ -272,10 +284,14 @@ if __name__ == "__main__":
 
         roo = RoothanIterator(**kwargs)
         uroo = URoothanIterator(**kwargs)
+        diis = DiisIterator(**kwargs)
 
         for i, (e, gn) in enumerate(roo, start=1):
             print(f'{i:2d}: {e:14.10f} {gn:.5e}')
-    if 1:
+        print()
+        for i, (e, gn) in enumerate(diis, start=1):
+            print(f'{i:2d}: {e:14.10f} {gn:.5e}')
+    if 0:
         print("H2O\n---\n")
         kwargs = dict(
             electrons=9,
