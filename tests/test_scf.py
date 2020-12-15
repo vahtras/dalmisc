@@ -57,7 +57,7 @@ def uhf_roothan():
 def dalton_output():
     test_dir = pathlib.Path(__file__).with_suffix('.d')
     return DaltonOutputIterator(
-        dalton_output=test_dir/"hf_h2o.out"
+        dalton_output=open(test_dir/"hf_h2o.out")
     )
 
 

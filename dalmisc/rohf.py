@@ -629,8 +629,8 @@ if __name__ == "__main__":
 
         kwargs = dict(wrkdir=wrkdir, iters=20, threshold=1e-5)
         uroothan(Ca, Cb, 2, 1, unrest=False, **kwargs)
-        diis(Ca, 1, 1, **kwargs)
-        # udiis(Ca, Cb, 1, 1, **kwargs)
+        diis(Ca, 2, 1, **kwargs)
+        #udiis(Ca, Cb, 1, 1, **kwargs)
 
     if 0:
         wrkdir = "tests/test_h2.d"
@@ -643,4 +643,4 @@ if __name__ == "__main__":
         Cb = Ca
 
         uroothan(Ca, Cb, 1, 1, unrest=False, wrkdir=wrkdir, iters=20, threshold=1e-5)
-        # udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)
+        udiis1(Ca, Cb, 5, 5, wrkdir="tests/test_rohf.d", iter=20, threshold=1e-5)

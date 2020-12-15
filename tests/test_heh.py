@@ -15,6 +15,7 @@ def rohf():
         )
     return roo
 
+
 @fixture
 def diis():
     roo = DiisIterator(

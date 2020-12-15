@@ -10,7 +10,6 @@ import numpy
 
 from daltools import one, dens
 from two.core import fockab
-from util.full import Matrix
 
 from dalmisc import rohf
 
@@ -21,24 +20,45 @@ class SCFIterator():
         self.gradient_norms = []
 
 
-class DaltonOutputIterator(SCFIterator):
+class OutputIterator(SCFIterator):
+
+    def __iter__(self):
+        lines = self.output.read()
+        self.lines_iterator = iter(re.findall(self.regex, lines))
+        return self
+
+
+class DaltonOutputIterator(OutputIterator):
+
+    regex = r'@\s+\d+\s+(-?[\d.]+)\s+([\d.D+-]+)'
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self.output = kwargs.get('dalton_output', 'DALTON.OUT')
-        self.f = None
-
-    def __iter__(self):
-        regex = r'@\s+\d+\s+(-?[\d.]+)\s+([\d.D+-]+)'
-        with open(self.output) as f:
-            lines = f.read()
-            self.lines_iterator = iter(re.findall(regex, lines))
-        return self
+        self.output = kwargs.get('dalton_output')
+        self.title = kwargs.get('title')
 
     def __next__(self):
         e, n = next(self.lines_iterator)
         e = float(e)
         n = float(n.replace('D', 'e'))
+        self.energies.append(e)
+        self.gradient_norms.append(n)
+        return e, n
+
+
+class VeloxChemOutputIterator(OutputIterator):
+
+    regex = r'\s+\d+\s+(-?[\d.]+)\s+-?[\d.]+\s+(-?[\d.]+)\s+.*'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self.output = kwargs.get('veloxchem_output')
+        self.title = kwargs.get('title')
+
+    def __next__(self):
+        e, n = next(self.lines_iterator)
+        e = float(e)
+        n = float(n)
         self.energies.append(e)
         self.gradient_norms.append(n)
         return e, n
@@ -269,10 +289,9 @@ class DiisIterator(RoothanIterator):
         self.C = Ca, Cb
 
 
-
 if __name__ == "__main__":
 
-    if 1:
+    if 0:
         print("HeH\n---\n")
         kwargs = dict(
             electrons=3,
@@ -303,6 +322,20 @@ if __name__ == "__main__":
 
         roo = RoothanIterator(**kwargs)
         uroo = URoothanIterator(**kwargs)
+        diis = DiisIterator(**kwargs)
 
         for i, (e, gn) in enumerate(roo, start=1):
+            print(f'{i:2d}: {e:14.10f} {gn:.5e}')
+        print()
+
+        for i, (e, gn) in enumerate(DiisIterator(max_vecs=2, **kwargs), start=1):
+            print(f'{i:2d}: {e:14.10f} {gn:.5e}')
+        print()
+        for i, (e, gn) in enumerate(DiisIterator(max_vecs=3, **kwargs), start=1):
+            print(f'{i:2d}: {e:14.10f} {gn:.5e}')
+        print()
+        for i, (e, gn) in enumerate(DiisIterator(max_vecs=4, **kwargs), start=1):
+            print(f'{i:2d}: {e:14.10f} {gn:.5e}')
+        print()
+        for i, (e, gn) in enumerate(DiisIterator(max_vecs=8, **kwargs), start=1):
             print(f'{i:2d}: {e:14.10f} {gn:.5e}')
