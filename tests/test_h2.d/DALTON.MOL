@@ -1,0 +1,9 @@
+-------- START OF -MOLPLT- INPUT FILE ----------
+NATOMS=   2   NKINDS=   1    NBONDS=   0
+     1                                                                       
+     2                                                                       
+  H  5 0.22
+  H     0.000000    0.000000    0.000000
+  H     0.000000    0.000000    0.740000
+BONDATOMS 
+-------- END OF -MOLPLT- INPUT FILE ----------

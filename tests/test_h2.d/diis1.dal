@@ -1,0 +1,9 @@
+
+**DALTON
+.RUN WAVE
+**WAVE FUN
+.HF
+*SCF INPUT
+.MAX ERR
+ 1
+**END OF
