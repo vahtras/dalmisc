@@ -19,3 +19,4 @@ sirfckmodule.c
 .venv*
 dist
 .envrc
+untracked
