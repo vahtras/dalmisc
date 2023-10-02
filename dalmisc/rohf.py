@@ -22,7 +22,7 @@ def grad(S, C, Dc, Do, Fc, Fo):
 
 
 def gradao(S, Dc, Do, Fc, Fo):
-    g = 2 * S * (Dc * Fc + Do * Fo)
+    g = 2 * S @ (Dc @ Fc + Do @ Fo)
     g = g - g.T
     return g
 
@@ -486,7 +486,7 @@ def Feff(Da, Db, Fa, Fb):
     Ds = Da - Db
     ID = I_n - D
     Fs = Fa - Fb
-    F = ((Fa + Fb) + Ds * Fs * ID + ID * Fs * Ds) / 2
+    F = ((Fa + Fb) + Ds * Fs * ID + ID * Fs * Ds) * .5
     return F
 
 

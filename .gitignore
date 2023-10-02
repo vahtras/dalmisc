@@ -18,3 +18,4 @@ sirfckmodule.c
 .tox
 .venv*
 dist
+.envrc

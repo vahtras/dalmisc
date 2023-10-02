@@ -1,4 +1,4 @@
-"""Orbital linear transformation module E2*N, S2*N"""
+"""Orbital linear transformation module E2@N, S2@N"""
 import os
 from daltools import sirifc, one, dens, rspvec
 import two
@@ -15,7 +15,7 @@ def get_densities(SIRIFC):
 
 def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     """
-    E[2]*N linear transformation:
+    E[2]@N linear transformation:
 
      [k,F] = [k(pq)E(Sv)(pq), F(rs)E(rs)]
            = k(pq)F(rs) (E(ps)d(rq) - E(rq)d(ps))
@@ -48,24 +48,24 @@ def e2n(N, tmpdir='/tmp', hfx=1, Sg=1, Sv=1):
     da, db = get_densities(SIRIFC)
 
     kN = rspvec.tomat(N, ifc, tmpdir=tmpdir).view(util.full.matrix).T
-    kn = (cmo*kN*cmo.T).view(util.full.matrix)
+    kn = (cmo@kN@cmo.T).view(util.full.matrix)
 
-    dak = (kn.T*S*da - da*S*kn.T)
-    dbk = (kn.T*S*db - db*S*kn.T)*Sv
-
+    dak = (kn.T@S@da - da@S@kn.T)
+    dbk = (kn.T@S@db - db@S@kn.T)*Sv
 
     (fa, fb), = two.fockab((da, db),  filename=AOTWOINT, hfx=hfx)
-    fa += h; fb += h
+    fa += h
+    fb += h
     (fak, fbk), = two.fockab((dak, dbk), filename=AOTWOINT, hfx=hfx)
 
-    kfa = (S*kn*fa - fa*kn*S)
-    kfb = (S*kn*fb - fb*kn*S)*Sv
+    kfa = (S@kn@fa - fa@kn@S)
+    kfb = (S@kn@fb - fb@kn@S)*Sv
 
     fa = fak + kfa
     fb = fbk + kfb
 
-    gao = S*(da*fa.T + Sg*db*fb.T) - (fa.T*da + Sg*fb.T*db)*S
-    gm = cmo.T*gao*cmo
+    gao = S@(da@fa.T + Sg*db@fb.T) - (fa.T@da + Sg*fb.T@db)@S
+    gm = cmo.T@gao@cmo
 
     # sign convention <[q,[k,F]]> = -E[2]*N
     gv = - rspvec.tovec(gm, ifc)
@@ -96,12 +96,12 @@ def s2n(N, tmpdir='/tmp', Sg=1, Sv=1):
     da, db = dens.Dab(SIRIFC)
 
     kN = rspvec.tomat(N, ifc, tmpdir=tmpdir).T
-    kn = cmo*kN*cmo.T
+    kn = cmo@kN@cmo.T
 
-    dak = (kn.T*S*da - da*S*kn.T)
-    dbk = (kn.T*S*db - db*S*kn.T)*Sv
+    dak = (kn.T@S@da - da@S@kn.T)
+    dbk = (kn.T@S@db - db@S@kn.T)*Sv
 
-    gv = -rspvec.tovec(cmo.T*S*(dak+Sg*dbk)*S*cmo, ifc)
+    gv = -rspvec.tovec(cmo.T@S@(dak+Sg*dbk)@S@cmo, ifc)
 
     return gv
 

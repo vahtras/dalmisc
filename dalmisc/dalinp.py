@@ -1,5 +1,17 @@
 
 def dalinp(*args, **kwargs):
+    """
+    >>> print(dalinp("XDIPLEN"))
+    **DALTON
+    .RUN RESPONSE
+    **WAVE FUNCTION
+    .HF
+    **DALTON
+    **RESPONSE
+    .PROPAV
+    XDIPLEN
+    **END OF INPUT
+    """
     return wfinp(*args, **kwargs) + rspinp(*args, **kwargs)
 
 def wfinp(*args, **kwargs):

@@ -1,6 +1,7 @@
 import os
 import pathlib
 
+import numpy as np
 import pytest
 
 from dalmisc.scf_iter import (
@@ -182,21 +183,23 @@ def test_overlap(roothan):
 def test_densities(roothan):
     initial = iter(roothan)
     next(initial)
-    assert initial.Da & initial.S == pytest.approx(5)
-    assert initial.Db & initial.S == pytest.approx(5)
+    assert np.einsum('ij,ij', initial.Da, initial.S) == pytest.approx(5)
+    assert np.einsum('ij,ij', initial.Db, initial.S) == pytest.approx(5)
 
 
 def test_rohf_densities(rohf_roothan):
     initial = iter(rohf_roothan)
     next(initial)
-    assert initial.Da & initial.S == pytest.approx(5)
-    assert initial.Db & initial.S == pytest.approx(4)
+    assert np.einsum('ij,ij', initial.Da, initial.S) == pytest.approx(5)
+    assert np.einsum('ij,ij', initial.Db, initial.S) == pytest.approx(4)
 
 
 def test_h1(roothan):
     scf = iter(roothan)
     next(scf)
-    assert scf.h1 & (scf.Da + scf.Db) == pytest.approx(-127.45439681043854)
+    assert np.einsum(
+        'ij,ij', scf.h1, (scf.Da + scf.Db)
+    ) == pytest.approx(-127.45439681043854)
 
 
 def test_rhf_final(roothan):

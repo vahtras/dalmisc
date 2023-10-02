@@ -1,3 +1,4 @@
+import pytest
 from dalmisc import dalinp
 
 X = "XDIPLEN"
@@ -5,27 +6,42 @@ Y = "YDIPLEN"
 Z = "ZDIPLEN"
 
 
-def setup():
-    pass
+@pytest.mark.parametrize(
+    'operator, expected',
+    [
+        (X, f"PROPAV\n{X}"),
+        (Y, f"PROPAV\n{Y}"),
+        (Z, f"PROPAV\n{Z}"),
+    ]
+)
+def test_ave(operator, expected):
+    inp = dalinp.dalinp(operator)
+    assert expected in inp
 
 
-def teardown():
-    pass
+@pytest.mark.parametrize(
+    'operators, expected',
+    [
+        ((X, Y), "PROPRT\nXDIPLEN\n.PROPRT\nYDIPLEN"),
+        ((X, Z), "PROPRT\nXDIPLEN\n.PROPRT\nZDIPLEN"),
+    ]
+)
+def test_lr(operators, expected):
+    inp = dalinp.dalinp(*operators)
+    assert expected in inp
 
 
-def test_ave():
-    inp = dalinp.dalinp(X)
-    assert "PROPAV\nXDIPLEN" in inp
-
-
-def test_lr():
-    inp = dalinp.dalinp(X, Y)
-    assert "PROPRT\nXDIPLEN\n.PROPRT\nYDIPLEN" in inp
-
-
-def test_qr():
-    inp = dalinp.dalinp(X, Y, Z)
-    assert "APROP\nXDIPLEN\n.BPROP\nYDIPLEN\n.CPROP\nZDIPLEN" in inp
+@pytest.mark.parametrize(
+    'operators, expected',
+    [
+        ((X, X, X), "APROP\nXDIPLEN\n.BPROP\nXDIPLEN\n.CPROP\nXDIPLEN"),
+        ((X, Y, Y), "APROP\nXDIPLEN\n.BPROP\nYDIPLEN\n.CPROP\nYDIPLEN"),
+        ((X, Y, Z), "APROP\nXDIPLEN\n.BPROP\nYDIPLEN\n.CPROP\nZDIPLEN"),
+    ]
+)
+def test_qr(operators, expected):
+    inp = dalinp.dalinp(*operators)
+    assert expected in inp
 
 
 def test_wf():

@@ -137,8 +137,11 @@ class RoothanIterator(SCFIterator):
         (self.Fa, self.Fb), = fockab((self.Da, self.Db), filename=AOTWOINT)
 
     def energy(self):
-        e1 = self.h1 & (self.Da + self.Db)
-        e2 = 0.5*((self.Da & self.Fa) + (self.Db & self.Fb))
+        e1 = numpy.einsum('ij,ij', self.h1, (self.Da + self.Db))
+        e2 = 0.5*(
+            numpy.einsum('ij,ij', self.Da, self.Fa) +
+            numpy.einsum('ij,ij', self.Db, self.Fb)
+        )
         return e1 + e2 + self.Z
 
     def gn(self):
@@ -164,7 +167,7 @@ class RoothanIterator(SCFIterator):
 
     def Feff(self):
 
-        F = self.h1 + (self.Fa + self.Fb)/2
+        F = self.h1 + 0.5*(self.Fa + self.Fb)
         S = self.S
 
         Da = self.Da

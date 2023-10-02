@@ -46,12 +46,12 @@ def E3(pB, pC, ifc, **kwargs):
 
 
     cmo = ifc.cmo.unblock()
-    kB = cmo*pB["kappa"]*cmo.T
-    kC = cmo*pC["kappa"]*cmo.T
-    kB_ = kB*S
-    _kB = S*kB
-    kC_ = kC*S
-    _kC = S*kC
+    kB = cmo@pB["kappa"]@cmo.T
+    kC = cmo@pC["kappa"]@cmo.T
+    kB_ = kB@S
+    _kB = S@kB
+    kC_ = kC@S
+    _kC = S@kC
 
     sB = pB.get("spin", 1)
     sC = pC.get("spin", 1)
@@ -63,65 +63,61 @@ def E3(pB, pC, ifc, **kwargs):
     (fa, fb), = two.fockab((da, db), **kwargs)
     fa += h
     fb += h
-    Bfa, Bfb = [_kB*f - f*kB_ for f in (fa, sB*fb)]
-    Cfa, Cfb = [_kC*f - f*kC_ for f in (fa, sC*fb)]
+    Bfa, Bfb = [_kB@f - f@kB_ for f in (fa, sB*fb)]
+    Cfa, Cfb = [_kC@f - f@kC_ for f in (fa, sC*fb)]
     
-    BCfa, BCfb = [_kB*Cf - Cf*kB_ for Cf in (Cfa, sB*Cfb)]
-    CBfa, CBfb = [_kC*Bf - Bf*kC_ for Bf in (Bfa, sC*Bfb)]
+    BCfa, BCfb = [_kB@Cf - Cf@kB_ for Cf in (Cfa, sB*Cfb)]
+    CBfa, CBfb = [_kC@Bf - Bf@kC_ for Bf in (Bfa, sC*Bfb)]
 
-    daB, dbB = [_kB.T*d - d*kB_.T  for d in (da, sB*db)]
+    daB, dbB = [_kB.T@d - d@kB_.T  for d in (da, sB*db)]
     (faB, fbB), = two.fockab((daB, dbB), **kwargs)
-    CfaB, CfbB = [_kC*fB - fB*kC_ for fB in (faB, sC*fbB)]
+    CfaB, CfbB = [_kC@fB - fB@kC_ for fB in (faB, sC*fbB)]
 
-    daC, dbC = [_kC.T*d - d*kC_.T  for d in (da, sC*db)]
+    daC, dbC = [_kC.T@d - d@kC_.T  for d in (da, sC*db)]
     (faC, fbC), = two.fockab((daC, dbC), **kwargs)
-    BfaC, BfbC = [_kB*fC - fC*kB_ for fC in (faC, sB*fbC)]
+    BfaC, BfbC = [_kB@fC - fC@kB_ for fC in (faC, sB*fbC)]
     
-    daBC, dbBC  = (_kB.T*dC - dC*kB_.T for dC in (daC, sB*dbC))
-    daCB, dbCB  = (_kC.T*dB - dB*kC_.T for dB in (daB, sC*dbB))
+    daBC, dbBC  = (_kB.T@dC - dC@kB_.T for dC in (daC, sB*dbC))
+    daCB, dbCB  = (_kC.T@dB - dB@kC_.T for dB in (daB, sC*dbB))
     daBC = 0.5*(daBC + daCB)
     dbBC = 0.5*(dbBC + dbCB)
     (faBC, fbBC), = two.fockab((daBC, dbBC), **kwargs)
 
- #
- # Add all focks
- #
+#
+# Add all focks
+#
     fa = faBC + BfaC + CfaB + .5*(BCfa + CBfa)
     fb = fbBC + BfbC + CfbB + .5*(BCfb + CBfb)
 
-    G = cmo.T*(S*(da*fa.T + db*fb.T) - (fa.T*da + fb.T*db)*S)*cmo
-    #G =  cmo.T*(S*da*fa.T - fa.T*da *S)*cmo + \
-    #      cmo.T*(S*db*fb.T - fb.T*db *S)*cmo 
-
-
+    G = cmo.T@(S@(da@fa.T + db@fb.T) - (fa.T@da + fb.T@db)@S)@cmo
     Gv = rspvec.tovec(G, ifc)
-    #print Gv
 
     return Gv
 
+
 def B2C(*args, **kwargs):
-   
+
     pB, pC, ifc = args
     tmpdir = kwargs.get("tmpdir", ".")
 
     AOONEINT = os.path.join(tmpdir, "AOONEINT")
-    S = one.read(label = "OVERLAP", filename = AOONEINT).unblock().unpack()
+    S = one.read(label="OVERLAP", filename=AOONEINT).unblock().unpack()
 
     cmo = ifc.cmo.unblock()
     mB = pB["matrix"]
     mC = pC["matrix"]
-    kB = cmo*pB["kappa"]*cmo.T
-    kC = cmo*pC["kappa"]*cmo.T
+    kB = cmo@pB["kappa"]@cmo.T
+    kC = cmo@pC["kappa"]@cmo.T
 
-
-    kBmC = S*kB*mC - mC*kB*S
-    kCmB = S*kC*mB - mB*kC*S
+    kBmC = S@kB@mC - mC@kB@S
+    kCmB = S@kC@mB - mB@kC@S
     BC = kBmC + kCmB
 
     da, db = dens.Dab(ifc_=ifc)
-    G = cmo.T*(S*(da*BC.T + db*BC.T) - (BC.T*da + BC.T*db)*S)*cmo
+    G = cmo.T@(S@(da@BC.T + db@BC.T) - (BC.T@da + BC.T@db)@S)@cmo
     Gv = rspvec.tovec(G, ifc)
     return Gv
+
 
 def A2B(*args, **kwargs):
    
@@ -133,12 +129,12 @@ def A2B(*args, **kwargs):
 
     cmo = ifc.cmo.unblock()
     mA = pA["matrix"]
-    kB = cmo*pB["kappa"]*cmo.T
+    kB = cmo@pB["kappa"]@cmo.T
 
-    BA = S*kB*mA - mA*kB*S
+    BA = S@kB@mA - mA@kB@S
 
     da, db = dens.Dab(ifc_=ifc)
-    G = cmo.T*(S*(da*BA.T + db*BA.T) - (BA.T*da + BA.T*db)*S)*cmo
+    G = cmo.T@(S@(da@BA.T + db@BA.T) - (BA.T@da + BA.T@db)@S)@cmo
     Gv = rspvec.tovec(G, ifc)
     return Gv
 
@@ -162,7 +158,7 @@ def main(*args, **kwargs):
     vecs = rspvec.read(*labs, propfile=RSPVEC)[0]
     kappa = [rspvec.tomat(vec, ifc).T for vec in vecs]
     kappa[0] = kappa[0].T
-    a, b, c = [cmo.T*x*cmo for x in prop.read(*labs, filename=AOPROPER)]
+    a, b, c = [cmo.T@x@cmo for x in prop.read(*labs, filename=AOPROPER)]
 
     NA = vecs[0]
     kA, kB, kC = kappa
@@ -172,7 +168,7 @@ def main(*args, **kwargs):
     d = da + db
     
     S = one.read(label = "OVERLAP", filename = AOONEINT).unblock().unpack()
-    D = cmo.T*S*d*S*cmo
+    D = cmo.T@S@d@S@cmo
 
     E3BC = E3(pB, pC, ifc, tmpdir=tmpdir)
     AE3BC = -NA&E3BC
@@ -208,12 +204,12 @@ def a2bc(A, B, C):
     cmo = ifc.cmo.unblock()
     dc,do = dens.ifc(ifc=ifc)
     d = dc+do
-    a = cmo.T*prop.read(A, AOPROPER).unpack()*cmo
+    a = cmo.T@prop.read(A, AOPROPER).unpack()@cmo
     kB = rspvec.tomat(NB, ifc, tmpdir = tmp).T
     kC = rspvec.tomat(NC, ifc, tmpdir = tmp).T
 
     S = one.read(label = "OVERLAP", filename = AOONEINT).unblock().unpack()
-    D = cmo.T*S*d*S*cmo
+    D = cmo.T@S@d@S@cmo
     A2B = (.5*(kC^(kB^a))&D)
     A2C = (.5*(kB^(kC^a))&D)
 
