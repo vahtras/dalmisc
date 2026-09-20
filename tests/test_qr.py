@@ -3,6 +3,10 @@ from daltools import rspvec, sirifc, dens, one, prop
 from dalmisc import qr
 
 import unittest
+import numpy as np
+
+def ddot(a, b):
+    return np.einsum('ij,ij', a, b)
 
 
 class TestQR(unittest.TestCase):
@@ -43,34 +47,34 @@ class TestQR(unittest.TestCase):
         ref = -1.53248530
         pB = {"kappa": self.kB}
         pC = {"kappa": self.kC}
-        this = -self.NA & qr.E3(pB, pC, self.ifc, tmpdir=self.suppdir)
+        this = -np.dot(self.NA, qr.E3(pB, pC, self.ifc, tmpdir=self.suppdir))
         self.assertAlmostEqual(this, ref)
 
     def test_b2c(self):
         ref = 7.13089781
-        this = -(self.kA ^ (self.kC ^ self.b)) & self.D
+        this = -ddot((self.kA ^ (self.kC ^ self.b)), self.D)
         self.assertAlmostEqual(this, ref)
 
     def test_c2b(self):
         ref = 6.00528627
-        this = -(self.kA ^ (self.kB ^ self.c)) & self.D
+        this = -ddot((self.kA ^ (self.kB ^ self.c)), self.D)
         self.assertAlmostEqual(this, ref)
 
     def test_alt_b2c(self):
         pB = {"kappa": self.kB, "matrix": pmat[1]}
         pC = {"kappa": self.kC, "matrix": pmat[2]}
         ref = 7.13089781 + 6.00528627
-        this = -self.NA & qr.B2C(pB, pC, self.ifc, tmpdir=self.suppdir)
+        this = -np.dot(self.NA, qr.B2C(pB, pC, self.ifc, tmpdir=self.suppdir))
         self.assertAlmostEqual(this, ref)
 
     def test_a2b(self):
         ref = 3.00264314
-        this = 0.5 * (self.kC ^ (self.kB ^ self.a)) & self.D
+        this = 0.5 * ddot((self.kC ^ (self.kB ^ self.a)), self.D)
         self.assertAlmostEqual(this, ref)
 
     def test_a2c(self):
         ref = 3.00264314
-        this = 0.5 * (self.kB ^ (self.kC ^ self.a)) & self.D
+        this = 0.5 * ddot((self.kB ^ (self.kC ^ self.a)), self.D)
         self.assertAlmostEqual(this, ref)
 
     def test_alt_a2b(self):
@@ -82,8 +86,8 @@ class TestQR(unittest.TestCase):
         ]
         ref = 3.00264314 * 2
         this = (
-            -(self.NB & qr.A2B(pA, pC, self.ifc, tmpdir=self.suppdir))
-            - (self.NC & qr.A2B(pA, pB, self.ifc, tmpdir=self.suppdir))
+            -np.dot(self.NB,  qr.A2B(pA, pC, self.ifc, tmpdir=self.suppdir))
+            -np.dot(self.NC,  qr.A2B(pA, pB, self.ifc, tmpdir=self.suppdir))
         ) / 2
         self.assertAlmostEqual(this, ref)
 

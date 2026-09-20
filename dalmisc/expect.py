@@ -2,6 +2,7 @@
 """Experimental module for expectation value"""
 import os
 import sys
+import numpy as np
 from daltools import dens, prop
 
 def value(*args, **kwargs):
@@ -11,7 +12,7 @@ def value(*args, **kwargs):
     sirifc = os.path.join(tmpdir, 'SIRIFC')
     A = prop.read(*args, filename=aoproper, unpack=True)
     dc, do = dens.ifc(filename=sirifc)
-    return tuple([a&(dc + do) for a in A])
+    return tuple([np.einsum('ij,ij', a,(dc + do)) for a in A])
 
 
 if __name__ == "__main__":

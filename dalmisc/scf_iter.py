@@ -14,6 +14,10 @@ from two.core import fockab
 from dalmisc import rohf
 
 
+def ddot(a, b):
+    return numpy.einsum('ij,ij', a, b)
+
+
 class SCFIterator():
     def __init__(self):
         self.energies = []
@@ -154,7 +158,7 @@ class RoothanIterator(SCFIterator):
         self.ga = ga = S@Da@Fa - Fa@Da@S
         self.gb = gb = S@Db@Fb - Fb@Db@S
 
-        gn = 2*((ga + gb) & (S.I@(ga + gb)@S.I))
+        gn = 2*ddot((ga + gb), (S.I@(ga + gb)@S.I))
 
         return math.sqrt(gn)
 
@@ -268,7 +272,7 @@ class DiisIterator(RoothanIterator):
         Bmat = numpy.ones((dim, dim))
         for i, vi in enumerate(self.evecs):
             for j, vj in enumerate(self.evecs):
-                Bmat[i, j] = 4*(vi & (self.S.I@vj@self.S.I))
+                Bmat[i, j] = 4*(ddot(vi, (self.S.I@vj@self.S.I)))
 
         Bmat[-1, -1] = 0
         return Bmat

@@ -11,6 +11,9 @@ import two
 from dalmisc import rohf
 from . import ref_rohf as ref
 
+def ddot(a, b):
+    return np.einsum('ij,ij', a, b)
+
 @fixture
 def suppdir():
     return pathlib.Path(__file__).with_suffix('.d')
@@ -159,8 +162,8 @@ class TestROHF:
         gnref = 2.75678
         gco = rohf.gradao(S, Dc, Do, Fc, Fo)
         gab = rohf.gradao(S, Da, Db, Fa, Fb)
-        g2co = gco & (S.I@gco@S.I) * .5
-        g2ab = gab & (S.I@gab@S.I) * .5
+        g2co = ddot(gco , (S.I@gco@S.I)) * .5
+        g2ab = ddot(gab , (S.I@gab@S.I)) * .5
         assert math.sqrt(g2co) == approx(gnref)
         assert math.sqrt(g2ab) == approx(gnref)
 

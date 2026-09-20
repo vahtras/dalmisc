@@ -3,7 +3,7 @@ from util.full import matrix, unit, init
 from dalmisc import oli
 from .common_tests import assert_
 
-def setup():
+def setup_module():
     global suppdir
     n, e = os.path.splitext(__file__)
     suppdir = n + ".d"
@@ -20,7 +20,3 @@ def test_s2n_S():
     refs2 = matrix.diag([1, -1])
     s2 = init([oli.s2n(n, tmpdir=suppdir) for n in unit(2)])
     assert_(s2, refs2)
-
-if __name__ == "__main__":
-    setup()
-
