@@ -1,0 +1,17 @@
+[project]
+name = "dalmisc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "blocked-matrix-utils>=1.1.1",
+    "daltools>=1.1.8",
+    "two-electron>=2.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-regex>=0.2.0",
+]
